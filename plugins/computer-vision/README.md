@@ -83,6 +83,10 @@ claude --plugin-dir .
 1. `cv_find(query="Submit button", hwnd=<HWND>)` — find element by natural language
 2. Click the returned bbox center coordinates with `cv_mouse_click`
 
+**Drag and drop (works with WebView, UWP, Electron, WPF apps):**
+1. `cv_mouse_click(x=<END_X>, y=<END_Y>, start_x=<START_X>, start_y=<START_Y>, hwnd=<HWND>)` — drag from start to end
+2. Optionally tune speed with `drag_duration_ms` (default 300ms)
+
 **Read text from any app:**
 1. `cv_get_text(hwnd=<HWND>)` — extract all text (UIA for native apps, OCR fallback)
 2. Or `cv_ocr(hwnd=<HWND>)` — extract text with bounding boxes and word positions

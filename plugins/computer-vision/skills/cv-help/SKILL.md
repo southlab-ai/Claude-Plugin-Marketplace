@@ -42,5 +42,9 @@ Show available Computer Vision tools and usage examples.
 2. Identify the button coordinates from the screenshot
 3. `cv_mouse_click` at those coordinates
 
+**Drag and drop (works with WebView, UWP, Electron, WPF apps):**
+1. `cv_mouse_click(x=<END_X>, y=<END_Y>, start_x=<START_X>, start_y=<START_Y>, hwnd=<HWND>)` — drag from start to end
+2. Optionally tune speed with `drag_duration_ms` (default 300ms)
+
 **OCR with bounding boxes:**
 1. `cv_ocr(hwnd=<HWND>)` — extract text with word-level bounding boxes and confidence scores

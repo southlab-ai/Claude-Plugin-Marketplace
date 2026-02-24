@@ -8,7 +8,7 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 |--------|-------------|---------|----------|
 | **upwork-scraper** | Scrape Upwork jobs, analyze market demand, write proposals, optimize rates, and build portfolios. 5 slash commands + 5 AI agents. | 0.2.0 | Freelance |
 | **the-council** | Adversarial consultation with persistent memory. 4 auto-routed modes, configurable roles, `/council:build` pipeline, anti-deferral system, intelligent memory retrieval. | 3.1.0 | Productivity |
-| **computer-vision** | Desktop computer vision and input control for Windows. 17 tools: screenshots, click, type, scroll, OCR, element finder (`cv_find`), text extraction (`cv_get_text`), UI trees. Like Claude-in-Chrome, but for any app. | 1.6.0 | Utilities |
+| **computer-vision** | Desktop computer vision and input control for Windows. 17 tools: screenshots, click, type, scroll, OCR, element finder (`cv_find`), text extraction (`cv_get_text`), UI trees. Like Claude-in-Chrome, but for any app. | 1.7.0 | Utilities |
 
 ## Installation
 

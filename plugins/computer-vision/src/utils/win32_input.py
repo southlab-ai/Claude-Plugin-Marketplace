@@ -5,6 +5,7 @@ from __future__ import annotations
 import ctypes
 import ctypes.wintypes
 import logging
+import time
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -185,48 +186,72 @@ def send_mouse_click(x: int, y: int, button: str = "left", click_type: str = "si
 
 
 def send_mouse_drag(
-    start_x: int, start_y: int, end_x: int, end_y: int, button: str = "left"
+    start_x: int, start_y: int, end_x: int, end_y: int,
+    button: str = "left", drag_duration_ms: int = 300,
 ) -> bool:
     """Send a mouse drag from start to end coordinates (0-65535 range).
 
-    Returns True if SendInput succeeded.
+    Events are sent as separate SendInput calls with time delays between
+    phases, and intermediate move events are interpolated along the drag
+    path.  This ensures apps with async input pipelines (WebView, UWP,
+    Electron, WPF) have time to recognise the gesture as a drag rather
+    than an instantaneous click.
+
+    Args:
+        start_x: Normalized start X (0-65535).
+        start_y: Normalized start Y (0-65535).
+        end_x: Normalized end X (0-65535).
+        end_y: Normalized end Y (0-65535).
+        button: "left", "right", or "middle".
+        drag_duration_ms: Total duration of the drag motion in ms (default 300).
+
+    Returns:
+        True if all SendInput calls succeeded.
     """
     button_down, button_up = _get_button_flags(button)
     base_flags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK
+    total_sent = 0
+    total_expected = 0
 
-    inputs: list[INPUT] = []
+    def _send_one(dx: int, dy: int, flags: int) -> bool:
+        nonlocal total_sent, total_expected
+        total_expected += 1
+        inp = INPUT(type=INPUT_MOUSE)
+        inp.union.mi.dx = dx
+        inp.union.mi.dy = dy
+        inp.union.mi.dwFlags = flags
+        total_sent += _send_inputs([inp])
+        return total_sent == total_expected
 
-    # Move to start position
-    inp_move = INPUT(type=INPUT_MOUSE)
-    inp_move.union.mi.dx = start_x
-    inp_move.union.mi.dy = start_y
-    inp_move.union.mi.dwFlags = base_flags | MOUSEEVENTF_MOVE
-    inputs.append(inp_move)
+    # Phase 1: Move cursor to start position
+    _send_one(start_x, start_y, base_flags | MOUSEEVENTF_MOVE)
+    time.sleep(0.02)  # 20 ms — let cursor settle
 
-    # Button down at start
-    inp_down = INPUT(type=INPUT_MOUSE)
-    inp_down.union.mi.dx = start_x
-    inp_down.union.mi.dy = start_y
-    inp_down.union.mi.dwFlags = base_flags | MOUSEEVENTF_MOVE | button_down
-    inputs.append(inp_down)
+    # Phase 2: Button down at start
+    _send_one(start_x, start_y, base_flags | MOUSEEVENTF_MOVE | button_down)
+    time.sleep(0.05)  # 50 ms — let app register press / begin drag detection
 
-    # Move to end position
-    inp_drag = INPUT(type=INPUT_MOUSE)
-    inp_drag.union.mi.dx = end_x
-    inp_drag.union.mi.dy = end_y
-    inp_drag.union.mi.dwFlags = base_flags | MOUSEEVENTF_MOVE
-    inputs.append(inp_drag)
+    # Phase 3: Intermediate move events along the drag path
+    steps = max(10, drag_duration_ms // 20)  # at least 10 steps
+    step_delay = (drag_duration_ms / 1000.0) / steps
+    for i in range(1, steps + 1):
+        t = i / steps
+        ix = int(start_x + (end_x - start_x) * t)
+        iy = int(start_y + (end_y - start_y) * t)
+        _send_one(ix, iy, base_flags | MOUSEEVENTF_MOVE)
+        time.sleep(step_delay)
 
-    # Button up at end
-    inp_up = INPUT(type=INPUT_MOUSE)
-    inp_up.union.mi.dx = end_x
-    inp_up.union.mi.dy = end_y
-    inp_up.union.mi.dwFlags = base_flags | MOUSEEVENTF_MOVE | button_up
-    inputs.append(inp_up)
+    # Phase 4: Small settle at destination
+    time.sleep(0.02)  # 20 ms
 
-    sent = _send_inputs(inputs)
-    logger.debug("send_mouse_drag: sent %d/%d events", sent, len(inputs))
-    return sent == len(inputs)
+    # Phase 5: Button up at end
+    _send_one(end_x, end_y, base_flags | MOUSEEVENTF_MOVE | button_up)
+
+    logger.debug(
+        "send_mouse_drag: sent %d/%d events over %dms (%d steps)",
+        total_sent, total_expected, drag_duration_ms, steps,
+    )
+    return total_sent == total_expected
 
 
 def type_unicode_string(text: str) -> bool:

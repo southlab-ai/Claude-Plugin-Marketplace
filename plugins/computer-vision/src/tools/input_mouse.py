@@ -32,6 +32,7 @@ def cv_mouse_click(
     coordinate_space: str = "screen_absolute",
     start_x: int | None = None,
     start_y: int | None = None,
+    drag_duration_ms: int = 300,
     screenshot: bool = True,
     screenshot_delay_ms: int = 150,
 ) -> dict:
@@ -46,6 +47,7 @@ def cv_mouse_click(
         coordinate_space: "screen_absolute" or "window_relative" (requires hwnd).
         start_x: If provided along with start_y, performs a drag from (start_x, start_y) to (x, y).
         start_y: If provided along with start_x, performs a drag from (start_x, start_y) to (x, y).
+        drag_duration_ms: Duration of the drag motion in milliseconds (default 300). Only used for drags.
         screenshot: Whether to capture a screenshot after the action (default True, requires hwnd).
         screenshot_delay_ms: Delay in milliseconds before capturing the post-action screenshot (default 150).
     """
@@ -104,7 +106,7 @@ def cv_mouse_click(
 
             norm_sx, norm_sy = normalize_for_sendinput(start_x, start_y)
             norm_ex, norm_ey = normalize_for_sendinput(x, y)
-            ok = send_mouse_drag(norm_sx, norm_sy, norm_ex, norm_ey, button)
+            ok = send_mouse_drag(norm_sx, norm_sy, norm_ex, norm_ey, button, drag_duration_ms)
             log_action("cv_mouse_click", params, "ok" if ok else "fail")
             if not ok:
                 return make_error(INPUT_FAILED, "SendInput failed for mouse drag.")
