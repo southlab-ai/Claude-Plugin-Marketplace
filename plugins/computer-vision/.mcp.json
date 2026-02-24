@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "computer-vision": {
+      "command": "uv",
+      "args": ["run", "--directory", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "src"],
+      "cwd": "${CLAUDE_PLUGIN_ROOT}"
+    }
+  }
+}

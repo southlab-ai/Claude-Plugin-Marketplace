@@ -1,0 +1,30 @@
+[project]
+name = "upwork-job-scraper"
+version = "0.2.0"
+description = "Claude Code plugin to scrape Upwork jobs, analyze market demand, and suggest portfolio projects"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.26.0",
+    "camoufox[geoip]>=0.4.11",
+    "playwright>=1.58.0",
+    "httpx>=0.28.1",
+    "aiosqlite>=0.22.1",
+    "aiohttp>=3.13.3",
+    "beautifulsoup4>=4.14.3",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

@@ -1,0 +1,20 @@
+{
+  "name": "computer-vision",
+  "version": "1.6.0",
+  "description": "Desktop computer vision and input control for Claude Code on Windows. 16 tools: screenshots, click, type, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees. Like Claude-in-Chrome, but for any Windows app.",
+  "author": {
+    "name": "Southlab AI"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": [
+    "computer-vision",
+    "windows",
+    "desktop",
+    "automation",
+    "mcp",
+    "screenshot",
+    "ocr",
+    "accessibility"
+  ]
+}

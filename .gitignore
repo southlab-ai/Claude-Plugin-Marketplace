@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Runtime data
+data/
+*.db
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Lock files (each plugin manages its own)
+# uv.lock is kept per-plugin for reproducibility
+
+# Claude local settings
+.claude/
+
+# Council session data (runtime, not plugin code)
+.council/
+
+# Plugin-level marketplace files (monorepo uses root marketplace.json)
+plugins/*/.claude-plugin/marketplace.json

@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+/build/
+
+# Virtual environment
+.venv/
+
+# pytest
+.pytest_cache/
+
+# Council build artifacts (keep for reference)
+# .council/build/
+
+# Council memory
+# .council/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Audit logs
+*.jsonl
+!tests/**/*.jsonl
+
+# comtypes generated
+comtypes/gen/

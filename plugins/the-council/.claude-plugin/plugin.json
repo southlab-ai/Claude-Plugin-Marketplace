@@ -1,0 +1,11 @@
+{
+  "name": "the-council",
+  "version": "3.1.0-beta",
+  "description": "Adversarial consultation with persistent memory for Claude Code agent teams. Includes /council:build pipeline.",
+  "author": {
+    "name": "Southlab AI"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": ["council", "consultation", "adversarial", "strategist", "critic", "multi-agent"]
+}

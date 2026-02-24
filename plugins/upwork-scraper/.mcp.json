@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "upwork-scraper": {
+      "command": "uv",
+      "args": ["run", "--directory", "${CLAUDE_PLUGIN_ROOT}", "python", "-m", "src.server"],
+      "cwd": "${CLAUDE_PLUGIN_ROOT}",
+      "env": {
+        "DATA_DIR": "${CLAUDE_PLUGIN_ROOT}/data"
+      }
+    }
+  }
+}

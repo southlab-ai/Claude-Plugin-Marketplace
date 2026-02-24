@@ -1,0 +1,53 @@
+{
+  "name": "southlab-marketplace",
+  "owner": {
+    "name": "Southlab AI",
+    "email": "cardenas.je@southlab.ai"
+  },
+  "metadata": {
+    "description": "Claude Code plugins by Southlab AI — productivity tools, freelance automation, desktop vision, and multi-agent systems",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "upwork-scraper",
+      "source": "./plugins/upwork-scraper",
+      "description": "Scrape Upwork jobs, analyze market demand, write proposals, evaluate postings, optimize rates, review profiles, and design portfolio projects. Includes 5 slash commands and 5 specialized AI agents.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "MIT",
+      "keywords": ["upwork", "jobs", "scraper", "freelance", "portfolio", "proposals", "market-analysis", "rates", "agents", "mcp"],
+      "category": "freelance",
+      "tags": ["freelance", "automation", "scraping", "market-analysis"]
+    },
+    {
+      "name": "the-council",
+      "source": "./plugins/the-council",
+      "description": "Adversarial consultation with persistent memory for Claude Code agent teams. 4 auto-routed modes, configurable roles, /council:build pipeline (PRD + tech deck + backlog + feature gate + implementation), anti-deferral system, and intelligent memory retrieval with synonym expansion, staleness markers, and MEMORY LENS directives.",
+      "version": "3.1.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "MIT",
+      "keywords": ["council", "consultation", "adversarial", "multi-agent", "strategist", "critic", "architecture", "agent-teams", "memory", "build-pipeline", "prd", "backlog"],
+      "category": "productivity",
+      "tags": ["multi-agent", "planning", "architecture", "code-review"]
+    },
+    {
+      "name": "computer-vision",
+      "source": "./plugins/computer-vision",
+      "description": "Desktop computer vision and input control for Claude Code on Windows. 17 tools: screenshots, click, type, scroll, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees. Atomic keyboard with hwnd for focus-safe typing, post-action screenshots on all mutating tools, vision-enhanced element finding, window state metadata. Like Claude-in-Chrome, but for any Windows app.",
+      "version": "1.6.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "MIT",
+      "keywords": ["computer-vision", "windows", "desktop", "automation", "mcp", "screenshot", "ocr", "accessibility", "ui-automation"],
+      "category": "utilities",
+      "tags": ["desktop", "windows", "vision", "automation", "ocr"]
+    }
+  ]
+}

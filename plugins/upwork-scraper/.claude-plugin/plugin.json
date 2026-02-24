@@ -1,0 +1,11 @@
+{
+  "name": "upwork-scraper",
+  "description": "Scrape Upwork jobs, analyze market demand, write proposals, evaluate postings, optimize rates, review profiles, and design portfolio projects. Includes 5 slash commands and 5 specialized AI agents.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Southlab AI"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": ["upwork", "jobs", "scraper", "freelance", "portfolio", "proposals", "market-analysis", "rates", "agents", "mcp"]
+}
