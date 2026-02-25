@@ -7,7 +7,7 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 | Plugin | Description | Version | Category |
 |--------|-------------|---------|----------|
 | **upwork-scraper** | Scrape Upwork jobs, analyze market demand, write proposals, optimize rates, and build portfolios. 5 slash commands + 5 AI agents. | 0.2.0 | Freelance |
-| **the-council** | Adversarial consultation with persistent memory. 4 auto-routed modes, configurable roles, `/council:build` pipeline, anti-deferral system, intelligent memory retrieval. | 3.1.0 | Productivity |
+| **the-council** | Catch blind spots in architecture decisions with multi-perspective analysis. 4 auto-routed modes, configurable roles, `/council:build` pipeline, `/council:value` analysis, memory attribution, progressive hints. | 3.2.0 | Productivity |
 | **computer-vision** | Desktop computer vision and input control for Windows. 17 tools: screenshots, click, type, scroll, OCR, element finder (`cv_find`), text extraction (`cv_get_text`), UI trees. Like Claude-in-Chrome, but for any app. | 1.7.0 | Utilities |
 
 ## Installation
@@ -54,15 +54,16 @@ Each plugin has a setup command:
 | `/upwork-scraper:analyze <skill>` | Analyze market demand |
 | `/upwork-scraper:portfolio <skills>` | Get portfolio project ideas |
 
-### The Council (v3.1.0)
+### The Council (v3.2.0)
 
 | Command | Description |
 |---------|-------------|
-| `/council:setup` | Install dependencies |
+| `/council:setup` | Install dependencies (auto-offers init) |
 | `/council:init` | Initialize `.council/` in your project |
-| `/council:consult <goal>` | Adversarial consultation (auto-routed: default, debate, plan, reflect) |
+| `/council:consult <goal>` | Multi-perspective consultation (auto-routed: default, debate, plan, reflect) |
+| `/council:value <goal>` | Value-realization analysis: scores 4 dimensions (clarity, timeline, perception, discovery) |
 | `/council:build <goal>` | Full build pipeline: PRD + tech deck + backlog + feature gate + implementation |
-| `/council:status` | View decisions, memory health, compaction recommendations |
+| `/council:status` | View decisions, memory health, staleness warnings, compaction recommendations |
 | `/council:maintain` | Compact memory using the curator agent |
 | `/council:update` | Migrate council data after a plugin update |
 | `/council:reset` | Clear session data (add `--all` to also clear memory) |

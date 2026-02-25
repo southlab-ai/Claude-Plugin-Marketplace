@@ -85,7 +85,7 @@ async def council_memory_init(project_dir: str) -> str:
     return (
         f"Council initialized at {council}.\n"
         "Created: .council/memory/ (index.json, decisions.md, lessons.jsonl, role logs)\n"
-        "Run /council:consult to start your first consultation."
+        "Run `/council:consult <your question>` to catch blind spots in your next architecture decision."
     )
 
 
@@ -183,12 +183,18 @@ async def council_memory_status(project_dir: str) -> str:
     parts.append("## Memory Health\n")
     for role, info in health.get("roles", {}).items():
         status = "COMPACT RECOMMENDED" if info["needs_compaction"] else "OK"
+        stale_note = f", {info['stale_entries']} stale" if info.get("stale_entries", 0) > 0 else ""
         parts.append(
             f"- **{role}**: {info['active_entries']} entries, ~{info['active_tokens']} tokens, "
-            f"log={info['log_lines']} lines — {status}"
+            f"log={info['log_lines']} lines{stale_note} — {status}"
         )
 
-    if health.get("needs_compaction"):
+    total_stale = health.get("total_stale", 0)
+    total_entries = health.get("total_entries", 0)
+    if total_stale > 0:
+        parts.append(f"\n**Staleness warning**: {total_stale}/{total_entries} entries are >90 days old (scoring 0.7x in relevance). "
+                     "Run `/council:maintain` to review and validate or prune stale entries.")
+    elif health.get("needs_compaction"):
         parts.append("\nRun `/council:maintain` to compact memory.")
     else:
         parts.append("\nMemory is healthy.")

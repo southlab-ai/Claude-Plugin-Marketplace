@@ -498,6 +498,25 @@ def build_memory_response(
                     sections.append("\n".join(excerpt_parts))
                     sections.append("")
 
+    # --- Attribution footer ---
+    pinned_count = len(pinned)
+    # Count entries that actually appear in the output
+    joined = "\n".join(sections)
+    active_loaded = joined.count("\n- M-")
+    archive_excerpts = 0
+    for s in sections:
+        if "Archived Lessons" in s:
+            archive_excerpts = s.count("- [")
+    attribution_parts = []
+    if pinned_count:
+        attribution_parts.append(f"{pinned_count} pinned")
+    if active_loaded:
+        attribution_parts.append(f"{active_loaded} active entries loaded")
+    if archive_excerpts:
+        attribution_parts.append(f"{archive_excerpts} archive lessons surfaced")
+    if attribution_parts:
+        sections.append(f"### Memory Context\n- {', '.join(attribution_parts)} (budget: {used_tokens}/{max_tokens} tokens used)")
+
     return "\n".join(sections).strip()
 
 
@@ -668,6 +687,10 @@ def get_memory_health(project_dir: str) -> dict:
         "needs_compaction": False,
     }
 
+    now = datetime.now(timezone.utc)
+    total_stale = 0
+    total_entries = 0
+
     for role in ["strategist", "critic", "hub"]:
         active = load_active(project_dir, role)
         entries = active.get("entries", [])
@@ -679,6 +702,22 @@ def get_memory_health(project_dir: str) -> dict:
         if log_path.exists():
             log_lines = len(log_path.read_text(encoding="utf-8").strip().split("\n"))
 
+        # Staleness tracking
+        stale_count = 0
+        for e in entries:
+            if e.get("pinned"):
+                continue
+            last_val = e.get("last_validated") or e.get("created", "")
+            try:
+                val_dt = datetime.fromisoformat(last_val)
+                if (now - val_dt).days > 90:
+                    stale_count += 1
+            except (ValueError, TypeError):
+                pass
+
+        total_stale += stale_count
+        total_entries += entry_count
+
         needs = total_tokens > 6000 or entry_count > 20
         if needs:
             health["needs_compaction"] = True
@@ -687,7 +726,11 @@ def get_memory_health(project_dir: str) -> dict:
             "active_entries": entry_count,
             "active_tokens": total_tokens,
             "log_lines": log_lines,
+            "stale_entries": stale_count,
             "needs_compaction": needs,
         }
+
+    health["total_stale"] = total_stale
+    health["total_entries"] = total_entries
 
     return health

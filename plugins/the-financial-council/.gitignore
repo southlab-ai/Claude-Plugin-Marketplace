@@ -1,0 +1,16 @@
+# Data (SQLite, cache, collected data)
+data/
+
+# Environment / secrets
+.env
+*.key
+credentials.*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Council memory (optional: uncomment to exclude)
+# .council/

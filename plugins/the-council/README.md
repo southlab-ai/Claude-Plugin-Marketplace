@@ -1,13 +1,16 @@
-# The Council v3.1.0-beta - Claude Code Plugin
+# The Council v3.2.0 - Claude Code Plugin
 
-Adversarial consultation with **persistent memory** for Claude Code agent teams. Spawn configurable teammates (default: 2 strategists + 1 quality engineer, or custom roles), auto-route between 4 consultation modes, and build project memory that makes consultation #50 smarter than #1.
+Catch blind spots in architecture decisions with multi-perspective analysis that learns from your project history. Spawn configurable teammates that challenge your thinking from different angles, auto-route between 4 consultation modes, and build project memory that makes consultation #50 smarter than #1.
+
+**v3.2.0**: Value-realization analysis via new `value-analyst` adversarial role and `/council:value` skill. Build pipeline Phase 1 now includes value assessment.
 
 **v3.1.0-beta**: Anti-deferral system ensures 100% of requested features are implemented. Feature completeness gate check. Claude Velocity context across all agents.
 
 ## Features
 
 - **4 Consultation Modes** — Auto-routed: default, debate (with rebuttals), plan (actionable steps), reflect (decision review)
-- **Configurable Roles** — Use default 3-member council or specify custom roles (architect, security-auditor, ux-reviewer, planner, or your own)
+- **Value Realization** — Dedicated `/council:value` skill and `value-analyst` adversarial role for end-user value assessment (clarity, timeline, perception, discovery)
+- **Configurable Roles** — Use default 3-member council or specify custom roles (architect, security-auditor, ux-reviewer, planner, value-analyst, or your own)
 - **Native Agent Teams** — Teammates run as native Claude Code agents (no subprocess hacks)
 - **Three-Tier Memory** — Index (always loaded) + Active (budget-aware) + Archive (auto-surfaced)
 - **Dynamic Topics** — Keywords grow organically from consultations; new topics emerge automatically
@@ -63,13 +66,14 @@ Creates `.council/memory/` with the three-tier memory structure.
 
 ## Usage
 
-8 slash commands:
+9 slash commands:
 
 | Command | Description |
 |---------|-------------|
 | `/council:setup` | Install dependencies, verify MCP server |
 | `/council:init` | Initialize `.council/` in the current project |
 | `/council:consult <goal>` | Adversarial consultation (auto-routed mode, optional custom roles) |
+| `/council:value <goal>` | Value-realization analysis: scores 4 dimensions (clarity, timeline, perception, discovery) |
 | `/council:build <goal>` | Full build pipeline: 3 consultations (PRD, tech deck, backlog) + feature gate + implementation |
 | `/council:status` | View decisions, memory health, compaction recommendations |
 | `/council:maintain` | Compact memory using the curator agent |
@@ -162,6 +166,7 @@ By default, `/council:consult` spawns 3 teammates: strategist-alpha (ambitious),
 | `security-auditor` | Threat modeling, vulnerabilities, compliance (adversarial) |
 | `ux-reviewer` | User experience, accessibility, interaction patterns |
 | `planner` | Workstreams, dependencies, sequencing, integration checkpoints |
+| `value-analyst` | End-user value realization: clarity, timeline, perception, discovery (adversarial) |
 
 You can also use any custom name (e.g., `data-engineer`, `devops-lead`). Custom names get a generic specialist prompt based on the role name.
 
@@ -177,7 +182,7 @@ You can also use any custom name (e.g., `data-engineer`, `devops-lead`). Custom 
 
 | Phase | Roles | Output |
 |-------|-------|--------|
-| 1. PRD | strategist-alpha, strategist-beta, critic | `.council/build/prd.md` |
+| 1. PRD | strategist-alpha, strategist-beta, critic, value-analyst | `.council/build/prd.md` |
 | 2. Tech Deck | architect, strategist-alpha, security-auditor | `.council/build/tech-deck.md` |
 | 3. Backlog | planner, strategist-beta, critic | `.council/build/backlog.md` |
 | 3.5 Feature Gate | team-lead | Verifies 100% feature coverage |
@@ -208,7 +213,7 @@ The team-lead:
 User: /council:build "goal"
         |
         v
-    Phase 1: PRD Consultation (3 agents)
+    Phase 1: PRD Consultation (4 agents)
     → writes .council/build/prd.md → records to memory
         |
         v
@@ -229,7 +234,7 @@ User: /council:build "goal"
     → records to memory (pinned)
 ```
 
-> **Warning**: This is token-intensive (~50,000-150,000+ tokens). The skill confirms with the user before starting. Recommended for greenfield features or major redesigns.
+> **Warning**: This is token-intensive (~50,000-150,000+ tokens, 10+ agent spawns). The skill confirms with the user before starting. Recommended for greenfield features or major redesigns.
 
 ## How It Works
 
@@ -353,8 +358,15 @@ the-council-plugin/
 │   ├── security-auditor.md    # Teammate: adversarial security analysis
 │   ├── ux-reviewer.md         # Teammate: UX and accessibility analysis
 │   ├── planner.md             # Teammate: execution planning
+│   ├── value-analyst.md       # Teammate: value realization analysis (adversarial)
 │   └── curator.md             # Subagent: memory compaction
+├── references/
+│   └── value-realization/     # Done-0 framework (MIT License)
+│       ├── real-cases.md      # Case studies with metrics
+│       ├── scoring-rubric.md  # Red/yellow/green criteria
+│       └── LICENSE            # MIT — Done-0 copyright
 ├── skills/
+│   ├── council-value/         # VALUE REALIZATION ANALYSIS
 │   ├── council-build/         # BUILD PIPELINE (3 consultations + parallel implementation)
 │   ├── council-consult/       # THE ORCHESTRATOR
 │   ├── council-init/

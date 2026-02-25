@@ -1,7 +1,7 @@
 {
   "name": "the-council",
-  "version": "3.1.0-beta",
-  "description": "Adversarial consultation with persistent memory for Claude Code agent teams. Includes /council:build pipeline.",
+  "version": "3.2.0",
+  "description": "Catch blind spots in architecture decisions with multi-perspective analysis that learns from your project history.",
   "author": {
     "name": "Southlab AI"
   },

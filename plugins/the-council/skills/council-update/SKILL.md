@@ -70,9 +70,28 @@ This is an in-place update within the same version. The schema bumped from v1→
    - **Archive improvements**: Archive excerpts now select top-12 by relevance (was last-5 by recency), with a 200-lesson scan cap and 600-token budget cap to prevent blowout.
    - **MEMORY LENS directives**: Each teammate in `/council:consult` now receives a role-specific lens directive before the memory block, guiding them to weight entries relevant to their perspective.
 
-### From v3.1.0-beta to v3.1.0-beta (already current, post-memory-improvements)
+### From v3.1.0-beta to v3.2.0
 
-Report: "Already on the latest v3.1.0-beta. No migration needed." and stop.
+1. **No schema changes**: All existing memory data is fully compatible. No migration of `.council/memory/` files needed.
+
+2. **Update plugin_version**: Set `"plugin_version": "3.2.0"` in `index.json` and save.
+
+3. **Report what's new in v3.2.0**:
+   - **Value-analyst role**: New adversarial agent (`agents/value-analyst.md`) that evaluates end-user value realization across 4 dimensions: Value Clarity, Value Timeline, Value Perception, Value Discovery. Available as curated role via `ROLES: value-analyst`.
+   - **`/council:value` skill**: Standalone value-realization analysis. Spawns value-analyst + critic, loads reference case studies, produces a structured Value Realization Report with per-dimension scores.
+   - **Build pipeline Phase 1 update**: `/council:build` now spawns 4 members in Phase 1 PRD consultation (added value-analyst). PRD output includes a Value Realization section. Cost: 10+ agent spawns (was 9).
+   - **Scope boundaries**: `critic.md` and `value-analyst.md` have explicit domain separation to prevent overlap. Critic focuses on internal quality; value-analyst focuses on end-user value perception.
+   - **Reference materials**: `references/value-realization/` directory contains case studies, scoring rubric, and MIT license from Done-0's value-realization framework.
+   - **Memory LENS**: Value-analyst has a dedicated memory lens: weights entries about onboarding friction, value communication gaps, adoption blockers.
+   - **Memory attribution**: `council_memory_load` now appends a "Memory Context" footer showing entries loaded, archive lessons surfaced, and token budget usage. Team-lead cites memory entry IDs when past decisions influence synthesis.
+   - **Progressive feature hints**: `/council:consult` now shows contextual tips based on consultation count (1st: memory persistence, 3rd: custom roles, 5th: reflect mode, 10th+: maintenance).
+   - **Staleness reporting**: `/council:status` now shows per-role stale entry counts and a staleness warning with actionable guidance.
+   - **Streamlined onboarding**: `/council:setup` now offers to auto-initialize the council in the current project, saving one step.
+   - **Outcome-first messaging**: Plugin descriptions rewritten from mechanism ("adversarial consultation") to outcome ("catch blind spots in architecture decisions").
+
+### From v3.2.0 to v3.2.0 (already current)
+
+Report: "Already on the latest v3.2.0. No migration needed." and stop.
 
 ### Future migrations (template)
 

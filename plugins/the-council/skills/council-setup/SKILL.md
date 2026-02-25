@@ -21,7 +21,15 @@ Run: `uv run --directory "${CLAUDE_PLUGIN_ROOT}" python -c "from src.server impo
 Check if agent teams are enabled: look for `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` in the environment or VS Code settings. If not set, tell the user:
 - "Agent teams are required. Add `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` to your environment variables or VS Code settings."
 
-## Step 5: Done
+## Step 5: Auto-initialize (if in a project)
+
+Check if the current working directory looks like a project (has a `.git/` directory, `package.json`, `pyproject.toml`, `Cargo.toml`, or similar). If yes, AND `.council/` does not already exist:
+- Ask: "Initialize the council in this project now? (y/n)"
+- If yes: call `council_memory_init` with the current project directory.
+- If no: tell them they can run `/council:init` later in any project.
+
+## Step 6: Done
 Tell the user:
-- "Council plugin installed. Restart Claude Code to connect the MCP server."
-- "Then run `/council:init` in any project to set up consultation."
+- "Setup complete. Restart Claude Code to connect the MCP server."
+- "Then run `/council:consult <question>` to catch blind spots in your next decision."
+- If auto-init was done: "Council already initialized here — you can consult right after restart."

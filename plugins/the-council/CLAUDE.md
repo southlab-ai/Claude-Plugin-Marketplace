@@ -36,10 +36,10 @@ Before spawning teammates, analyze the goal and select a mode automatically:
 
 Users can append `ROLES: role1, role2, ...` to the goal. When present:
 - Extract and remove the ROLES clause from the goal before processing
-- Spawn one teammate per role (max 5). Roles with "critic" or "auditor" use adversarial prompts, others use strategist prompts
+- Spawn one teammate per role (max 5). Roles with "critic" or "auditor", or exactly "value-analyst", use adversarial prompts; others use strategist prompts
 - If no adversarial role is listed, auto-add "critic"
 - When no ROLES clause: default 3-member council (strategist-alpha, strategist-beta, critic)
-- Available curated roles: `architect`, `security-auditor`, `ux-reviewer`, `planner`
+- Available curated roles: `architect`, `security-auditor`, `ux-reviewer`, `planner`, `value-analyst`
 
 ### Memory Injection
 
@@ -48,6 +48,7 @@ Each teammate receives a **MEMORY LENS** directive before their injected memory 
 - **Strategist Beta**: weight risks of over-engineering, simpler alternatives, past failures from complexity
 - **Critic**: weight risks, past failures, quality issues, unresolved warnings; validate `[stale: Xd]` entries before others cite them
 - **Custom roles**: weight entries most relevant to their specialist domain
+- **Value-analyst**: weight entries about user onboarding friction, value communication gaps, time-to-first-value, user churn signals, adoption blockers, and perception mismatches between what the product delivers and what users expect
 - **Reflect mode**: review all entries for gaps, contradictions, and follow-up topics
 
 The MEMORY LENS is injected by the `council-consult` skill — team-lead does not need to add it manually.
@@ -59,6 +60,7 @@ The MEMORY LENS is injected by the `council-consult` skill — team-lead does no
 3. **One round only** for team-lead synthesis. Debate mode allows 1 rebuttal round among teammates.
 4. Record results via `council_memory_record` (non-adversarial summaries -> `strategist_summary`, adversarial summaries -> `critic_summary`)
 5. **Never synthesize a result that removes or defers a feature the user requested.** All requested features are mandatory.
+6. **Memory attribution**: When a past decision or lesson from memory influenced the synthesis, cite it by ID (e.g., "aligns with S-003"). Include the memory context summary if available.
 
 ## MCP Tools (6)
 
@@ -81,7 +83,7 @@ The MEMORY LENS is injected by the `council-consult` skill — team-lead does no
 
 After `/council:build`, you are the **team-lead** for a 4-phase pipeline:
 
-1. **PRD Consultation** (strategist-alpha, strategist-beta, critic) → `.council/build/prd.md`
+1. **PRD Consultation** (strategist-alpha, strategist-beta, critic, value-analyst) → `.council/build/prd.md`
 2. **Tech Deck Consultation** (architect, strategist-alpha, security-auditor) → `.council/build/tech-deck.md`
 3. **Backlog Consultation** (planner, strategist-beta, critic) → `.council/build/backlog.md`
 4. **Feature Completeness Gate Check** — verifies ALL user-requested features are in the backlog before implementation
@@ -89,7 +91,7 @@ After `/council:build`, you are the **team-lead** for a 4-phase pipeline:
 
 Each consultation phase follows the standard council lifecycle (create team, spawn, analyze, synthesize, record, cleanup). Artifacts are written to `.council/build/` and flow forward between phases. Implementation uses `general-purpose` agents with full code editing capabilities.
 
-**Cost**: 9+ agent spawns for consultations + 1 team with 3-4 members. Expect 50,000-150,000+ tokens. The skill confirms with the user before starting.
+**Cost**: 10+ agent spawns for consultations + 1 team with 3-4 members. Expect 50,000-150,000+ tokens. The skill confirms with the user before starting.
 
 ## When NOT to Consult
 

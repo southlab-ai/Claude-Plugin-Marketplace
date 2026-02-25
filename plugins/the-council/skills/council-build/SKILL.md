@@ -25,10 +25,10 @@ Tell the user:
 
 > **Build pipeline cost warning**
 >
-> This will run 3 sequential council consultations (9 agent spawns) followed by implementation with 1 dev team (3-4 members). Estimated token cost: **50,000-150,000+ tokens** depending on project complexity.
+> This will run 3 sequential council consultations (10 agent spawns) followed by implementation with 1 dev team (3-4 members). Estimated token cost: **50,000-150,000+ tokens** depending on project complexity.
 >
 > Phases:
-> 1. PRD consultation (strategist-alpha, strategist-beta, critic)
+> 1. PRD consultation (strategist-alpha, strategist-beta, critic, value-analyst)
 > 2. Tech deck consultation (architect, strategist-alpha, security-auditor)
 > 3. Backlog consultation (planner, strategist-beta, critic)
 > 4. Feature completeness gate check
@@ -57,7 +57,7 @@ Also save `$ARGUMENTS` as the original user prompt — you will use it in the Ph
 
 ## PHASE 1: PRD Consultation
 
-> Roles: strategist-alpha, strategist-beta, critic (default council)
+> Roles: strategist-alpha, strategist-beta, critic, value-analyst
 
 ### 1.1 Create team
 
@@ -67,7 +67,7 @@ Use `TeamCreate`:
 
 ### 1.2 Spawn teammates (all in PARALLEL)
 
-Launch ALL 3 teammates in the same message via **Task tool**. All MUST include `team_name: "council-build-prd"` and a `name` parameter.
+Launch ALL 4 teammates in the same message via **Task tool**. All MUST include `team_name: "council-build-prd"` and a `name` parameter.
 
 **Strategist Alpha** — `name: "strategist-alpha"`, `subagent_type: "the-council:strategist"`:
 ```
@@ -120,7 +120,24 @@ Every issue needs a specific fix. Your job is to make the PRD BETTER, not SMALLE
 When done, send your full analysis to "team-lead" via SendMessage.
 ```
 
-Wait for all 3 teammates to send their analyses.
+**Value Analyst** — `name: "value-analyst"`, `subagent_type: "the-council:value-analyst"`:
+```
+GOAL: $ARGUMENTS
+
+CONTEXT: You are in Phase 1 of a build pipeline. Your task is to evaluate value realization for a PRD.
+
+CLAUDE VELOCITY: Implementation is by Claude Code AI agents. 15,000+ LOC in ~2 hours. Never estimate in human timelines. No deferrals.
+
+MEMORY (from past consultations):
+<memory from Step 1>
+
+Evaluate this goal through the value-realization framework. 400-600 words.
+Cover: Value Clarity (can users articulate what they'll achieve?), Value Timeline (when do results appear?), Value Perception (can users see/feel progress?), Value Discovery (how do users learn about value?).
+Score each dimension red/yellow/green. Flag any non-green dimension with a concrete improvement that preserves all features.
+When done, send your full analysis to "team-lead" via SendMessage.
+```
+
+Wait for all 4 teammates to send their analyses.
 
 ### 1.3 Synthesize PRD
 
@@ -130,6 +147,7 @@ Apply standard synthesis rules:
 - Where the critic raises **valid quality concerns** → incorporate fixes
 - Be explicit about what you adopted from each teammate
 - **CRITICAL**: Do NOT create priority tiers. ALL features from the user prompt are mandatory. Never synthesize a result that removes or defers a feature the user requested.
+- Where value-analyst identifies **value gaps** → incorporate improvement into PRD features and include in the Value Realization section
 
 Format as a PRD with these sections:
 1. **Problem Statement**
@@ -139,6 +157,7 @@ Format as a PRD with these sections:
 5. **User Stories** (As a..., I want..., So that...)
 6. **Non-Functional Requirements** (performance, security, accessibility)
 7. **Assumptions & Constraints**
+8. **Value Realization** (4 dimensions from value-analyst: scores, justifications, improvements)
 
 ### 1.4 Write PRD artifact
 
@@ -150,7 +169,7 @@ Call `council_memory_record` with:
 - `project_dir`: current project root
 - `goal`: "Build pipeline PRD: $ARGUMENTS"
 - `strategist_summary`: 1-2 sentence summary combining both strategists' positions
-- `critic_summary`: 1-2 sentence summary of the critic's key concerns
+- `critic_summary`: 1-2 sentence summary combining critic's quality concerns AND value-analyst's value realization findings
 - `decision`: your team-lead synthesis in 1-3 sentences
 - `hub_lesson`: "Build pipeline Phase 1 complete. PRD written to .council/build/prd.md."
 - `importance`: 7

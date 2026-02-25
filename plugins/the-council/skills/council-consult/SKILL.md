@@ -54,7 +54,7 @@ Use `TeamCreate` to create a team:
 **If ROLES provided**: Parse the comma-separated list. Rules:
 - Maximum 5 teammates. If more than 5 provided, truncate to 5 and warn the user.
 - At least one adversarial role MUST be present. If no role name contains "critic" or "auditor", auto-add "critic" to the list.
-- For each role: use `subagent_type: "the-council:critic"` if the role name contains "critic" or "auditor". Otherwise use `subagent_type: "the-council:strategist"`. If a matching agent template exists (e.g., `the-council:architect` for role "architect"), use that instead.
+- For each role: use `subagent_type: "the-council:critic"` if the role name contains "critic" or "auditor", or is exactly "value-analyst". Otherwise use `subagent_type: "the-council:strategist"`. If a matching agent template exists (e.g., `the-council:architect` for role "architect"), use that instead.
 - Name each teammate by its role name.
 
 **If ROLES not provided (default)**: Spawn the default 3 teammates:
@@ -135,6 +135,12 @@ Wait for all teammates to send their analyses back.
 
 This step varies by mode.
 
+### Memory Attribution
+
+When your synthesis is influenced by a past decision or lesson from memory, **cite it by ID**. Example: "This aligns with the PostgreSQL pooling strategy established in S-003" or "Memory entry M-critic-001 flagged this risk previously." This makes the memory system's contribution visible to the user.
+
+If the memory load from Step 3 included a "Memory Context" footer, include it at the end of your synthesis as a brief note (e.g., "Memory: 5 active entries loaded, 2 archive lessons surfaced").
+
 ### DEFAULT MODE
 
 You received analyses from all teammates via SendMessage. Provide YOUR synthesis:
@@ -206,3 +212,17 @@ Present your synthesis to the user. Include:
 3. Each teammate's key position
 4. Your decision and reasoning
 5. Any lessons recorded
+6. Memory attribution (if past decisions influenced the synthesis, cite them)
+
+### Progressive Tips
+
+Based on the consultation count from the memory load (shown in the header as "X consultations"), include ONE contextual tip at the end of your presentation. Pick the first matching rule:
+
+- **1st consultation**: "Tip: The council remembers across sessions. Your next `/council:consult` will be informed by this decision."
+- **3rd consultation (and ROLES not used)**: "Tip: You can bring specialists with `ROLES: architect, security-auditor` — see all roles with `/council:status`."
+- **5th consultation (and reflect mode never used)**: "Tip: You have enough history for `/council:consult review our decisions` — the council will analyze your decision patterns."
+- **If debate mode was auto-selected**: "Debate mode activated — teammates exchanged rebuttals before synthesis (~2-3x token cost)."
+- **If plan mode was auto-selected**: "Plan mode activated — synthesis formatted as implementation steps."
+- **10th+ consultation**: "Tip: Run `/council:maintain` periodically to keep memory lean."
+
+Only show one tip per consultation. If none match, skip tips.

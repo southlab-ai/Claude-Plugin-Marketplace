@@ -26,8 +26,8 @@
     {
       "name": "the-council",
       "source": "./plugins/the-council",
-      "description": "Adversarial consultation with persistent memory for Claude Code agent teams. 4 auto-routed modes, configurable roles, /council:build pipeline (PRD + tech deck + backlog + feature gate + implementation), anti-deferral system, and intelligent memory retrieval with synonym expansion, staleness markers, and MEMORY LENS directives.",
-      "version": "3.1.0",
+      "description": "Catch blind spots in architecture decisions with multi-perspective analysis that learns from your project history. 4 auto-routed modes, configurable roles (including value-analyst), /council:build pipeline, /council:value for value-realization analysis, memory attribution, progressive feature hints, and intelligent memory retrieval with synonym expansion, staleness markers, and MEMORY LENS directives.",
+      "version": "3.2.0",
       "author": {
         "name": "Southlab AI"
       },
