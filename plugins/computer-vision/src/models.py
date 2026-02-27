@@ -131,3 +131,44 @@ class KeyboardParams(BaseModel):
     text: str = ""
     keys: str = ""
     max_length: int = 1000
+
+
+# Digital Twin models (v2.0)
+
+class FallbackStep(BaseModel):
+    """A single step in the cv_action fallback chain."""
+    strategy: str
+    result: str  # "success", "pattern_not_supported", "timeout", "element_not_found"
+    duration_ms: float
+
+
+class VerificationResult(BaseModel):
+    """Result of post-action verification."""
+    method: str  # "uia_state_check", "screenshot", "none"
+    passed: bool
+    detail: str = ""
+
+
+class ActionResult(BaseModel):
+    """Full result of a cv_action invocation."""
+    success: bool
+    strategy_used: str = ""  # "uia_invoke", "uia_bbox_click", "ocr_sendinput", "adapter_cdp", etc.
+    layer: int = 0  # 0=adapter, 1=UIA pattern, 2=UIA bbox, 3=OCR
+    verification: VerificationResult = Field(
+        default_factory=lambda: VerificationResult(method="none", passed=False)
+    )
+    timing_ms: float = 0.0
+    fallback_chain: list[FallbackStep] = Field(default_factory=list)
+    element: dict | None = None
+    window_state: dict | None = None
+    image_path: str | None = None
+
+
+class EventInfo(BaseModel):
+    """A single UI event from the event buffer."""
+    event_type: str
+    hwnd: int
+    element_name: str | None = None
+    control_type: str | None = None
+    timestamp: float = 0.0
+    detail: str = ""

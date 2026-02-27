@@ -39,8 +39,8 @@
     {
       "name": "computer-vision",
       "source": "./plugins/computer-vision",
-      "description": "Desktop computer vision and input control for Claude Code on Windows. 17 tools: screenshots, click, drag-and-drop, type, scroll, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees. Reliable drag-and-drop across WebView, UWP, Electron, and WPF apps. Atomic keyboard with hwnd for focus-safe typing, post-action screenshots on all mutating tools, vision-enhanced element finding, window state metadata. Like Claude-in-Chrome, but for any Windows app.",
-      "version": "1.7.0",
+      "description": "Desktop computer vision and input control for Claude Code on Windows. 17+ tools: screenshots, click, drag-and-drop, type, scroll, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees, action routing with app-specific adapters (Chrome CDP, Office COM, Shell COM), element caching, clipboard access, UIA pattern automation, and action verification. Like Claude-in-Chrome, but for any Windows app.",
+      "version": "1.8.0",
       "author": {
         "name": "Southlab AI"
       },

@@ -135,15 +135,17 @@ wheels = [
 
 [[package]]
 name = "computer-vision-claude-code"
-version = "1.6.0"
+version = "2.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "comtypes" },
+    { name = "httpx" },
     { name = "mcp" },
     { name = "mss" },
     { name = "pillow" },
     { name = "pydantic" },
     { name = "pywin32" },
+    { name = "websocket-client" },
     { name = "winocr" },
 ]
 
@@ -162,6 +164,7 @@ ocr-fallback = [
 [package.metadata]
 requires-dist = [
     { name = "comtypes", specifier = ">=1.4.0" },
+    { name = "httpx", specifier = ">=0.27.0" },
     { name = "mcp", specifier = ">=1.26.0" },
     { name = "mss", specifier = ">=9.0.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
@@ -173,6 +176,7 @@ requires-dist = [
     { name = "pytest-benchmark", marker = "extra == 'dev'", specifier = ">=4.0" },
     { name = "pywin32", specifier = ">=306" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.5.0" },
+    { name = "websocket-client", specifier = ">=1.6.0" },
     { name = "winocr", specifier = ">=0.0.10" },
 ]
 provides-extras = ["ocr-fallback", "dev"]
@@ -1069,6 +1073,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/32/ce/eeb58ae4ac36fe09e3842eb02e0eb676bf2c53ae062b98f1b2531673efdd/uvicorn-0.41.0.tar.gz", hash = "sha256:09d11cf7008da33113824ee5a1c6422d89fbc2ff476540d69a34c87fab8b571a", size = 82633, upload-time = "2026-02-16T23:07:24.1Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/83/e4/d04a086285c20886c0daad0e026f250869201013d18f81d9ff5eada73a88/uvicorn-0.41.0-py3-none-any.whl", hash = "sha256:29e35b1d2c36a04b9e180d4007ede3bcb32a85fbdfd6c6aeb3f26839de088187", size = 68783, upload-time = "2026-02-16T23:07:22.357Z" },
+]
+
+[[package]]
+name = "websocket-client"
+version = "1.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/2c/41/aa4bf9664e4cda14c3b39865b12251e8e7d239f4cd0e3cc1b6c2ccde25c1/websocket_client-1.9.0.tar.gz", hash = "sha256:9e813624b6eb619999a97dc7958469217c3176312b3a16a4bd1bc7e08a46ec98", size = 70576, upload-time = "2025-10-07T21:16:36.495Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/34/db/b10e48aa8fff7407e67470363eac595018441cf32d5e1001567a7aeba5d2/websocket_client-1.9.0-py3-none-any.whl", hash = "sha256:af248a825037ef591efbf6ed20cc5faa03d3b47b9e5a2230a529eeee1c1fc3ef", size = 82616, upload-time = "2025-10-07T21:16:34.951Z" },
 ]
 
 [[package]]

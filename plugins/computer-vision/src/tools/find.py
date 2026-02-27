@@ -253,6 +253,19 @@ def _filter_bbox_in_window(matches: list[FindMatch], hwnd: int) -> list[FindMatc
     return filtered
 
 
+def _find_matches(hwnd: int, target: str) -> list[FindMatch]:
+    """Combined UIA + OCR search for the action router's Layer 3 fallback.
+
+    Tries UIA tree matching first; falls back to OCR if no UIA matches.
+    Results are filtered to the window bounds and sorted by confidence.
+    """
+    matches = _match_uia(target, hwnd)
+    if not matches:
+        matches = _match_ocr(target, hwnd)
+    matches = _filter_bbox_in_window(matches, hwnd)
+    return matches
+
+
 @mcp.tool()
 def cv_find(
     query: str,

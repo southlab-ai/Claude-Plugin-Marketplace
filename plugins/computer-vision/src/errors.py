@@ -21,6 +21,12 @@ UIA_ERROR = "UIA_ERROR"
 FIND_NO_MATCH = "FIND_NO_MATCH"
 OCR_LOW_CONFIDENCE = "OCR_LOW_CONFIDENCE"
 
+# Digital Twin error codes (v2.0.0)
+PATTERN_NOT_SUPPORTED = "PATTERN_NOT_SUPPORTED"
+ELEMENT_DISABLED = "ELEMENT_DISABLED"
+ELEMENT_OFFSCREEN = "ELEMENT_OFFSCREEN"
+ELEMENT_UNRESPONSIVE = "ELEMENT_UNRESPONSIVE"
+
 
 def make_error(code: str, message: str) -> dict[str, Any]:
     """Create a structured error response."""
@@ -68,3 +74,32 @@ class RateLimitedError(CVPluginError):
 class InvalidCoordinatesError(CVPluginError):
     def __init__(self, x: int, y: int) -> None:
         super().__init__(INVALID_COORDINATES, f"Coordinates ({x}, {y}) outside virtual desktop bounds")
+
+
+class PatternNotSupportedError(CVPluginError):
+    def __init__(self, pattern: str, element_name: str = "") -> None:
+        super().__init__(
+            PATTERN_NOT_SUPPORTED,
+            f"Pattern '{pattern}' not supported on element '{element_name}'",
+        )
+
+
+class ElementDisabledError(CVPluginError):
+    def __init__(self, element_name: str = "") -> None:
+        super().__init__(ELEMENT_DISABLED, f"Element '{element_name}' is disabled (IsEnabled=False)")
+
+
+class ElementOffscreenError(CVPluginError):
+    def __init__(self, element_name: str = "") -> None:
+        super().__init__(
+            ELEMENT_OFFSCREEN,
+            f"Element '{element_name}' has empty or offscreen bounding rectangle",
+        )
+
+
+class ElementUnresponsiveError(CVPluginError):
+    def __init__(self, element_name: str = "", timeout_s: float = 2.0) -> None:
+        super().__init__(
+            ELEMENT_UNRESPONSIVE,
+            f"Element '{element_name}' COM call timed out after {timeout_s}s",
+        )

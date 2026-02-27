@@ -8,7 +8,7 @@ This is a **monorepo marketplace**. All plugins live under `plugins/` as subdire
 |--------|------|-----------------|
 | upwork-scraper | `plugins/upwork-scraper/` | 0.2.0 |
 | the-council | `plugins/the-council/` | 3.2.0 |
-| computer-vision | `plugins/computer-vision/` | 1.7.0 |
+| computer-vision | `plugins/computer-vision/` | 1.8.0 |
 
 The marketplace registry is at `.claude-plugin/marketplace.json`.
 

@@ -75,3 +75,13 @@ DEFAULT_UIA_DEPTH: int = 5
 
 # UI Automation timeout in seconds
 UIA_TIMEOUT: float = 5.0
+
+# Element cache TTL in seconds (Digital Twin v2.0)
+ELEMENT_CACHE_TTL: int = _get_env_int("CV_ELEMENT_CACHE_TTL", 10)
+
+# Clipboard bridge threshold — use clipboard paste for text longer than this
+CLIPBOARD_THRESHOLD: int = _get_env_int("CV_CLIPBOARD_THRESHOLD", 200)
+
+# Chrome DevTools Protocol adapter settings
+CDP_PORT: int = _get_env_int("CV_CDP_PORT", 9222)
+CDP_MAX_CONNECTIONS: int = _get_env_int("CV_CDP_MAX_CONNECTIONS", 5)
