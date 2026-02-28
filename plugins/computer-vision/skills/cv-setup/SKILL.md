@@ -37,15 +37,23 @@ The sandbox tools need a compiled native DLL (shim32.dll, shim64.dll, injector.e
 8. Check that Microsoft Detours source is vendored:
    - Check if `${CLAUDE_PLUGIN_ROOT}/src/sandbox/native/vendor/Detours/src/detours.h` exists
    - If NOT found, clone it: `git clone https://github.com/microsoft/Detours.git "${CLAUDE_PLUGIN_ROOT}/src/sandbox/native/vendor/Detours"`
+   - If the directory exists but `src/detours.h` is missing (placeholder README only), remove the directory first and re-clone
 
-9. Build the native DLLs:
-   - Run: `uv run --directory "${CLAUDE_PLUGIN_ROOT}" python scripts/build_native.py`
-   - This compiles shim32.dll, shim64.dll, and injector.exe
-   - Verify the output: check that `${CLAUDE_PLUGIN_ROOT}/src/sandbox/native/build/shim64.dll` exists
+9. Check that nlohmann/json.hpp is the real library (not a placeholder):
+   - Run: `head -1 "${CLAUDE_PLUGIN_ROOT}/src/sandbox/native/vendor/nlohmann/json.hpp"`
+   - If the first line contains `#error` or `placeholder`, download the real one:
+     `curl -sL -o "${CLAUDE_PLUGIN_ROOT}/src/sandbox/native/vendor/nlohmann/json.hpp" "https://github.com/nlohmann/json/releases/download/v3.11.3/json.hpp"`
+   - Verify the download: the first line should start with `//     __ _____ _____ _____`
+
+10. Build the native DLLs:
+    - If cmake is not in PATH but VS Build Tools is installed, add it: `export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin:$PATH"`
+    - Run: `uv run --directory "${CLAUDE_PLUGIN_ROOT}" python scripts/build_native.py`
+    - This compiles shim32.dll, shim64.dll, and injector.exe
+    - Verify the output: check that `${CLAUDE_PLUGIN_ROOT}/src/sandbox/native/build/shim64.dll` exists
 
 ## Phase 4: Report Results
 
-10. Report a summary table to the user:
+11. Report a summary table to the user:
     - uv version
     - Python dependencies (installed/failed)
     - MCP Server (OK + tool count, or error)
