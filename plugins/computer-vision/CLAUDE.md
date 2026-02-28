@@ -28,7 +28,7 @@ This is an MCP plugin that gives Claude Code full computer vision and input cont
 ## Testing
 - Unit tests in `tests/unit/` with mocked Win32 APIs
 - Integration tests in `tests/integration/` require real Windows desktop
-- Run: `uv run pytest tests/unit/ -v`
+- Run: `uv run python -m pytest tests/unit/ -v`
 
 ## OCR
 - `cv_ocr` auto-detects installed Windows OCR languages via `OcrEngine` singleton in `src/utils/ocr_engine.py`.

@@ -3,6 +3,22 @@
 from __future__ import annotations
 
 import pytest
+
+
+def pytest_configure(config):
+    """Guard: fail early if required dependencies are missing (wrong Python env)."""
+    missing = []
+    for mod in ("mss", "winocr", "win32gui"):
+        try:
+            __import__(mod)
+        except ImportError:
+            missing.append(mod)
+    if missing:
+        raise pytest.UsageError(
+            f"Missing dependencies: {', '.join(missing)}. "
+            f"Tests must run under the project venv. "
+            f"Use: uv run python -m pytest tests/unit/ -v"
+        )
 from unittest.mock import MagicMock, patch
 from PIL import Image
 
