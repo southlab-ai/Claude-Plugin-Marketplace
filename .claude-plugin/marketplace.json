@@ -39,13 +39,13 @@
     {
       "name": "computer-vision",
       "source": "./plugins/computer-vision",
-      "description": "Desktop computer vision and input control for Claude Code on Windows. 17+ tools: screenshots, click, drag-and-drop, type, scroll, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees, action routing with app-specific adapters (Chrome CDP, Office COM, Shell COM), element caching, clipboard access, UIA pattern automation, and action verification. Like Claude-in-Chrome, but for any Windows app.",
-      "version": "1.8.0",
+      "description": "Desktop computer vision and input control for Claude Code on Windows. 28 tools: screenshots, click, drag-and-drop, type, scroll, OCR, element finder, text extraction, UI accessibility trees, action routing with adapters, and 9 sandbox tools for parallel desktop automation (Claude automates apps in isolated Windows Sandbox while the user works undisturbed). Like Claude-in-Chrome, but for any Windows app.",
+      "version": "1.9.0",
       "author": {
         "name": "Southlab AI"
       },
       "license": "MIT",
-      "keywords": ["computer-vision", "windows", "desktop", "automation", "mcp", "screenshot", "ocr", "accessibility", "ui-automation", "drag-and-drop"],
+      "keywords": ["computer-vision", "windows", "desktop", "automation", "mcp", "screenshot", "ocr", "accessibility", "ui-automation", "drag-and-drop", "sandbox", "parallel"],
       "category": "utilities",
       "tags": ["desktop", "windows", "vision", "automation", "ocr"]
     }

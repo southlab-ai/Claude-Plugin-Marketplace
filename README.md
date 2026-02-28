@@ -8,7 +8,7 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 |--------|-------------|---------|----------|
 | **upwork-scraper** | Scrape Upwork jobs, analyze market demand, write proposals, optimize rates, and build portfolios. 5 slash commands + 5 AI agents. | 0.2.0 | Freelance |
 | **the-council** | Catch blind spots in architecture decisions with multi-perspective analysis. 4 auto-routed modes, configurable roles, `/council:build` pipeline, `/council:value` analysis, memory attribution, progressive hints. | 3.2.0 | Productivity |
-| **computer-vision** | Desktop computer vision and input control for Windows. 17+ tools: screenshots, click, type, scroll, OCR, element finder (`cv_find`), text extraction (`cv_get_text`), UI trees, app-specific adapters (Chrome CDP, Office COM, Shell COM), action verification. Like Claude-in-Chrome, but for any app. | 1.8.0 | Utilities |
+| **computer-vision** | Desktop computer vision and input control for Windows. 28 tools: screenshots, click, type, scroll, OCR, element finder, text extraction, UI trees, app-specific adapters, action verification, and 9 sandbox tools for parallel automation (Claude works in isolated Windows Sandbox while you keep working). | 1.9.0 | Utilities |
 
 ## Installation
 
@@ -68,7 +68,7 @@ Each plugin has a setup command:
 | `/council:update` | Migrate council data after a plugin update |
 | `/council:reset` | Clear session data (add `--all` to also clear memory) |
 
-### Computer Vision (v1.6.0)
+### Computer Vision (v1.9.0)
 
 | Tool | Description |
 |------|-------------|
@@ -89,6 +89,15 @@ Each plugin has a setup command:
 | `cv_read_ui` | Read the UI accessibility tree |
 | `cv_wait_for_window` | Wait for a window to appear |
 | `cv_wait` | Simple delay (max 30 seconds) |
+| `cv_sandbox_start` | Launch Windows Sandbox for isolated automation |
+| `cv_sandbox_stop` | Stop the sandbox session |
+| `cv_sandbox_click` | Click inside sandbox (doesn't move your cursor) |
+| `cv_sandbox_type` | Type inside sandbox (doesn't affect your keyboard) |
+| `cv_sandbox_screenshot` | Capture screenshot from sandbox |
+| `cv_sandbox_scene` | Get UI element tree from sandbox |
+| `cv_sandbox_batch` | Execute multiple actions in one call (reduces latency) |
+| `cv_sandbox_check` | Check if sandbox is available on your system |
+| `cv_session_status` | Get sandbox session health and action history |
 
 | Command | Description |
 |---------|-------------|
