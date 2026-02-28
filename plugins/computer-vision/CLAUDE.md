@@ -38,6 +38,17 @@ This is an MCP plugin that gives Claude Code full computer vision and input cont
 - Pytesseract is a secondary fallback if `winocr` is unavailable.
 - Default PII redaction patterns (SSN, credit card) applied to all OCR/text output.
 
+## Sandbox Native DLL
+The sandbox tools (`cv_sandbox_*`) require compiled native DLLs. Build prerequisites:
+- Visual Studio 2022 Build Tools with C++ workload and CMake
+- Microsoft Detours (vendored at `src/sandbox/native/vendor/Detours/`)
+- nlohmann/json v3.11.3 (vendored at `src/sandbox/native/vendor/nlohmann/json.hpp`)
+
+Build: `uv run python scripts/build_native.py`
+Output: `src/sandbox/native/build/` → `shim32.dll`, `shim64.dll`, `injector.exe`
+
+The `/cv-setup` skill handles the full setup including native DLL compilation.
+
 ## Dependencies
 mcp, mss, pywin32, Pillow, winocr, comtypes, pydantic — all installed via `uv sync`.
 

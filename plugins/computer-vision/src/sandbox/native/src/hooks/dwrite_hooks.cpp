@@ -101,7 +101,7 @@ static HRESULT STDMETHODCALLTYPE Detour_DrawText(
     D2D1_DRAW_TEXT_OPTIONS options,
     DWRITE_MEASURING_MODE  measuringMode
 ) {
-    __try {
+    try {
         if (string && stringLength > 0) {
             UINT32 safe_len = (stringLength < MAX_TEXT_CHARS) ? stringLength : MAX_TEXT_CHARS;
             std::wstring text(string, safe_len);
@@ -126,7 +126,7 @@ static HRESULT STDMETHODCALLTYPE Detour_DrawText(
             SceneGraph::instance().add_text_element(std::move(elem));
         }
     }
-    __except (EXCEPTION_EXECUTE_HANDLER) {
+    catch (...) {
         // Swallow
     }
 
@@ -145,7 +145,7 @@ static HRESULT STDMETHODCALLTYPE Detour_DrawTextLayout(
     ID2D1Brush*            defaultFillBrush,
     D2D1_DRAW_TEXT_OPTIONS options
 ) {
-    __try {
+    try {
         if (textLayout) {
             // Extract text content from the layout
             UINT32 text_len = 0;
@@ -181,7 +181,7 @@ static HRESULT STDMETHODCALLTYPE Detour_DrawTextLayout(
             SceneGraph::instance().add_text_element(std::move(elem));
         }
     }
-    __except (EXCEPTION_EXECUTE_HANDLER) {
+    catch (...) {
         // Swallow
     }
 

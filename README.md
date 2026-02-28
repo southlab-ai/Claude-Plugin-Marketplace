@@ -8,7 +8,7 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 |--------|-------------|---------|----------|
 | **upwork-scraper** | Scrape Upwork jobs, analyze market demand, write proposals, optimize rates, and build portfolios. 5 slash commands + 5 AI agents. | 0.2.0 | Freelance |
 | **the-council** | Catch blind spots in architecture decisions with multi-perspective analysis. 4 auto-routed modes, configurable roles, `/council:build` pipeline, `/council:value` analysis, memory attribution, progressive hints. | 3.2.0 | Productivity |
-| **computer-vision** | Desktop computer vision and input control for Windows. 28 tools: screenshots, click, type, scroll, OCR, element finder, text extraction, UI trees, app-specific adapters, action verification, and 9 sandbox tools for parallel automation (Claude works in isolated Windows Sandbox while you keep working). | 1.9.0 | Utilities |
+| **computer-vision** | Desktop computer vision and input control for Windows. 28 tools: screenshots, click, type, scroll, OCR, element finder, text extraction, UI trees, app-specific adapters, action verification, and 9 sandbox tools for parallel automation (Claude works in isolated Windows Sandbox while you keep working). | 2.0.0 | Utilities |
 
 ## Installation
 
@@ -68,7 +68,7 @@ Each plugin has a setup command:
 | `/council:update` | Migrate council data after a plugin update |
 | `/council:reset` | Clear session data (add `--all` to also clear memory) |
 
-### Computer Vision (v1.9.0)
+### Computer Vision (v2.0.0)
 
 | Tool | Description |
 |------|-------------|

@@ -118,7 +118,7 @@ static HWND WINAPI Detour_CreateWindowExW(
         X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 
     if (hwnd) {
-        __try {
+        try {
             WindowNode node;
             node.hwnd        = hwnd;
             node.parent_hwnd = hWndParent;
@@ -137,7 +137,7 @@ static HWND WINAPI Detour_CreateWindowExW(
 
             notify_scene_graph();
         }
-        __except (EXCEPTION_EXECUTE_HANDLER) {
+        catch (...) {
             // Swallow
         }
     }
@@ -146,7 +146,7 @@ static HWND WINAPI Detour_CreateWindowExW(
 }
 
 static BOOL WINAPI Detour_DestroyWindow(HWND hWnd) {
-    __try {
+    try {
         AcquireSRWLockExclusive(&s_tree_lock);
         auto it = s_tree.find(hWnd);
         if (it != s_tree.end()) {
@@ -167,7 +167,7 @@ static BOOL WINAPI Detour_DestroyWindow(HWND hWnd) {
 
         notify_scene_graph();
     }
-    __except (EXCEPTION_EXECUTE_HANDLER) {
+    catch (...) {
         // Swallow
     }
 
@@ -186,7 +186,7 @@ static BOOL WINAPI Detour_SetWindowPos(
     BOOL result = Real_SetWindowPos(hWnd, hWndInsertAfter, X, Y, cx, cy, uFlags);
 
     if (result) {
-        __try {
+        try {
             AcquireSRWLockExclusive(&s_tree_lock);
             auto it = s_tree.find(hWnd);
             if (it != s_tree.end()) {
@@ -201,7 +201,7 @@ static BOOL WINAPI Detour_SetWindowPos(
 
             notify_scene_graph();
         }
-        __except (EXCEPTION_EXECUTE_HANDLER) {
+        catch (...) {
             // Swallow
         }
     }
@@ -212,7 +212,7 @@ static BOOL WINAPI Detour_SetWindowPos(
 static BOOL WINAPI Detour_ShowWindow(HWND hWnd, int nCmdShow) {
     BOOL result = Real_ShowWindow(hWnd, nCmdShow);
 
-    __try {
+    try {
         AcquireSRWLockExclusive(&s_tree_lock);
         auto it = s_tree.find(hWnd);
         if (it != s_tree.end()) {
@@ -223,7 +223,7 @@ static BOOL WINAPI Detour_ShowWindow(HWND hWnd, int nCmdShow) {
 
         notify_scene_graph();
     }
-    __except (EXCEPTION_EXECUTE_HANDLER) {
+    catch (...) {
         // Swallow
     }
 
@@ -241,7 +241,7 @@ static BOOL WINAPI Detour_MoveWindow(
     BOOL result = Real_MoveWindow(hWnd, X, Y, nWidth, nHeight, bRepaint);
 
     if (result) {
-        __try {
+        try {
             AcquireSRWLockExclusive(&s_tree_lock);
             auto it = s_tree.find(hWnd);
             if (it != s_tree.end()) {
@@ -251,7 +251,7 @@ static BOOL WINAPI Detour_MoveWindow(
 
             notify_scene_graph();
         }
-        __except (EXCEPTION_EXECUTE_HANDLER) {
+        catch (...) {
             // Swallow
         }
     }

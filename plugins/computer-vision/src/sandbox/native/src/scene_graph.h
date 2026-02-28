@@ -22,11 +22,6 @@
 #include <string>
 #include <vector>
 
-// Forward declare nlohmann::json
-namespace nlohmann { class json; }
-// We use the actual json in the .cpp; header only needs the forward decl
-// for the serialize methods.
-
 namespace sandbox {
 
 // Rect used throughout the scene graph
@@ -94,15 +89,15 @@ public:
     // Store a frame capture reference (called from IPC dispatch)
     void set_frame_capture_available(bool available);
 
+    // Convert wstring to UTF-8 (public for use in serialization helpers)
+    static std::string to_utf8(const std::wstring& wstr);
+
 private:
     SceneGraph();
     ~SceneGraph();
 
     // Apply password redaction to a text element
     void redact_passwords(TextElement& elem) const;
-
-    // Convert wstring to UTF-8
-    static std::string to_utf8(const std::wstring& wstr);
 
     mutable SRWLOCK          m_lock;
     uint64_t                 m_version;

@@ -28,8 +28,8 @@ add_library(detours STATIC
 target_include_directories(detours PUBLIC "${DETOURS_DIR}")
 target_compile_definitions(detours PRIVATE WIN32_LEAN_AND_MEAN)
 
-# nlohmann/json (header-only)
-set(JSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor/nlohmann")
+# nlohmann/json (header-only) — include parent so #include <nlohmann/json.hpp> works
+set(JSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vendor")
 
 # --------------------------------------------------------------------------
 # Shim DLL

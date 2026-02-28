@@ -12,6 +12,7 @@
 #ifndef SANDBOX_SHIM_IPC_SERVER_H
 #define SANDBOX_SHIM_IPC_SERVER_H
 
+#include <winsock2.h>
 #include <windows.h>
 #include <cstdint>
 #include <string>
