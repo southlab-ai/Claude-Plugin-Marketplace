@@ -40,7 +40,7 @@
       "name": "computer-vision",
       "source": "./plugins/computer-vision",
       "description": "Desktop computer vision and input control for Claude Code on Windows. 19 tools: screenshots, click, drag-and-drop, type, scroll, OCR, element finder, text extraction, UI accessibility trees, action routing with adapters. All input tools support background mode — click, type, and send keys via PostMessage without moving the cursor or stealing focus.",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "author": {
         "name": "Southlab AI"
       },

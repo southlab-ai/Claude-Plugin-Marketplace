@@ -31,9 +31,23 @@ def cv_screenshot_window(hwnd: int, max_width: int = 1280) -> dict:
     """
     try:
         result = capture_window(hwnd, max_width=max_width)
+        # image_to_screen: add these offsets to any image pixel coordinate
+        # to get the screen-absolute coordinate for clicking.
+        # Accounts for DPI scaling of the output image.
+        scale = result.dpi_scale if result.dpi_scale else 1.0
+        if result.physical_resolution and result.logical_resolution:
+            img_scale = result.physical_resolution.get("width", 1) / max(result.logical_resolution.get("width", 1), 1)
+        else:
+            img_scale = 1.0
+
         return make_success(
             image_path=result.image_path,
             rect=result.rect.model_dump(),
+            image_to_screen={
+                "x": result.rect.x,
+                "y": result.rect.y,
+                "scale": round(img_scale, 4),
+            },
             physical_resolution=result.physical_resolution,
             logical_resolution=result.logical_resolution,
             dpi_scale=result.dpi_scale,

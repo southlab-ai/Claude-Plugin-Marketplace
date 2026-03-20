@@ -45,7 +45,10 @@ def cv_mouse_click(
         button: Mouse button - "left", "right", or "middle".
         click_type: "single" or "double".
         hwnd: Optional window handle. When set, auto-focuses the window first.
-        coordinate_space: "screen_absolute" or "window_relative" (requires hwnd).
+        coordinate_space: "screen_absolute", "window_relative" (client area, requires hwnd),
+                    or "window_capture" (pixel coords from cv_screenshot_window image, requires hwnd).
+                    Use "window_capture" when you identify a target position in a screenshot image —
+                    the tool auto-converts to screen coordinates using the window rect.
         start_x: If provided along with start_y, performs a drag from (start_x, start_y) to (x, y).
         start_y: If provided along with start_x, performs a drag from (start_x, start_y) to (x, y).
         drag_duration_ms: Duration of the drag motion in milliseconds (default 300). Only used for drags.
@@ -65,6 +68,17 @@ def cv_mouse_click(
             return make_error(INVALID_INPUT, f"Invalid click_type: {click_type!r}. Must be single or double.")
 
         is_drag = start_x is not None and start_y is not None
+
+        # ---- Convert window_capture coords to screen_absolute ----
+        if coordinate_space == "window_capture" and hwnd:
+            import win32gui
+            rect = win32gui.GetWindowRect(hwnd)
+            x = rect[0] + x
+            y = rect[1] + y
+            if is_drag:
+                start_x = rect[0] + start_x
+                start_y = rect[1] + start_y
+            coordinate_space = "screen_absolute"
 
         # ---- Background mode (PostMessage — no cursor move, no focus steal) ----
         if background:
