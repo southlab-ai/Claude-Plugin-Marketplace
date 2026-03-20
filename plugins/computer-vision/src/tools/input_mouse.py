@@ -7,7 +7,7 @@ import logging
 
 from src.server import mcp
 from src.errors import make_error, make_success, INPUT_FAILED, INVALID_INPUT
-from src.coordinates import to_screen_absolute, normalize_for_sendinput, validate_coordinates
+from src.coordinates import to_screen_absolute, to_window_relative, normalize_for_sendinput, validate_coordinates
 from src.utils.security import (
     check_restricted,
     check_rate_limit,
@@ -15,7 +15,7 @@ from src.utils.security import (
     log_action,
     get_process_name_by_pid,
 )
-from src.utils.win32_input import send_mouse_click, send_mouse_drag
+from src.utils.win32_input import send_mouse_click, send_mouse_drag, post_mouse_click
 from src.utils.win32_window import focus_window
 from src.utils.action_helpers import _capture_post_action, _build_window_state
 
@@ -35,6 +35,7 @@ def cv_mouse_click(
     drag_duration_ms: int = 300,
     screenshot: bool = True,
     screenshot_delay_ms: int = 150,
+    background: bool = False,
 ) -> dict:
     """Click, double-click, or drag the mouse at a screen position.
 
@@ -50,6 +51,9 @@ def cv_mouse_click(
         drag_duration_ms: Duration of the drag motion in milliseconds (default 300). Only used for drags.
         screenshot: Whether to capture a screenshot after the action (default True, requires hwnd).
         screenshot_delay_ms: Delay in milliseconds before capturing the post-action screenshot (default 150).
+        background: When True, uses PostMessage to click without moving the cursor or
+                    stealing focus. Requires hwnd. Does not support drag. The user's
+                    desktop is completely undisturbed.
     """
     try:
         # Validate button
@@ -61,6 +65,59 @@ def cv_mouse_click(
             return make_error(INVALID_INPUT, f"Invalid click_type: {click_type!r}. Must be single or double.")
 
         is_drag = start_x is not None and start_y is not None
+
+        # ---- Background mode (PostMessage — no cursor move, no focus steal) ----
+        if background:
+            if hwnd is None:
+                return make_error(INVALID_INPUT, "background=True requires hwnd.")
+            if is_drag:
+                return make_error(INVALID_INPUT, "background=True does not support drag operations.")
+
+            from src.utils.security import validate_hwnd_range, validate_hwnd_fresh
+            from src.utils.action_helpers import _get_hwnd_process_name
+
+            validate_hwnd_range(hwnd)
+            if not validate_hwnd_fresh(hwnd):
+                return make_error(INPUT_FAILED, f"HWND {hwnd} is no longer valid.")
+
+            process_name = _get_hwnd_process_name(hwnd)
+            if process_name:
+                check_restricted(process_name)
+            check_rate_limit()
+
+            params = {"x": x, "y": y, "button": button, "click_type": click_type, "background": True}
+            dry = guard_dry_run("cv_mouse_click", params)
+            if dry is not None:
+                return dry
+
+            # Convert to client-relative coordinates for PostMessage
+            if coordinate_space == "screen_absolute":
+                client_x, client_y = to_window_relative(x, y, hwnd)
+            else:
+                client_x, client_y = x, y
+
+            ok = post_mouse_click(hwnd, client_x, client_y, button, click_type)
+            log_action("cv_mouse_click", params, "ok" if ok else "fail")
+            if not ok:
+                return make_error(INPUT_FAILED, "PostMessage failed for background click.")
+
+            result = make_success(
+                action="click",
+                position={"x": x, "y": y},
+                button=button,
+                click_type=click_type,
+                background=True,
+            )
+            if screenshot:
+                image_path = _capture_post_action(hwnd, delay_ms=screenshot_delay_ms)
+                if image_path:
+                    result["image_path"] = image_path
+            window_state = _build_window_state(hwnd)
+            if window_state:
+                result["window_state"] = window_state
+            return result
+
+        # ---- Foreground mode (SendInput — original behavior) ----
 
         # Convert window-relative to screen-absolute if needed
         if coordinate_space == "window_relative" and hwnd:

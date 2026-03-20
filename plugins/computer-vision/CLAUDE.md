@@ -1,7 +1,7 @@
 # Computer Vision Plugin for Claude Code
 
 ## Overview
-This is an MCP plugin that gives Claude Code full computer vision and input control across any Windows application. It provides 17 tools for screenshots, window management, mouse/keyboard input, scrolling, OCR, natural language element finding, text extraction, UI accessibility, and multi-monitor support. All mutating tools return post-action screenshots for see-act-verify automation.
+This is an MCP plugin that gives Claude Code full computer vision and input control across any Windows application. It provides 19 tools for screenshots, window management, mouse/keyboard input, scrolling, OCR, natural language element finding, text extraction, UI accessibility, and multi-monitor support. All mutating tools return post-action screenshots for see-act-verify automation. Input tools support **background mode** (`background=True`) which uses PostMessage to click, type, and send keys without moving the cursor or stealing focus.
 
 ## Architecture
 - **MCP server**: FastMCP over stdio transport (never HTTP/SSE)
@@ -38,16 +38,15 @@ This is an MCP plugin that gives Claude Code full computer vision and input cont
 - Pytesseract is a secondary fallback if `winocr` is unavailable.
 - Default PII redaction patterns (SSN, credit card) applied to all OCR/text output.
 
-## Sandbox Native DLL
-The sandbox tools (`cv_sandbox_*`) require compiled native DLLs. Build prerequisites:
-- Visual Studio 2022 Build Tools with C++ workload and CMake
-- Microsoft Detours (vendored at `src/sandbox/native/vendor/Detours/`)
-- nlohmann/json v3.11.3 (vendored at `src/sandbox/native/vendor/nlohmann/json.hpp`)
-
-Build: `uv run python scripts/build_native.py`
-Output: `src/sandbox/native/build/` → `shim32.dll`, `shim64.dll`, `injector.exe`
-
-The `/cv-setup` skill handles the full setup including native DLL compilation.
+## Background Mode
+Input tools (`cv_mouse_click`, `cv_type_text`, `cv_send_keys`) accept `background=True` + `hwnd` to operate without disturbing the user:
+- **Mouse**: `PostMessage(WM_LBUTTONDOWN/UP)` — no cursor movement, no focus steal
+- **Keyboard**: `PostMessage(WM_CHAR/WM_KEYDOWN)` — no focus required
+- **Screenshots**: `PrintWindow` already captures any window regardless of focus
+- Coordinates are auto-converted from screen-absolute to client-relative for PostMessage
+- Same security gates apply (HWND validation, process restriction, rate limiting)
+- Limitation: drag operations are not supported in background mode
+- Limitation: some apps (DirectX games, certain UWP controls) may not respond to posted messages
 
 ## Dependencies
 mcp, mss, pywin32, Pillow, winocr, comtypes, pydantic — all installed via `uv sync`.

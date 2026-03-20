@@ -1,7 +1,7 @@
 {
   "name": "computer-vision",
-  "version": "2.0.0",
-  "description": "Desktop computer vision and input control for Claude Code on Windows. 28 tools: screenshots, click, type, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees, and 9 sandbox tools for parallel desktop automation (cv_sandbox_start, cv_sandbox_click, cv_sandbox_type, cv_sandbox_screenshot, cv_sandbox_batch). Like Claude-in-Chrome, but for any Windows app — with optional isolated sandbox mode.",
+  "version": "2.1.0",
+  "description": "Desktop computer vision and input control for Claude Code on Windows. 19 tools: screenshots, click, type, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees. All input tools support background mode (background=True) — click, type, and send keys via PostMessage without moving the cursor or stealing focus, so the user can keep working undisturbed.",
   "author": {
     "name": "Southlab AI"
   },
@@ -16,7 +16,7 @@
     "screenshot",
     "ocr",
     "accessibility",
-    "sandbox",
+    "background-mode",
     "parallel"
   ]
 }

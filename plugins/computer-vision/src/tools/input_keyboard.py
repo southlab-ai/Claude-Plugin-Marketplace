@@ -17,7 +17,7 @@ from src.utils.security import (
     guard_dry_run,
     log_action,
 )
-from src.utils.win32_input import type_unicode_string, send_key_combo
+from src.utils.win32_input import type_unicode_string, send_key_combo, post_type_string, post_key_combo
 from src.utils.win32_window import focus_window
 from src.utils.action_helpers import _get_hwnd_process_name, _capture_post_action, _build_window_state
 
@@ -32,6 +32,7 @@ def cv_type_text(
     hwnd: int | None = None,
     screenshot: bool = True,
     screenshot_delay_ms: int = 150,
+    background: bool = False,
 ) -> dict:
     """Type a string of text at the current cursor position using Unicode input.
 
@@ -41,6 +42,8 @@ def cv_type_text(
               full security validation (HWND freshness, process restriction, rate limiting).
         screenshot: Whether to capture a screenshot after typing (default True). Only used when hwnd is provided.
         screenshot_delay_ms: Delay in ms before screenshot capture (default 150). Only used when hwnd is provided.
+        background: When True, uses PostMessage to type without stealing focus or
+                    interrupting the user. Requires hwnd.
     """
     try:
         if not text:
@@ -51,6 +54,43 @@ def cv_type_text(
                 INVALID_INPUT,
                 f"Text length {len(text)} exceeds maximum {config.MAX_TEXT_LENGTH}.",
             )
+
+        if background:
+            if hwnd is None:
+                return make_error(INVALID_INPUT, "background=True requires hwnd.")
+
+            validate_hwnd_range(hwnd)
+            if not validate_hwnd_fresh(hwnd):
+                return make_error(INPUT_FAILED, f"HWND {hwnd} is no longer valid.")
+
+            process_name = _get_hwnd_process_name(hwnd)
+            if not process_name:
+                return make_error(ACCESS_DENIED, "Cannot determine process for HWND")
+
+            check_restricted(process_name)
+            check_rate_limit()
+
+            params = {"text": text, "hwnd": hwnd, "background": True}
+            dry = guard_dry_run("cv_type_text", params)
+            if dry is not None:
+                return dry
+
+            log_action("cv_type_text", params, "start")
+            ok = post_type_string(hwnd, text)
+            log_action("cv_type_text", params, "ok" if ok else "fail")
+
+            if not ok:
+                return make_error(INPUT_FAILED, "PostMessage failed for background typing.")
+
+            result = make_success(action="type_text", length=len(text), background=True)
+            if screenshot:
+                image_path = _capture_post_action(hwnd, delay_ms=screenshot_delay_ms)
+                if image_path:
+                    result["image_path"] = image_path
+            window_state = _build_window_state(hwnd)
+            if window_state:
+                result["window_state"] = window_state
+            return result
 
         if hwnd is not None:
             # --- HWND-targeted path with full security gate ---
@@ -129,6 +169,7 @@ def cv_send_keys(
     hwnd: int | None = None,
     screenshot: bool = True,
     screenshot_delay_ms: int = 150,
+    background: bool = False,
 ) -> dict:
     """Send a keyboard shortcut or key combination (e.g., "ctrl+c", "alt+tab", "ctrl+shift+s").
 
@@ -141,10 +182,49 @@ def cv_send_keys(
               full security validation (HWND freshness, process restriction, rate limiting).
         screenshot: Whether to capture a screenshot after sending keys (default True). Only used when hwnd is provided.
         screenshot_delay_ms: Delay in ms before screenshot capture (default 150). Only used when hwnd is provided.
+        background: When True, uses PostMessage to send keys without stealing focus or
+                    interrupting the user. Requires hwnd.
     """
     try:
         if not keys or not keys.strip():
             return make_error(INVALID_INPUT, "Keys must not be empty.")
+
+        if background:
+            if hwnd is None:
+                return make_error(INVALID_INPUT, "background=True requires hwnd.")
+
+            validate_hwnd_range(hwnd)
+            if not validate_hwnd_fresh(hwnd):
+                return make_error(INPUT_FAILED, f"HWND {hwnd} is no longer valid.")
+
+            process_name = _get_hwnd_process_name(hwnd)
+            if not process_name:
+                return make_error(ACCESS_DENIED, "Cannot determine process for HWND")
+
+            check_restricted(process_name)
+            check_rate_limit()
+
+            params = {"keys": keys, "hwnd": hwnd, "background": True}
+            dry = guard_dry_run("cv_send_keys", params)
+            if dry is not None:
+                return dry
+
+            log_action("cv_send_keys", params, "start")
+            ok = post_key_combo(hwnd, keys)
+            log_action("cv_send_keys", params, "ok" if ok else "fail")
+
+            if not ok:
+                return make_error(INPUT_FAILED, f"PostMessage failed for background key combo: {keys!r}")
+
+            result = make_success(action="send_keys", keys=keys, background=True)
+            if screenshot:
+                image_path = _capture_post_action(hwnd, delay_ms=screenshot_delay_ms)
+                if image_path:
+                    result["image_path"] = image_path
+            window_state = _build_window_state(hwnd)
+            if window_state:
+                result["window_state"] = window_state
+            return result
 
         if hwnd is not None:
             # --- HWND-targeted path with full security gate ---

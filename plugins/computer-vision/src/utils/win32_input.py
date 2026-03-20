@@ -392,3 +392,145 @@ def _send_inputs(inputs: list[INPUT]) -> int:
     """Send a batch of INPUT structures via SendInput."""
     arr = (INPUT * len(inputs))(*inputs)
     return ctypes.windll.user32.SendInput(len(inputs), arr, ctypes.sizeof(INPUT))
+
+
+# ---------------------------------------------------------------------------
+# PostMessage-based input (background mode — no cursor move, no focus steal)
+# ---------------------------------------------------------------------------
+
+# Window message constants
+WM_LBUTTONDOWN = 0x0201
+WM_LBUTTONUP = 0x0202
+WM_RBUTTONDOWN = 0x0204
+WM_RBUTTONUP = 0x0205
+WM_MBUTTONDOWN = 0x0207
+WM_MBUTTONUP = 0x0208
+WM_LBUTTONDBLCLK = 0x0203
+WM_RBUTTONDBLCLK = 0x0206
+WM_MBUTTONDBLCLK = 0x0209
+WM_KEYDOWN = 0x0100
+WM_KEYUP = 0x0101
+WM_CHAR = 0x0102
+WM_SYSCOMMAND = 0x0112
+
+MK_LBUTTON = 0x0001
+MK_RBUTTON = 0x0002
+MK_MBUTTON = 0x0010
+
+
+def _makelparam(lo: int, hi: int) -> int:
+    """Pack two 16-bit values into a single LPARAM."""
+    return (hi << 16) | (lo & 0xFFFF)
+
+
+def _post_button_msgs(button: str) -> tuple[int, int, int, int]:
+    """Return (down_msg, up_msg, dblclk_msg, wparam_flag) for a mouse button."""
+    if button == "right":
+        return (WM_RBUTTONDOWN, WM_RBUTTONUP, WM_RBUTTONDBLCLK, MK_RBUTTON)
+    if button == "middle":
+        return (WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MBUTTONDBLCLK, MK_MBUTTON)
+    return (WM_LBUTTONDOWN, WM_LBUTTONUP, WM_LBUTTONDBLCLK, MK_LBUTTON)
+
+
+def post_mouse_click(
+    hwnd: int, x: int, y: int, button: str = "left", click_type: str = "single"
+) -> bool:
+    """Send a mouse click to *hwnd* via PostMessage — no cursor move, no focus steal.
+
+    Args:
+        hwnd: Target window handle.
+        x: X in client coordinates of *hwnd*.
+        y: Y in client coordinates of *hwnd*.
+        button: "left", "right", or "middle".
+        click_type: "single" or "double".
+
+    Returns:
+        True if all PostMessage calls succeeded.
+    """
+    down_msg, up_msg, dbl_msg, wp_flag = _post_button_msgs(button)
+    lp = _makelparam(x, y)
+    user32 = ctypes.windll.user32
+
+    if click_type == "double":
+        # WM_LBUTTONDBLCLK requires CS_DBLCLKS on the window class,
+        # so send down+up+dblclk+up for maximum compatibility.
+        ok = (
+            user32.PostMessageW(hwnd, down_msg, wp_flag, lp)
+            and user32.PostMessageW(hwnd, up_msg, 0, lp)
+            and user32.PostMessageW(hwnd, dbl_msg, wp_flag, lp)
+            and user32.PostMessageW(hwnd, up_msg, 0, lp)
+        )
+    else:
+        ok = (
+            user32.PostMessageW(hwnd, down_msg, wp_flag, lp)
+            and user32.PostMessageW(hwnd, up_msg, 0, lp)
+        )
+
+    logger.debug("post_mouse_click: hwnd=%d pos=(%d,%d) button=%s ok=%s", hwnd, x, y, button, ok)
+    return bool(ok)
+
+
+def post_type_string(hwnd: int, text: str) -> bool:
+    """Type a string into *hwnd* via WM_CHAR messages — no focus required.
+
+    Args:
+        hwnd: Target window handle.
+        text: The text to type.
+
+    Returns:
+        True if all PostMessage calls succeeded.
+    """
+    user32 = ctypes.windll.user32
+    for ch in text:
+        if not user32.PostMessageW(hwnd, WM_CHAR, ord(ch), 0):
+            logger.warning("post_type_string: PostMessage WM_CHAR failed for %r", ch)
+            return False
+    logger.debug("post_type_string: hwnd=%d chars=%d ok=True", hwnd, len(text))
+    return True
+
+
+def post_key_combo(hwnd: int, keys: str) -> bool:
+    """Send a key combination to *hwnd* via PostMessage — no focus required.
+
+    Args:
+        hwnd: Target window handle.
+        keys: Key combination string (e.g. "ctrl+s", "alt+f4").
+
+    Returns:
+        True if all PostMessage calls succeeded.
+    """
+    parts = [p.strip().lower() for p in keys.split("+")]
+    modifiers: list[int] = []
+    regular_keys: list[int] = []
+
+    for part in parts:
+        vk = VK_MAP.get(part)
+        if vk is None:
+            if len(part) == 1 and part.isascii():
+                vk = ord(part.upper())
+            else:
+                logger.warning("post_key_combo: unknown key %r", part)
+                return False
+        if vk in MODIFIER_VKS:
+            modifiers.append(vk)
+        else:
+            regular_keys.append(vk)
+
+    user32 = ctypes.windll.user32
+    ok = True
+
+    # Modifiers down
+    for vk in modifiers:
+        ok = ok and bool(user32.PostMessageW(hwnd, WM_KEYDOWN, vk, 0))
+
+    # Regular keys down + up
+    for vk in regular_keys:
+        ok = ok and bool(user32.PostMessageW(hwnd, WM_KEYDOWN, vk, 0))
+        ok = ok and bool(user32.PostMessageW(hwnd, WM_KEYUP, vk, 0xC0000001))
+
+    # Modifiers up (reverse)
+    for vk in reversed(modifiers):
+        ok = ok and bool(user32.PostMessageW(hwnd, WM_KEYUP, vk, 0xC0000001))
+
+    logger.debug("post_key_combo: hwnd=%d keys=%r ok=%s", hwnd, keys, ok)
+    return ok

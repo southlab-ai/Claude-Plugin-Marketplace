@@ -39,15 +39,28 @@
     {
       "name": "computer-vision",
       "source": "./plugins/computer-vision",
-      "description": "Desktop computer vision and input control for Claude Code on Windows. 28 tools: screenshots, click, drag-and-drop, type, scroll, OCR, element finder, text extraction, UI accessibility trees, action routing with adapters, and 9 sandbox tools for parallel desktop automation (Claude automates apps in isolated Windows Sandbox while the user works undisturbed). Like Claude-in-Chrome, but for any Windows app.",
-      "version": "2.0.0",
+      "description": "Desktop computer vision and input control for Claude Code on Windows. 19 tools: screenshots, click, drag-and-drop, type, scroll, OCR, element finder, text extraction, UI accessibility trees, action routing with adapters. All input tools support background mode — click, type, and send keys via PostMessage without moving the cursor or stealing focus.",
+      "version": "2.1.0",
       "author": {
         "name": "Southlab AI"
       },
       "license": "MIT",
-      "keywords": ["computer-vision", "windows", "desktop", "automation", "mcp", "screenshot", "ocr", "accessibility", "ui-automation", "drag-and-drop", "sandbox", "parallel"],
+      "keywords": ["computer-vision", "windows", "desktop", "automation", "mcp", "screenshot", "ocr", "accessibility", "ui-automation", "drag-and-drop", "background-mode", "parallel"],
       "category": "utilities",
       "tags": ["desktop", "windows", "vision", "automation", "ocr"]
+    },
+    {
+      "name": "the-financial-council",
+      "source": "./plugins/the-financial-council",
+      "description": "See what the smartest prediction market traders agree on, weighted by their actual track record — and map those signals to stocks you can trade. P3: Knowledge Graph with Neo4j, FRED macro data, and SEC EDGAR filings.",
+      "version": "1.1.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "MIT",
+      "keywords": ["finance", "prediction-markets", "polymarket", "brier-score", "hypothesis", "investing", "signals", "trading"],
+      "category": "finance",
+      "tags": ["finance", "prediction-markets", "investing", "signals"]
     }
   ]
 }

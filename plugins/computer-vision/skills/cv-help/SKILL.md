@@ -48,3 +48,9 @@ Show available Computer Vision tools and usage examples.
 
 **OCR with bounding boxes:**
 1. `cv_ocr(hwnd=<HWND>)` — extract text with word-level bounding boxes and confidence scores
+
+**Background mode (work without disturbing the user):**
+1. `cv_mouse_click(x=100, y=200, hwnd=<HWND>, background=True)` — click without moving cursor
+2. `cv_type_text(text="hello", hwnd=<HWND>, background=True)` — type without stealing focus
+3. `cv_send_keys(keys="ctrl+s", hwnd=<HWND>, background=True)` — send keys in background
+4. Screenshots already work per-window regardless of focus — no changes needed
