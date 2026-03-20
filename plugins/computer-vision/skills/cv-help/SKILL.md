@@ -54,3 +54,8 @@ Show available Computer Vision tools and usage examples.
 2. `cv_type_text(text="hello", hwnd=<HWND>, background=True)` — type without stealing focus
 3. `cv_send_keys(keys="ctrl+s", hwnd=<HWND>, background=True)` — send keys in background
 4. Screenshots already work per-window regardless of focus — no changes needed
+
+**Grid overlay for precise clicking:**
+1. `cv_screenshot_window(hwnd=<HWND>, grid=True)` — screenshot with coordinate grid overlay
+2. Read the coordinate labels from the grid image (e.g., x=300, y=200)
+3. `cv_mouse_click(x=300, y=200, hwnd=<HWND>, coordinate_space="window_capture")` — click at exact grid position

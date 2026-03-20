@@ -101,7 +101,7 @@ def _capture_window_impl(hwnd: int) -> Image.Image:
                 pass
 
 
-def capture_window(hwnd: int, max_width: int = 1280) -> ScreenshotResult:
+def capture_window(hwnd: int, max_width: int = 1280, grid_spacing: int = 0) -> ScreenshotResult:
     """Capture a specific window by HWND.
 
     Uses PrintWindow-first 3-tier fallback for reliable capture of
@@ -110,6 +110,7 @@ def capture_window(hwnd: int, max_width: int = 1280) -> ScreenshotResult:
     Args:
         hwnd: Window handle to capture.
         max_width: Maximum width for downscaling. Default 1280.
+        grid_spacing: If >0, overlay a coordinate grid with this spacing.
 
     Returns:
         ScreenshotResult with base64-encoded image and metadata.
@@ -127,7 +128,7 @@ def capture_window(hwnd: int, max_width: int = 1280) -> ScreenshotResult:
     dpi = get_window_dpi(hwnd)
     scale = get_scale_factor(dpi)
 
-    filepath = save_image(img, max_width=max_width)
+    filepath = save_image(img, max_width=max_width, grid_spacing=grid_spacing)
 
     return ScreenshotResult(
         image_path=filepath,
@@ -342,13 +343,80 @@ def _cleanup_old_screenshots() -> None:
 _cleanup_call_count: int = 0
 
 
-def save_image(img: Image.Image, max_width: int = 1280, fmt: str = "png") -> str:
+def draw_grid(
+    img: Image.Image,
+    spacing: int,
+    physical_width: int,
+    physical_height: int,
+) -> Image.Image:
+    """Draw a coordinate grid overlay on an image.
+
+    Grid labels show **window_capture coordinates** — pass the label value
+    directly to ``cv_mouse_click(coordinate_space="window_capture")`` to
+    click that position.
+
+    Args:
+        img: The (possibly downscaled) screenshot image.
+        spacing: Grid line spacing in *physical window pixels*.
+        physical_width: Original window width before downscaling.
+        physical_height: Original window height before downscaling.
+
+    Returns:
+        A new RGB image with the grid overlay.
+    """
+    from PIL import ImageDraw
+
+    base = img.convert("RGBA")
+    overlay = Image.new("RGBA", base.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+
+    # Scale: physical window pixels → saved image pixels
+    sx = physical_width / base.width if base.width > 0 else 1.0
+    sy = physical_height / base.height if base.height > 0 else 1.0
+
+    line_color = (255, 60, 60, 100)
+    label_color = (255, 255, 255, 240)
+    bg_color = (180, 0, 0, 180)
+
+    # Vertical lines
+    for wx in range(spacing, physical_width, spacing):
+        ix = int(wx / sx)
+        if ix >= base.width:
+            break
+        draw.line([(ix, 0), (ix, base.height)], fill=line_color, width=1)
+        label = str(wx)
+        tw = len(label) * 7
+        draw.rectangle([(ix + 1, 0), (ix + 1 + tw, 13)], fill=bg_color)
+        draw.text((ix + 2, 1), label, fill=label_color)
+
+    # Horizontal lines
+    for wy in range(spacing, physical_height, spacing):
+        iy = int(wy / sy)
+        if iy >= base.height:
+            break
+        draw.line([(0, iy), (base.width, iy)], fill=line_color, width=1)
+        label = str(wy)
+        tw = len(label) * 7
+        draw.rectangle([(0, iy + 1), (tw + 2, iy + 14)], fill=bg_color)
+        draw.text((2, iy + 1), label, fill=label_color)
+
+    return Image.alpha_composite(base, overlay).convert("RGB")
+
+
+def save_image(
+    img: Image.Image,
+    max_width: int = 1280,
+    fmt: str = "png",
+    grid_spacing: int = 0,
+) -> str:
     """Downscale and save a PIL Image to a temp file.
 
     Args:
         img: PIL Image to save.
         max_width: Maximum width for downscaling.
         fmt: Image format ("png" or "jpeg").
+        grid_spacing: If >0, overlay a coordinate grid with this spacing
+            (in physical window pixels). Labels show window_capture coords.
 
     Returns:
         Absolute file path to the saved image.
@@ -358,10 +426,16 @@ def save_image(img: Image.Image, max_width: int = 1280, fmt: str = "png") -> str
     if _cleanup_call_count % 10 == 0:
         _cleanup_old_screenshots()
 
+    # Remember physical dimensions before downscaling (for grid labels)
+    physical_w, physical_h = img.width, img.height
+
     if img.width > max_width:
         ratio = max_width / img.width
         new_height = int(img.height * ratio)
         img = img.resize((max_width, new_height), Image.Resampling.LANCZOS)
+
+    if grid_spacing > 0:
+        img = draw_grid(img, grid_spacing, physical_w, physical_h)
 
     timestamp = int(time.time() * 1000)
     filename = f"cv_{timestamp}.{fmt}"

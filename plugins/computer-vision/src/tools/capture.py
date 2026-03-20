@@ -19,18 +19,25 @@ logger = logging.getLogger(__name__)
 
 
 @mcp.tool()
-def cv_screenshot_window(hwnd: int, max_width: int = 1280) -> dict:
+def cv_screenshot_window(hwnd: int, max_width: int = 1280, grid: bool = False, grid_spacing: int = 100) -> dict:
     """Capture a screenshot of a specific window.
 
     Returns a file path to the saved PNG image plus window geometry and
     DPI metadata.  Use the Read tool on ``image_path`` to view the image.
 
+    When ``grid=True``, overlays a coordinate grid on the image. The grid
+    labels show **window_capture coordinates** — pass a label value directly
+    to ``cv_mouse_click(coordinate_space="window_capture")`` to click that
+    exact position.
+
     Args:
         hwnd: The window handle to capture.
         max_width: Maximum width in pixels for the output image. Default 1280.
+        grid: Whether to overlay a coordinate grid on the image. Default False.
+        grid_spacing: Grid line spacing in pixels. Default 100.
     """
     try:
-        result = capture_window(hwnd, max_width=max_width)
+        result = capture_window(hwnd, max_width=max_width, grid_spacing=grid_spacing if grid else 0)
         # image_to_screen: add these offsets to any image pixel coordinate
         # to get the screen-absolute coordinate for clicking.
         # Accounts for DPI scaling of the output image.
