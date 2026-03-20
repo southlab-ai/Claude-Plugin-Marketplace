@@ -1,7 +1,7 @@
 # Computer Vision Plugin for Claude Code
 
 ## Overview
-This is an MCP plugin that gives Claude Code full computer vision and input control across any Windows application. It provides 22 tools for screenshots, window management, mouse/keyboard input, scrolling, OCR, natural language element finding, text extraction, UI accessibility, scene analysis, human-like mouse movement, and action recording with frame-by-frame replay. All mutating tools return post-action screenshots for see-act-verify automation. Input tools support **background mode** (`background=True`) which uses PostMessage to click, type, and send keys without moving the cursor or stealing focus.
+This is an MCP plugin that gives Claude Code full computer vision and input control across any Windows application. It provides 24 tools for screenshots, window management, mouse/keyboard input, scrolling, OCR, natural language element finding, text extraction, UI accessibility with deep FindAll search, UIA-based element invocation (bypasses WinUI 3 input issues), scene analysis, human-like mouse movement, and action recording with frame-by-frame replay. All mutating tools return post-action screenshots for see-act-verify automation. Input tools support **background mode** (`background=True`) which uses PostMessage to click, type, and send keys without moving the cursor or stealing focus.
 
 ## Desktop Automation Guide
 
@@ -28,9 +28,30 @@ Every interaction with a desktop app should follow this cycle:
 | Debug why a click failed | `cv_record` with `frames_after=5` | Review frame-by-frame what happened |
 | Drag and drop | `cv_record(action="drag")` or `cv_mouse_click(start_x=..., start_y=...)` | Smooth drag with intermediate frames |
 | Click without disturbing user | `cv_mouse_click(background=True, hwnd=...)` | PostMessage — no cursor movement |
+| Click WinUI 3/UWP toolbar buttons | `cv_click_ui(hwnd, name="Elipse")` | UIA Invoke/Toggle — bypasses SendInput |
+| List all UI elements (buttons, menus) | `cv_read_ui(mode="flat")` | FindAll — fast, no depth limit, finds everything |
 | Read text from a window | `cv_ocr` or `cv_get_text` | OCR with bounding boxes |
 | Find a specific UI element by description | `cv_find` | Natural language element search |
-| Read accessibility tree | `cv_read_ui` | Structured UI hierarchy |
+| Read accessibility tree (hierarchical) | `cv_read_ui(mode="tree")` | TreeWalker — preserves parent-child structure |
+
+### Clicking UI Controls in Modern Apps (WinUI 3 / UWP)
+
+Windows 11 apps like Paint, Calculator, and Microsoft Store apps use **WinUI 3** — a modern UI framework whose toolbar buttons **ignore `SendInput` mouse clicks**. This means `cv_mouse_click` and `cv_record(action="move_click")` work on the canvas but NOT on toolbar buttons, menus, or other UI controls.
+
+**Solution**: Use `cv_click_ui` which invokes controls directly via UI Automation patterns:
+
+```
+cv_read_ui(hwnd, filter="interactive")  → find element names
+cv_click_ui(hwnd, name="Elipse")        → select the tool via TogglePattern
+cv_record(action="drag", ...)            → draw on canvas with SendInput
+```
+
+**How it works**: Instead of simulating a mouse click, `cv_click_ui` calls the control's action handler directly through the OS accessibility framework. It tries patterns in order: Invoke → Toggle → SelectionItem → LegacyIAccessible.
+
+**When to use `cv_click_ui` vs `cv_mouse_click`**:
+- Toolbar buttons, menu items, checkboxes, radio buttons → `cv_click_ui`
+- Canvas drawing, game interaction, drag-and-drop → `cv_mouse_click` or `cv_record`
+- If `cv_mouse_click` doesn't work on a button → try `cv_click_ui`
 
 ### Human-Like Mouse Movement
 

@@ -1,6 +1,6 @@
 [project]
 name = "computer-vision-claude-code"
-version = "2.4.0"
+version = "2.5.0"
 description = "Desktop computer vision and input control for Claude Code on Windows"
 requires-python = ">=3.11"
 dependencies = [
