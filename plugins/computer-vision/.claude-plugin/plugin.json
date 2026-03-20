@@ -1,7 +1,7 @@
 {
   "name": "computer-vision",
-  "version": "2.3.0",
-  "description": "Desktop computer vision and input control for Claude Code on Windows. 19 tools: screenshots, click, type, OCR with bounding boxes, natural language element finder (cv_find), text extraction (cv_get_text), UI accessibility trees. All input tools support background mode (background=True) — click, type, and send keys via PostMessage without moving the cursor or stealing focus, so the user can keep working undisturbed.",
+  "version": "2.4.0",
+  "description": "Desktop computer vision and input control for Claude Code on Windows. 22 tools: screenshots, scene analysis with OpenCV element detection, human-like mouse movement, action recording with frame-by-frame replay, click, type, OCR, element finder, text extraction, UI accessibility trees. All input tools support background mode (background=True) — PostMessage without cursor movement or focus steal.",
   "author": {
     "name": "Southlab AI"
   },

@@ -147,6 +147,62 @@ class INPUT(ctypes.Structure):
     _fields_ = [("type", ctypes.c_ulong), ("union", _INPUTunion)]
 
 
+def send_mouse_move(
+    target_x: int, target_y: int,
+    steps: int = 25,
+    duration_ms: int = 300,
+) -> bool:
+    """Smoothly move cursor from current position to target (normalized 0-65535 coords).
+
+    Uses smoothstep interpolation for human-like acceleration/deceleration.
+
+    Args:
+        target_x: Normalized target X (0-65535).
+        target_y: Normalized target Y (0-65535).
+        steps: Number of intermediate move events.
+        duration_ms: Total duration of the movement in milliseconds.
+
+    Returns:
+        True on success.
+    """
+    # Get current cursor position in screen pixels
+    cursor = ctypes.wintypes.POINT()
+    ctypes.windll.user32.GetCursorPos(ctypes.byref(cursor))
+
+    # Convert current screen position to normalized 0-65535
+    sm_vx = ctypes.windll.user32.GetSystemMetrics(76)   # SM_XVIRTUALSCREEN
+    sm_vy = ctypes.windll.user32.GetSystemMetrics(77)   # SM_YVIRTUALSCREEN
+    sm_cw = ctypes.windll.user32.GetSystemMetrics(78)   # SM_CXVIRTUALSCREEN
+    sm_ch = ctypes.windll.user32.GetSystemMetrics(79)   # SM_CYVIRTUALSCREEN
+
+    start_x = int(((cursor.x - sm_vx) * 65535) / max(sm_cw - 1, 1))
+    start_y = int(((cursor.y - sm_vy) * 65535) / max(sm_ch - 1, 1))
+
+    base_flags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_MOVE
+    step_delay = duration_ms / 1000.0 / max(steps, 1)
+
+    for i in range(1, steps + 1):
+        t = i / steps
+        # Smoothstep easing: accelerate then decelerate
+        t = t * t * (3.0 - 2.0 * t)
+
+        ix = int(start_x + (target_x - start_x) * t)
+        iy = int(start_y + (target_y - start_y) * t)
+
+        inp = INPUT(type=INPUT_MOUSE)
+        inp.union.mi.dx = ix
+        inp.union.mi.dy = iy
+        inp.union.mi.dwFlags = base_flags
+        _send_inputs([inp])
+        time.sleep(step_delay)
+
+    logger.debug(
+        "send_mouse_move: %d steps over %dms to (%d, %d)",
+        steps, duration_ms, target_x, target_y,
+    )
+    return True
+
+
 def send_mouse_click(x: int, y: int, button: str = "left", click_type: str = "single") -> bool:
     """Send a mouse click at normalized coordinates (0-65535 range).
 

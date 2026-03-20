@@ -1,7 +1,111 @@
 # Computer Vision Plugin for Claude Code
 
 ## Overview
-This is an MCP plugin that gives Claude Code full computer vision and input control across any Windows application. It provides 19 tools for screenshots, window management, mouse/keyboard input, scrolling, OCR, natural language element finding, text extraction, UI accessibility, and multi-monitor support. All mutating tools return post-action screenshots for see-act-verify automation. Input tools support **background mode** (`background=True`) which uses PostMessage to click, type, and send keys without moving the cursor or stealing focus.
+This is an MCP plugin that gives Claude Code full computer vision and input control across any Windows application. It provides 22 tools for screenshots, window management, mouse/keyboard input, scrolling, OCR, natural language element finding, text extraction, UI accessibility, scene analysis, human-like mouse movement, and action recording with frame-by-frame replay. All mutating tools return post-action screenshots for see-act-verify automation. Input tools support **background mode** (`background=True`) which uses PostMessage to click, type, and send keys without moving the cursor or stealing focus.
+
+## Desktop Automation Guide
+
+This section describes how to use the tools together as a coordinated system for automating any Windows application. Follow these patterns for reliable, debuggable desktop automation.
+
+### The See-Plan-Act-Verify Loop
+
+Every interaction with a desktop app should follow this cycle:
+
+1. **See**: Take a screenshot (`cv_screenshot_window`) or scene analysis (`cv_scene`)
+2. **Plan**: Look at the image with your vision. Identify elements, read text, understand the app state. Use `cv_scene` element coordinates for precise targeting.
+3. **Act**: Execute the interaction using `cv_record(action="move_click")` for human-like mouse movement, or `cv_mouse_click` for simple clicks.
+4. **Verify**: Review the post-action screenshot or `cv_record` frame log to confirm the action succeeded. If an element shook or nothing changed, the action failed — analyze why before retrying.
+
+### Tool Selection Guide
+
+| Situation | Tool | Why |
+|-----------|------|-----|
+| First look at a window | `cv_screenshot_window` | Quick visual snapshot |
+| Need clickable element coordinates | `cv_scene` | Returns numbered elements with `center_screen` coordinates |
+| Click a button/element (standard app) | `cv_mouse_click` | Direct, fast click |
+| Click in UWP/WebView/game app | `cv_record(action="move_click")` | Generates real WM_MOUSEMOVE events that UWP apps require |
+| Trigger hover state before clicking | `cv_mouse_move` then `cv_mouse_click` | Separate move and click for fine control |
+| Debug why a click failed | `cv_record` with `frames_after=5` | Review frame-by-frame what happened |
+| Drag and drop | `cv_record(action="drag")` or `cv_mouse_click(start_x=..., start_y=...)` | Smooth drag with intermediate frames |
+| Click without disturbing user | `cv_mouse_click(background=True, hwnd=...)` | PostMessage — no cursor movement |
+| Read text from a window | `cv_ocr` or `cv_get_text` | OCR with bounding boxes |
+| Find a specific UI element by description | `cv_find` | Natural language element search |
+| Read accessibility tree | `cv_read_ui` | Structured UI hierarchy |
+
+### Human-Like Mouse Movement
+
+Many Windows apps (especially UWP, WebView, Electron, and games) **ignore clicks that appear without preceding mouse movement**. They expect:
+1. `WM_MOUSEMOVE` events as the cursor approaches
+2. A brief hover period
+3. Then the click
+
+**`cv_record(action="move_click")`** handles this automatically:
+- Smoothly moves the cursor from its current position to the target using smoothstep interpolation
+- Hovers for 50ms (triggering mouse-enter events)
+- Clicks
+- Captures screenshots at each phase for debugging
+
+**When to use move_click vs direct click**:
+- Standard Win32 apps (Notepad, Explorer, Office): `cv_mouse_click` works fine
+- UWP apps (Microsoft Store apps, Solitaire, Calculator): Use `cv_record(action="move_click")`
+- WebView/Electron apps: Use `cv_record(action="move_click")`
+- Games: Use `cv_record(action="move_click")`
+- If a direct click doesn't register: Switch to `cv_record(action="move_click")`
+
+### Using cv_scene for Precise Targeting
+
+Instead of guessing pixel coordinates from screenshots:
+
+1. Call `cv_scene(hwnd=...)` to detect all elements
+2. View the annotated image with the Read tool — elements have cyan numbered boxes
+3. **Use your vision** to identify what each element is (card values, button labels, icons)
+4. Use the `center_screen` coordinates from the element list to click precisely
+
+```
+cv_scene result → element #5 at center_screen (1045, 178)
+                → cv_record(action="move_click", x=1045, y=178)
+```
+
+**Important**: OCR labels in `cv_scene` are useful for text-based UI (buttons, menus, labels) but unreliable on graphical content (playing cards, icons, images). Always visually inspect the annotated screenshot with your multimodal vision to identify elements.
+
+### Debugging Failed Interactions with cv_record Frames
+
+When an action doesn't produce the expected result:
+
+1. Review the **before** frame — was the app in the expected state?
+2. Review the **hover** frame — did the cursor reach the right position?
+3. Review the **click** frame — did the UI react (highlight, selection)?
+4. Review the **after** frames — did the element shake (invalid move)? Did nothing change (missed click)? Did something unexpected happen?
+
+Example frame log:
+```
+t=  0ms  before           ← app state before action
+t=150ms  move_start       ← cursor begins moving
+t=500ms  hover (x,y)      ← cursor arrived, hovering
+t=600ms  click (x,y)      ← click executed
+t=800ms  after +200ms     ← first result frame
+t=1000ms after +400ms     ← settling frame
+```
+
+### Common Patterns
+
+**Deselect before new action**: If a previous interaction left something selected (yellow highlight), click a neutral area first:
+```
+cv_record(action="move_click", x=<empty_area_x>, y=<empty_area_y>, ...)
+```
+
+**Cycle through cards/items**: Repeatedly click a source (like a stock pile) with short delays between draws.
+
+**Two-step placement**: Some apps require select → click destination. Use two sequential `cv_record(action="move_click")` calls with a short delay between them.
+
+**Coordinate spaces**: When you have pixel coordinates from a screenshot image, use `coordinate_space="window_capture"` to auto-convert to screen coordinates. When you have `center_screen` from `cv_scene`, use the default `screen_absolute`.
+
+### Performance Tips
+
+- Use `frames_before=0, frames_after=0` for fast repeated actions (like drawing multiple cards)
+- Use `frames_before=1, frames_after=3` for normal interactions where you need verification
+- Use `max_width=800` for smaller frame files when you don't need full resolution
+- Use `cv_mouse_click` instead of `cv_record` when you know the app responds to direct clicks (no frame recording overhead)
 
 ## Architecture
 - **MCP server**: FastMCP over stdio transport (never HTTP/SSE)
@@ -49,7 +153,7 @@ Input tools (`cv_mouse_click`, `cv_type_text`, `cv_send_keys`) accept `backgroun
 - Limitation: some apps (DirectX games, certain UWP controls) may not respond to posted messages
 
 ## Dependencies
-mcp, mss, pywin32, Pillow, winocr, comtypes, pydantic — all installed via `uv sync`.
+mcp, mss, pywin32, Pillow, winocr, comtypes, pydantic, opencv-python-headless, numpy — all installed via `uv sync`.
 
 ## Distribution
 

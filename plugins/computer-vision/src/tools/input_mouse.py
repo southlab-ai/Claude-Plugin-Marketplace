@@ -15,7 +15,7 @@ from src.utils.security import (
     log_action,
     get_process_name_by_pid,
 )
-from src.utils.win32_input import send_mouse_click, send_mouse_drag, post_mouse_click
+from src.utils.win32_input import send_mouse_click, send_mouse_drag, send_mouse_move, post_mouse_click
 from src.utils.win32_window import focus_window
 from src.utils.action_helpers import _capture_post_action, _build_window_state
 
@@ -221,6 +221,103 @@ def cv_mouse_click(
                 if window_state:
                     result["window_state"] = window_state
             return result
+
+    except Exception as e:
+        return make_error(INPUT_FAILED, str(e))
+
+
+@mcp.tool()
+def cv_mouse_move(
+    x: int,
+    y: int,
+    hwnd: int | None = None,
+    coordinate_space: str = "screen_absolute",
+    duration_ms: int = 300,
+    steps: int = 25,
+    screenshot: bool = True,
+    screenshot_delay_ms: int = 100,
+) -> dict:
+    """Move the mouse cursor smoothly to a position with human-like acceleration.
+
+    **Why this exists**: Many applications (UWP apps, WebView controls, games,
+    Electron apps) require real ``WM_MOUSEMOVE`` events along the cursor path to
+    register hover states, mouse-enter events, and drag interactions. A teleported
+    click (jumping straight to coordinates) is often ignored by these apps.
+
+    **How it works**: Uses smoothstep interpolation (``t*t*(3-2t)``) to accelerate
+    at the start and decelerate at the end, mimicking natural hand movement. Each
+    step generates a real ``SendInput`` mouse move event with
+    ``MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE``.
+
+    **When to use**: Call this before ``cv_mouse_click`` when an app isn't
+    responding to direct clicks, or use ``cv_record(action="move_click")`` which
+    combines smooth movement + hover + click in a single call with frame recording.
+
+    Args:
+        x: Target X coordinate.
+        y: Target Y coordinate.
+        hwnd: Optional window handle (for auto-focus and coordinate conversion).
+        coordinate_space: "screen_absolute", "window_relative", or "window_capture".
+        duration_ms: Duration of the movement in milliseconds. Default 300.
+        steps: Number of intermediate positions along the path. Default 25.
+        screenshot: Whether to capture a screenshot after moving. Default True.
+        screenshot_delay_ms: Delay before screenshot capture in ms. Default 100.
+    """
+    try:
+        # ---- Convert coordinates ----
+        if coordinate_space == "window_capture" and hwnd:
+            import win32gui
+            rect = win32gui.GetWindowRect(hwnd)
+            x = rect[0] + x
+            y = rect[1] + y
+            coordinate_space = "screen_absolute"
+
+        if coordinate_space == "window_relative" and hwnd:
+            x, y = to_screen_absolute(x, y, hwnd)
+
+        # Auto-focus window
+        if hwnd:
+            try:
+                focus_window(hwnd)
+            except Exception as e:
+                logger.warning("Failed to focus window %d: %s", hwnd, e)
+
+        # Security: check foreground process
+        fg_hwnd = ctypes.windll.user32.GetForegroundWindow()
+        if fg_hwnd:
+            pid = ctypes.c_ulong()
+            ctypes.windll.user32.GetWindowThreadProcessId(fg_hwnd, ctypes.byref(pid))
+            process_name = get_process_name_by_pid(pid.value)
+            if process_name:
+                check_restricted(process_name)
+
+        if not validate_coordinates(x, y):
+            return make_error(INVALID_INPUT, f"Coordinates ({x}, {y}) outside virtual desktop.")
+
+        from src.coordinates import normalize_for_sendinput
+        norm_x, norm_y = normalize_for_sendinput(x, y)
+
+        ok = send_mouse_move(norm_x, norm_y, steps=steps, duration_ms=duration_ms)
+        log_action("cv_mouse_move", {"x": x, "y": y, "duration_ms": duration_ms}, "ok" if ok else "fail")
+
+        if not ok:
+            return make_error(INPUT_FAILED, "Mouse move failed.")
+
+        result = make_success(
+            action="move",
+            position={"x": x, "y": y},
+            duration_ms=duration_ms,
+            steps=steps,
+        )
+        if screenshot and hwnd:
+            image_path = _capture_post_action(hwnd, delay_ms=screenshot_delay_ms)
+            if image_path:
+                result["image_path"] = image_path
+        if hwnd:
+            window_state = _build_window_state(hwnd)
+            if window_state:
+                result["window_state"] = window_state
+        return result
 
     except Exception as e:
         return make_error(INPUT_FAILED, str(e))
