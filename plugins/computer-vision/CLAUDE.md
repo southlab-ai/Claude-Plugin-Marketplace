@@ -128,6 +128,79 @@ cv_record(action="move_click", x=<empty_area_x>, y=<empty_area_y>, ...)
 - Use `max_width=800` for smaller frame files when you don't need full resolution
 - Use `cv_mouse_click` instead of `cv_record` when you know the app responds to direct clicks (no frame recording overhead)
 
+### Delegating Execution to a Body Agent (Brain-Body Pattern)
+
+When a task involves **3 or more actions that each need screenshot verification** (games, multi-step UI flows, form filling), delegate execution to a cheaper/faster subagent instead of reading every screenshot yourself. Your vision tokens are expensive — a Body agent's are not.
+
+**When to delegate vs do it yourself:**
+
+| Verification screenshots needed | Approach | Why |
+|---|---|---|
+| 0-2 | Do it yourself (Bash + Read) | Subagent overhead (~8k system context) isn't worth it |
+| 3+ | Delegate to Body agent | Each screenshot Read on Opus costs ~4k tokens. On Sonnet it's ~2k. Savings compound fast |
+| Single script, no verification | Do it yourself (1 Bash call) | No point spawning a subagent for a one-shot command |
+
+**How to delegate — use the Agent tool:**
+
+You are the **Brain** (strategic). The Body agent is the **executor** (tactical). The split:
+- **Brain (you)**: Take ONE screenshot, analyze the full state with your vision, plan specific moves with exact coordinates and expected outcomes. Then delegate.
+- **Body (Sonnet subagent)**: Receives your action plan, executes each step, verifies results via screenshots, reports back. Makes zero strategic decisions.
+
+**Body agent prompt template (optimized — ~14k tokens total):**
+
+```
+Agent tool params:
+  model: "sonnet"
+  mode: "bypassPermissions"
+
+Prompt:
+  BODY AGENT. Concise responses only.
+  hwnd=XXXX. Current state: [score/status].
+
+  ACTIONS:
+  1. cv_record move_click x=AAA y=BBB hwnd=XXXX frames_before=0 frames_after=0 move_duration_ms=250 move_steps=20
+  2. cv_wait seconds=0.5
+  3. cv_screenshot_window hwnd=XXXX max_width=800
+  4. Read screenshot. Report ONLY: [what to check], screenshot path.
+
+  If action fails: retry at (x, y+20) and (x, y-20). After 3 failures, stop and report what you see.
+```
+
+**Critical rules for the Brain:**
+
+1. **Every action needs exact coordinates + expected outcome.** Not "try clicking stuff" but "click 2♥ at (1200, 130), score should go from 145 to 150."
+2. **Never delegate strategy.** The Body doesn't decide what to click — only executes what you planned.
+3. **Combine actions that don't need intermediate verification** into a single Bash call. Only separate when there's a real checkpoint ("did the score change?").
+4. **Body must wait 500ms** after each action before taking a verification screenshot — app animations need time to settle.
+5. **Use max_width=800** for verification screenshots — smaller is unreadable, larger wastes tokens.
+6. **Body should diagnose failures**, not just report them. If a click doesn't work: retry at nearby coordinates (±20px), then escalate with context ("I tried 3 positions, card didn't move, here's the screenshot").
+7. **Review the Body's report** and re-plan if needed. The Body reports facts — you interpret them.
+
+**Example — Solitaire game move:**
+
+```
+Brain analysis (you):
+  "Score 145. Foundation ♠ at 3♠. Col 7 bottom card is 4♠.
+   4♠ can go to ♠ foundation. Then 5♥ above it becomes exposed
+   and can go to ♥ foundation (at 4♥). Two-move chain."
+
+Brain delegates to Body:
+  "BODY AGENT. Concise. hwnd=1574014. Score=145.
+   1. cv_record move_click x=1834 y=430 (click 4♠ bottom of col 7)
+   2. cv_wait 0.5
+   3. cv_screenshot max_width=800 → Read → report score
+   4. cv_record move_click x=1834 y=390 (click 5♥, now exposed)
+   5. cv_wait 0.5
+   6. cv_screenshot max_width=800 → Read → report score + path
+   If score unchanged after step 1: retry y±20, then escalate."
+
+Body reports:
+  "Move 1: 145→150 (success). Move 2: 150→155 (success). Path: /tmp/cv_xxx.png"
+
+Brain reviews:
+  Reads final screenshot, plans next moves.
+```
+
 ## Architecture
 - **MCP server**: FastMCP over stdio transport (never HTTP/SSE)
 - **Entry point**: `python -m src` → `src/__main__.py` → DPI init → server start

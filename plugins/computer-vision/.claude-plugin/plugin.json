@@ -1,6 +1,6 @@
 {
   "name": "computer-vision",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Desktop computer vision and input control for Claude Code on Windows. 24 tools: screenshots, scene analysis, human-like mouse movement, action recording, UIA-based element invocation (cv_click_ui — works on WinUI 3 apps where SendInput fails), deep UI tree search, click, type, OCR, element finder, text extraction. Background mode via PostMessage.",
   "author": {
     "name": "Southlab AI"
