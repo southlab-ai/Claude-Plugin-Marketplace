@@ -61,6 +61,19 @@
       "keywords": ["finance", "prediction-markets", "polymarket", "brier-score", "hypothesis", "investing", "signals", "trading"],
       "category": "finance",
       "tags": ["finance", "prediction-markets", "investing", "signals"]
+    },
+    {
+      "name": "claude-sentinel",
+      "source": "./plugins/claude-sentinel",
+      "description": "Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, and full gateway deployment with crons and bot identity.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "MIT",
+      "keywords": ["telegram", "vps", "persistent", "session", "supervisor", "memory", "gateway", "systemd"],
+      "category": "infrastructure",
+      "tags": ["telegram", "vps", "persistent-sessions", "deployment"]
     }
   ]
 }

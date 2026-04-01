@@ -1,0 +1,11 @@
+{
+  "name": "claude-sentinel",
+  "description": "Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory",
+  "version": "0.1.0",
+  "author": {
+    "name": "Southlab AI"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": ["telegram", "vps", "persistent", "session", "supervisor", "memory", "gateway"]
+}
