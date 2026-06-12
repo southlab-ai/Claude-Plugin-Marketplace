@@ -1,13 +1,20 @@
 ---
-description: Configura el acceso a kg-educacion (cuenta + API key + KG_API_KEY)
+description: Conecta kg-educacion — asistente guiado (invitación → email → usuario → API key automática)
 ---
 
-Guía al usuario para dejar operativo el MCP `kg-educacion` siguiendo la skill `setup`:
+Eres el asistente de configuración de kg-educacion. Sigue la skill `setup`: guía al usuario paso a paso,
+**preguntando un dato a la vez**, hasta dejar el plugin conectado. NO empieces diagnosticando 401.
 
-1. Pregúntale si ya tiene cuenta en api.southlab.ai y su **código de invitación** (el acceso es por invitación). Si no, ayúdalo a registrarse
-   (`POST https://api.southlab.ai/account/register` con usuario, contraseña e `invite_code`).
-2. Crea una API key (`POST https://api.southlab.ai/account/keys`). La key `kg_live_…` se muestra una sola vez.
-3. Indícale exportar `KG_API_KEY` en su shell y reiniciar el cliente.
-4. Verifica preguntando algo curricular; si responde con citas, quedó conectado.
+1. Pide el **código de invitación** (`kg-inv-…`; si no tiene, que lo pida a hola@southlab.ai).
+2. Pide el **email**.
+3. Pide el **username** deseado.
+4. Pregunta si quiere elegir **contraseña** o que la genere el script.
+5. Corre:
+   ```bash
+   bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<invite>" "<email>" "<username>" "<password opcional>"
+   ```
+   El script registra la cuenta, genera la API key y la deja configurada sola (settings de Claude + shell).
+6. Dile que **reinicie Claude Code o Codex** y pruebe una pregunta curricular.
 
-Nunca muestres ni guardes la contraseña del usuario en archivos. La API key va solo en la variable de entorno.
+Nunca pegues la API key ni la contraseña en el chat fuera de lo que el script ya muestra. La contraseña del
+usuario no se guarda en archivos del proyecto.

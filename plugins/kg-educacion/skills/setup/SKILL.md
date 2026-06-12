@@ -1,38 +1,40 @@
 ---
 name: setup
-description: Configurar el acceso al MCP de kg-educacion — crear cuenta (usuario+contraseña), generar una API key y dejarla en KG_API_KEY. Úsala la primera vez o si el MCP responde 401.
+description: Asistente de configuración de kg-educacion — guía al usuario para conectar el MCP del Currículum Nacional. Pide código de invitación, email y username, registra la cuenta, genera la API key y la deja configurada sola. Úsala la primera vez, cuando el usuario diga "configurar/conectar/setup", o si el MCP responde 401.
 ---
 
-# Configurar kg-educacion (cuenta + API key)
+# Asistente de configuración de kg-educacion
 
-El MCP `kg-educacion` requiere una **API key** propia (el servicio es de pago por consulta).
-El usuario crea una cuenta y desde ahí genera keys revocables. Guía al usuario así:
+El acceso es por invitación y de pago por consulta. Tu trabajo es **guiar al usuario paso a paso**
+hasta dejar el plugin conectado. NO empieces diagnosticando errores: corre el asistente.
 
-## 1. Crear la cuenta (una vez) — requiere código de invitación
-El acceso es por invitación (early access). Pide tu **código de invitación** a SouthLab (hola@southlab.ai).
+## Flujo (pregunta uno por uno, no todo junto)
+1. **Código de invitación**: "¿Cuál es tu código de invitación? (formato `kg-inv-…`; si no tienes,
+   pídelo a hola@southlab.ai)". No sigas sin un código.
+2. **Email**: "¿Tu email de contacto?".
+3. **Username**: "¿Qué nombre de usuario quieres? (3-64 caracteres, letras/números . _ - @)".
+4. **Contraseña**: "¿Quieres elegir una contraseña o que la genere por ti?" — si la genera, el script
+   la muestra una vez para que la guarde (sirve para gestionar/revocar tus keys más adelante).
+
+## Ejecutar el registro + configuración
+Con los datos, corre el script de onboarding (registra, crea la API key y la deja configurada
+automáticamente en `~/.claude/settings.json` y en el shell):
 ```bash
-curl -s -X POST https://api.southlab.ai/account/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"TU_USUARIO","password":"TU_CONTRASEÑA","invite_code":"TU_CODIGO"}'
+bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<invite_code>" "<email>" "<username>" "<password opcional>"
 ```
-Si el código falta o es inválido, la API responde 403.
+- Si el usuario eligió contraseña, pásala como 4º argumento; si no, omítela y el script genera una.
+- Pasa los argumentos entre comillas.
 
-## 2. Crear una API key
-```bash
-curl -s -X POST https://api.southlab.ai/account/keys \
-  -H "Content-Type: application/json" \
-  -d '{"username":"TU_USUARIO","password":"TU_CONTRASEÑA","label":"mi-notebook"}'
-```
-La respuesta trae `api_key` (formato `kg_live_…`). **Se muestra una sola vez** — guárdala.
+## Después de correrlo
+- El script confirma "✅ Cuenta creada y API key configurada". **Dile al usuario que reinicie
+  Claude Code o Codex** para que tome la conexión.
+- Recuérdale guardar la contraseña (si fue generada) y su API key.
+- Tras reiniciar, que pruebe: "¿qué OA tiene Lenguaje 4° básico?". Si responde con citas, quedó listo.
 
-## 3. Dejarla en el entorno como KG_API_KEY
-- macOS/Linux (zsh/bash): `echo 'export KG_API_KEY=kg_live_…' >> ~/.zshrc && source ~/.zshrc`
-- El plugin ya apunta el MCP a `https://api.southlab.ai/mcp` con `Authorization: Bearer ${KG_API_KEY}`.
+## Errores
+- 403 en el registro = código de invitación inválido o ya usado → pide uno nuevo.
+- 401 al consultar luego = la API key no se cargó → confirma que reinició el cliente, o vuelve a correr el script.
 
-## 4. Verificar
-Reinicia Claude Code / Codex y pregunta algo curricular (ej. "qué OA tiene Lenguaje 4° básico").
-Si responde con citas, está conectado. Si da 401, la key falta o está revocada.
-
-## Gestión de keys
-- Listar: `POST /account/keys/list` con `{username,password}`.
-- Revocar: `POST /account/keys/revoke` con `{username,password,key_id}`.
+## Seguridad
+- La API key se guarda en el equipo del usuario (settings de Claude + shell). Nunca la pegues en el chat
+  ni la subas a repos. La contraseña del usuario no se guarda en ningún archivo del proyecto.
