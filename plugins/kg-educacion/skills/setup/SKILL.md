@@ -8,12 +8,14 @@ description: Configurar el acceso al MCP de kg-educacion — crear cuenta (usuar
 El MCP `kg-educacion` requiere una **API key** propia (el servicio es de pago por consulta).
 El usuario crea una cuenta y desde ahí genera keys revocables. Guía al usuario así:
 
-## 1. Crear la cuenta (una vez)
+## 1. Crear la cuenta (una vez) — requiere código de invitación
+El acceso es por invitación (early access). Pide tu **código de invitación** a SouthLab (hola@southlab.ai).
 ```bash
 curl -s -X POST https://api.southlab.ai/account/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"TU_USUARIO","password":"TU_CONTRASEÑA"}'
+  -d '{"username":"TU_USUARIO","password":"TU_CONTRASEÑA","invite_code":"TU_CODIGO"}'
 ```
+Si el código falta o es inválido, la API responde 403.
 
 ## 2. Crear una API key
 ```bash

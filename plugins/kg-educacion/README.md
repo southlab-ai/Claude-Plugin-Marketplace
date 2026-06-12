@@ -23,7 +23,7 @@ apuntando a `https://api.southlab.ai/mcp` con `Authorization: Bearer $KG_API_KEY
 
 ## Configurar el acceso
 Ejecuta `/kg-setup` (o sigue la skill `setup`):
-1. Crea cuenta: `POST https://api.southlab.ai/account/register` `{username,password}`.
+1. Crea cuenta (requiere **código de invitación**, pídelo a hola@southlab.ai): `POST https://api.southlab.ai/account/register` `{username,password,invite_code}`.
 2. Crea API key: `POST https://api.southlab.ai/account/keys` `{username,password,label}` → `kg_live_…` (se muestra una vez).
 3. Exporta `KG_API_KEY=kg_live_…` en tu shell y reinicia el cliente.
 
