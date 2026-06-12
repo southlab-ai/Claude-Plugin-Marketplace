@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "kg-educacion": {
+      "type": "http",
+      "url": "https://kg.southlab.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${KG_API_KEY}"
+      }
+    }
+  }
+}

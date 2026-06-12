@@ -19,9 +19,25 @@
         "name": "Southlab AI"
       },
       "license": "MIT",
-      "keywords": ["upwork", "jobs", "scraper", "freelance", "portfolio", "proposals", "market-analysis", "rates", "agents", "mcp"],
+      "keywords": [
+        "upwork",
+        "jobs",
+        "scraper",
+        "freelance",
+        "portfolio",
+        "proposals",
+        "market-analysis",
+        "rates",
+        "agents",
+        "mcp"
+      ],
       "category": "freelance",
-      "tags": ["freelance", "automation", "scraping", "market-analysis"]
+      "tags": [
+        "freelance",
+        "automation",
+        "scraping",
+        "market-analysis"
+      ]
     },
     {
       "name": "the-council",
@@ -32,9 +48,27 @@
         "name": "Southlab AI"
       },
       "license": "MIT",
-      "keywords": ["council", "consultation", "adversarial", "multi-agent", "strategist", "critic", "architecture", "agent-teams", "memory", "build-pipeline", "prd", "backlog"],
+      "keywords": [
+        "council",
+        "consultation",
+        "adversarial",
+        "multi-agent",
+        "strategist",
+        "critic",
+        "architecture",
+        "agent-teams",
+        "memory",
+        "build-pipeline",
+        "prd",
+        "backlog"
+      ],
       "category": "productivity",
-      "tags": ["multi-agent", "planning", "architecture", "code-review"]
+      "tags": [
+        "multi-agent",
+        "planning",
+        "architecture",
+        "code-review"
+      ]
     },
     {
       "name": "computer-vision",
@@ -45,9 +79,28 @@
         "name": "Southlab AI"
       },
       "license": "MIT",
-      "keywords": ["computer-vision", "windows", "desktop", "automation", "mcp", "screenshot", "ocr", "accessibility", "ui-automation", "drag-and-drop", "background-mode", "parallel"],
+      "keywords": [
+        "computer-vision",
+        "windows",
+        "desktop",
+        "automation",
+        "mcp",
+        "screenshot",
+        "ocr",
+        "accessibility",
+        "ui-automation",
+        "drag-and-drop",
+        "background-mode",
+        "parallel"
+      ],
       "category": "utilities",
-      "tags": ["desktop", "windows", "vision", "automation", "ocr"]
+      "tags": [
+        "desktop",
+        "windows",
+        "vision",
+        "automation",
+        "ocr"
+      ]
     },
     {
       "name": "the-financial-council",
@@ -58,9 +111,23 @@
         "name": "Southlab AI"
       },
       "license": "MIT",
-      "keywords": ["finance", "prediction-markets", "polymarket", "brier-score", "hypothesis", "investing", "signals", "trading"],
+      "keywords": [
+        "finance",
+        "prediction-markets",
+        "polymarket",
+        "brier-score",
+        "hypothesis",
+        "investing",
+        "signals",
+        "trading"
+      ],
       "category": "finance",
-      "tags": ["finance", "prediction-markets", "investing", "signals"]
+      "tags": [
+        "finance",
+        "prediction-markets",
+        "investing",
+        "signals"
+      ]
     },
     {
       "name": "claude-sentinel",
@@ -71,9 +138,54 @@
         "name": "Southlab AI"
       },
       "license": "MIT",
-      "keywords": ["telegram", "vps", "persistent", "session", "supervisor", "memory", "gateway", "systemd"],
+      "keywords": [
+        "telegram",
+        "vps",
+        "persistent",
+        "session",
+        "supervisor",
+        "memory",
+        "gateway",
+        "systemd"
+      ],
       "category": "infrastructure",
-      "tags": ["telegram", "vps", "persistent-sessions", "deployment"]
+      "tags": [
+        "telegram",
+        "vps",
+        "persistent-sessions",
+        "deployment"
+      ]
+    },
+    {
+      "name": "kg-educacion",
+      "source": "./plugins/kg-educacion",
+      "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC) para profesores y directivos: planificar año/unidad/clase, crear evaluaciones por nivel cognitivo (Bloom/DOK), buscar recursos por OA y explorar temas transversales (GraphRAG) — con citas oficiales, vía un MCP remoto autenticado por API key.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "UNLICENSED",
+      "keywords": [
+        "educacion",
+        "curriculum",
+        "chile",
+        "mineduc",
+        "school-os",
+        "planificacion",
+        "evaluacion",
+        "rag",
+        "knowledge-graph",
+        "mcp",
+        "graphrag"
+      ],
+      "category": "education",
+      "tags": [
+        "education",
+        "curriculum",
+        "mcp",
+        "rag",
+        "planning"
+      ]
     }
   ]
 }

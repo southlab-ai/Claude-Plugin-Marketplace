@@ -1,0 +1,32 @@
+{
+  "name": "kg-educacion",
+  "version": "1.0.0",
+  "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC): planificar, crear evaluaciones, buscar recursos y explorar temas transversales con citas oficiales, vía un MCP remoto autenticado por API key.",
+  "author": {
+    "name": "SouthLab AI"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "UNLICENSED",
+  "keywords": ["educacion", "curriculum", "chile", "mineduc", "school-os", "planificacion", "evaluacion", "rag", "knowledge-graph", "mcp"],
+  "skills": "./skills/",
+  "mcp_servers": {
+    "kg-educacion": {
+      "url": "https://kg.southlab.ai/mcp",
+      "bearer_token_env_var": "KG_API_KEY"
+    }
+  },
+  "interface": {
+    "displayName": "KG Educación Chile",
+    "shortDescription": "Currículum Nacional consultable con citas",
+    "longDescription": "MCP remoto sobre el Knowledge Layer del Currículum Nacional de Chile. Resuelve planificación (año/unidad/clase con horas), creación de evaluaciones por demanda cognitiva (Bloom/DOK), búsqueda de recursos por OA y exploración de temas transversales (GraphRAG), siempre citando la fuente oficial. Requiere una API key creada en kg.southlab.ai.",
+    "developerName": "SouthLab AI",
+    "category": "Education",
+    "capabilities": ["Interactive"],
+    "defaultPrompt": [
+      "Planifica una unidad de Lenguaje 4° básico con sus OA y horas",
+      "Arma una evaluación de Ciencias 7° básico balanceada por nivel cognitivo",
+      "Qué grandes temas transversales conectan ciencias y matemática"
+    ],
+    "brandColor": "#0F766E"
+  }
+}

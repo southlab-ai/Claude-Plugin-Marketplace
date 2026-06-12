@@ -1,0 +1,12 @@
+{
+  "name": "kg-educacion",
+  "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC) para profesores y directivos: planificar año/unidad/clase, crear evaluaciones por nivel cognitivo, buscar recursos por OA, y explorar temas transversales — todo con citas a la fuente oficial vía un MCP remoto. Incluye skills de School OS y conexión MCP autenticada por API key.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Southlab AI",
+    "email": "cardenas.je@southlab.ai"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "UNLICENSED",
+  "keywords": ["educacion", "curriculum", "chile", "mineduc", "school-os", "planificacion", "evaluacion", "rag", "knowledge-graph", "mcp", "graphrag"]
+}
