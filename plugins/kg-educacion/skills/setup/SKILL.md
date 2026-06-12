@@ -10,14 +10,14 @@ El usuario crea una cuenta y desde ahí genera keys revocables. Guía al usuario
 
 ## 1. Crear la cuenta (una vez)
 ```bash
-curl -s -X POST https://kg.southlab.ai/account/register \
+curl -s -X POST https://api.southlab.ai/account/register \
   -H "Content-Type: application/json" \
   -d '{"username":"TU_USUARIO","password":"TU_CONTRASEÑA"}'
 ```
 
 ## 2. Crear una API key
 ```bash
-curl -s -X POST https://kg.southlab.ai/account/keys \
+curl -s -X POST https://api.southlab.ai/account/keys \
   -H "Content-Type: application/json" \
   -d '{"username":"TU_USUARIO","password":"TU_CONTRASEÑA","label":"mi-notebook"}'
 ```
@@ -25,7 +25,7 @@ La respuesta trae `api_key` (formato `kg_live_…`). **Se muestra una sola vez**
 
 ## 3. Dejarla en el entorno como KG_API_KEY
 - macOS/Linux (zsh/bash): `echo 'export KG_API_KEY=kg_live_…' >> ~/.zshrc && source ~/.zshrc`
-- El plugin ya apunta el MCP a `https://kg.southlab.ai/mcp` con `Authorization: Bearer ${KG_API_KEY}`.
+- El plugin ya apunta el MCP a `https://api.southlab.ai/mcp` con `Authorization: Bearer ${KG_API_KEY}`.
 
 ## 4. Verificar
 Reinicia Claude Code / Codex y pregunta algo curricular (ej. "qué OA tiene Lenguaje 4° básico").

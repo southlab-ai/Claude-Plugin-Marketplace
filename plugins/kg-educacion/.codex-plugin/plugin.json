@@ -11,14 +11,14 @@
   "skills": "./skills/",
   "mcp_servers": {
     "kg-educacion": {
-      "url": "https://kg.southlab.ai/mcp",
+      "url": "https://api.southlab.ai/mcp",
       "bearer_token_env_var": "KG_API_KEY"
     }
   },
   "interface": {
     "displayName": "KG Educación Chile",
     "shortDescription": "Currículum Nacional consultable con citas",
-    "longDescription": "MCP remoto sobre el Knowledge Layer del Currículum Nacional de Chile. Resuelve planificación (año/unidad/clase con horas), creación de evaluaciones por demanda cognitiva (Bloom/DOK), búsqueda de recursos por OA y exploración de temas transversales (GraphRAG), siempre citando la fuente oficial. Requiere una API key creada en kg.southlab.ai.",
+    "longDescription": "MCP remoto sobre el Knowledge Layer del Currículum Nacional de Chile. Resuelve planificación (año/unidad/clase con horas), creación de evaluaciones por demanda cognitiva (Bloom/DOK), búsqueda de recursos por OA y exploración de temas transversales (GraphRAG), siempre citando la fuente oficial. Requiere una API key creada en api.southlab.ai.",
     "developerName": "SouthLab AI",
     "category": "Education",
     "capabilities": ["Interactive"],

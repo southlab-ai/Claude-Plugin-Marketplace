@@ -19,12 +19,12 @@ claude plugin install kg-educacion@southlab-marketplace
 
 ## Instalación (Codex)
 El plugin trae `.codex-plugin/`. Tras instalarlo, configura el MCP remoto en Codex
-apuntando a `https://kg.southlab.ai/mcp` con `Authorization: Bearer $KG_API_KEY`.
+apuntando a `https://api.southlab.ai/mcp` con `Authorization: Bearer $KG_API_KEY`.
 
 ## Configurar el acceso
 Ejecuta `/kg-setup` (o sigue la skill `setup`):
-1. Crea cuenta: `POST https://kg.southlab.ai/account/register` `{username,password}`.
-2. Crea API key: `POST https://kg.southlab.ai/account/keys` `{username,password,label}` → `kg_live_…` (se muestra una vez).
+1. Crea cuenta: `POST https://api.southlab.ai/account/register` `{username,password}`.
+2. Crea API key: `POST https://api.southlab.ai/account/keys` `{username,password,label}` → `kg_live_…` (se muestra una vez).
 3. Exporta `KG_API_KEY=kg_live_…` en tu shell y reinicia el cliente.
 
 ## Skills incluidas
