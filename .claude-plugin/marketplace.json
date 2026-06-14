@@ -5,7 +5,7 @@
     "email": "cardenas.je@southlab.ai"
   },
   "metadata": {
-    "description": "Claude Code plugins by Southlab AI — productivity tools, freelance automation, desktop vision, and multi-agent systems",
+    "description": "Claude Code plugins by Southlab AI - productivity tools, freelance automation, desktop vision, and multi-agent systems",
     "version": "1.0.0",
     "pluginRoot": "./plugins"
   },
@@ -73,7 +73,7 @@
     {
       "name": "computer-vision",
       "source": "./plugins/computer-vision",
-      "description": "Desktop computer vision and input control for Claude Code on Windows. 24 tools: screenshots, scene analysis, human-like mouse movement, action recording, UIA-based element invocation (cv_click_ui — works on WinUI 3 apps where SendInput fails), deep UI tree search, click, drag-and-drop, type, scroll, OCR, element finder, text extraction. Background mode via PostMessage.",
+      "description": "Desktop computer vision and input control for Claude Code on Windows. 24 tools: screenshots, scene analysis, human-like mouse movement, action recording, UIA-based element invocation (cv_click_ui - works on WinUI 3 apps where SendInput fails), deep UI tree search, click, drag-and-drop, type, scroll, OCR, element finder, text extraction. Background mode via PostMessage.",
       "version": "2.6.0",
       "author": {
         "name": "Southlab AI"
@@ -105,7 +105,7 @@
     {
       "name": "the-financial-council",
       "source": "./plugins/the-financial-council",
-      "description": "See what the smartest prediction market traders agree on, weighted by their actual track record — and map those signals to stocks you can trade. P3: Knowledge Graph with Neo4j, FRED macro data, and SEC EDGAR filings.",
+      "description": "See what the smartest prediction market traders agree on, weighted by their actual track record - and map those signals to stocks you can trade. P3: Knowledge Graph with Neo4j, FRED macro data, and SEC EDGAR filings.",
       "version": "1.1.0",
       "author": {
         "name": "Southlab AI"
@@ -132,7 +132,7 @@
     {
       "name": "claude-sentinel",
       "source": "./plugins/claude-sentinel",
-      "description": "Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, and full gateway deployment with crons and bot identity.",
+      "description": "Session supervisor for Claude Code's Telegram channel - guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, and full gateway deployment with crons and bot identity.",
       "version": "0.1.0",
       "author": {
         "name": "Southlab AI"
@@ -159,7 +159,7 @@
     {
       "name": "kg-educacion",
       "source": "./plugins/kg-educacion",
-      "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC) para profesores y directivos: planificar año/unidad/clase, crear evaluaciones por nivel cognitivo (Bloom/DOK), buscar recursos por OA y explorar temas transversales (GraphRAG) — con citas oficiales, vía un MCP remoto autenticado por API key.",
+      "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC) para profesores y directivos: planificar año/unidad/clase, crear evaluaciones por nivel cognitivo (Bloom/DOK), buscar recursos por OA y explorar temas transversales (GraphRAG) - con citas oficiales, vía un MCP remoto autenticado por API key.",
       "version": "1.0.0",
       "author": {
         "name": "Southlab AI"
@@ -185,6 +185,32 @@
         "mcp",
         "rag",
         "planning"
+      ]
+    },
+    {
+      "name": "x-twitter-scraper",
+      "source": "./plugins/x-twitter-scraper",
+      "description": "Use Xquik for X/Twitter data workflows through REST API, MCP, webhooks, SDKs, and extraction tasks.",
+      "version": "2.4.16",
+      "author": {
+        "name": "Xquik"
+      },
+      "license": "MIT",
+      "keywords": [
+        "x-api",
+        "twitter",
+        "x-twitter",
+        "mcp",
+        "webhooks",
+        "sdk",
+        "data-extraction"
+      ],
+      "category": "utilities",
+      "tags": [
+        "x-data",
+        "automation",
+        "mcp",
+        "webhooks"
       ]
     }
   ]

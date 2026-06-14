@@ -9,6 +9,7 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 | **upwork-scraper** | Scrape Upwork jobs, analyze market demand, write proposals, optimize rates, and build portfolios. 5 slash commands + 5 AI agents. | 0.2.0 | Freelance |
 | **the-council** | Catch blind spots in architecture decisions with multi-perspective analysis. 4 auto-routed modes, configurable roles, `/council:build` pipeline, `/council:value` analysis, memory attribution, progressive hints. | 3.2.0 | Productivity |
 | **computer-vision** | Desktop computer vision and input control for Windows. 28 tools: screenshots, click, type, scroll, OCR, element finder, text extraction, UI trees, app-specific adapters, action verification, and 9 sandbox tools for parallel automation (Claude works in isolated Windows Sandbox while you keep working). | 2.0.0 | Utilities |
+| **x-twitter-scraper** | Use Xquik for X/Twitter data workflows through REST API, MCP, webhooks, SDKs, and extraction tasks. | 2.4.16 | Utilities |
 
 ## Installation
 
@@ -26,6 +27,7 @@ Inside Claude Code:
 /plugin install upwork-scraper@southlab-marketplace
 /plugin install the-council@southlab-marketplace
 /plugin install computer-vision@southlab-marketplace
+/plugin install x-twitter-scraper@southlab-marketplace
 ```
 
 ### 3. Restart Claude Code
@@ -40,6 +42,7 @@ Each plugin has a setup command:
 /upwork-scraper:setup
 /council:setup
 /cv-setup
+/x-twitter-scraper:setup
 ```
 
 ## Commands
@@ -104,6 +107,13 @@ Each plugin has a setup command:
 | `/cv-setup` | Verify setup and dependencies |
 | `/cv-help` | Usage guide and examples |
 
+### Xquik x-twitter-scraper (v2.4.16)
+
+| Command | Description |
+|---------|-------------|
+| `/x-twitter-scraper:setup` | Select REST API, MCP, webhooks, SDKs, or implementation guidance |
+| `/x-twitter-scraper:x-twitter-scraper` | Plan X/Twitter search, profile tweet, follower, monitor, webhook, MCP, or SDK work |
+
 ## Updating
 
 ```
@@ -126,7 +136,8 @@ Add to your project's `.claude/settings.json` to auto-prompt teammates:
   },
   "enabledPlugins": {
     "the-council@southlab-marketplace": true,
-    "computer-vision@southlab-marketplace": true
+    "computer-vision@southlab-marketplace": true,
+    "x-twitter-scraper@southlab-marketplace": true
   }
 }
 ```
@@ -150,7 +161,8 @@ Claude-Plugin-Marketplace/
 ├── plugins/
 │   ├── upwork-scraper/       # Upwork scraping & market analysis
 │   ├── the-council/          # Multi-agent consultation
-│   └── computer-vision/      # Desktop vision & automation
+│   ├── computer-vision/      # Desktop vision & automation
+│   └── x-twitter-scraper/    # X/Twitter data workflows
 └── README.md
 ```
 

@@ -1,0 +1,21 @@
+{
+  "name": "x-twitter-scraper",
+  "description": "Use Xquik for X/Twitter data workflows through REST API, MCP, webhooks, SDKs, and extraction tasks.",
+  "version": "2.4.16",
+  "author": {
+    "name": "Xquik",
+    "url": "https://github.com/Xquik-dev"
+  },
+  "repository": "https://github.com/Xquik-dev/x-twitter-scraper",
+  "homepage": "https://docs.xquik.com",
+  "license": "MIT",
+  "keywords": [
+    "x-api",
+    "twitter",
+    "x-twitter",
+    "mcp",
+    "webhooks",
+    "sdk",
+    "data-extraction"
+  ]
+}
