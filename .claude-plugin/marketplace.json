@@ -159,8 +159,8 @@
     {
       "name": "kg-educacion",
       "source": "./plugins/kg-educacion",
-      "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC) para profesores y directivos: planificar año/unidad/clase, crear evaluaciones por nivel cognitivo (Bloom/DOK), buscar recursos por OA y explorar temas transversales (GraphRAG) — con citas oficiales, vía un MCP remoto autenticado por API key.",
-      "version": "2.0.0",
+      "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC) para profesores y directivos: planificar año/unidad/clase, crear evaluaciones por nivel cognitivo (Bloom/DOK), buscar recursos por OA, recuperar el catálogo de textos escolares oficiales (con URL al libro) y explorar temas transversales (GraphRAG) — con citas oficiales, vía un MCP remoto autenticado por API key.",
+      "version": "2.1.0",
       "author": {
         "name": "Southlab AI"
       },

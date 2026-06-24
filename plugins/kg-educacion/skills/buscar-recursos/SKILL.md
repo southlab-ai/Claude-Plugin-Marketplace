@@ -1,6 +1,6 @@
 ---
 name: buscar-recursos
-description: Encontrar recursos y evidencia curricular oficial citada (lecturas, videos, actividades, imágenes, OA, clases) del Currículum Nacional de Chile por OA, curso, asignatura o formato. Úsala cuando el usuario pida materiales, recursos o actividades para enseñar algo. Usa query_curriculum (con runtime_status para cobertura).
+description: Encontrar recursos y evidencia curricular oficial citada (lecturas, videos, actividades, imágenes, OA, clases) del Currículum Nacional de Chile por OA, curso, asignatura o formato, y el CATÁLOGO de libros/textos escolares oficiales MINEDUC (texto del estudiante, guía docente, cuaderno) con la URL que abre el libro. Úsala cuando el usuario pida materiales, recursos, actividades, o el LIBRO/TEXTO oficial de un curso. Usa query_curriculum (evidencia por OA) y query_resources (catálogo de libros); runtime_status para cobertura.
 ---
 
 # Buscar recursos didácticos por OA y curso
@@ -22,6 +22,17 @@ la evidencia citada.
 4. **Por OA puntual**: si el usuario da un código (ej. `LE04 OA 04`), `query_curriculum` con ese código
    trae los recursos y clases que apuntan a ese OA, cada uno con su cita.
 5. **Presenta** los recursos con su título y enlace/cita oficial, agrupados por categoría o formato.
+
+## Libros / textos escolares oficiales → `query_resources`
+Cuando el usuario pide el **libro o texto oficial** que usan los estudiantes (no evidencia suelta por OA),
+usa **`query_resources`**, no `query_curriculum`:
+- Filtra por `subject` + `grade` y, opcional, `resource_type` (`texto_estudiante` | `guia_docente` |
+  `cuaderno_actividades`). Ej: "¿qué texto de Matemática usa 4° básico?" → `query_resources(subject="matematica",
+  grade="4_basico", resource_type="texto_estudiante")`.
+- Devuelve cada libro con su **`source_url`** oficial (`curriculumnacional.cl`) — el enlace que **abre el libro**,
+  con los tomos agrupados, editorial y tipo.
+- Por defecto trae la categoría "Libro - Textos Escolares MINEDUC". `query_curriculum` es para evidencia citada
+  por OA; **no reconstruyas un libro desde snippets** de `query_curriculum` — para "el libro", usa `query_resources`.
 
 ## Buenas prácticas
 - `query_curriculum` nunca devuelve ítems fuente ni claves; es read-only y citado, vista de estudiante.
