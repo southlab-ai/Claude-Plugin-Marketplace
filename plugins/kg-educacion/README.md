@@ -1,15 +1,18 @@
 # kg-educacion
 
 Knowledge layer del **Currículum Nacional de Chile** (MINEDUC) para Claude Code y Codex.
-Conecta el modelo a un MCP remoto que resuelve, con citas oficiales:
+Conecta el modelo a un MCP remoto **read-only** que compila **evidencia oficial citada** y una
+**spec/PromptPacket** para que **tú (el modelo) generes** el artefacto; luego se **valida**. El KG
+**ya no genera contenido ni aloja un LLM**: entrega evidencia + spec, tú produces, después validas.
 
 - **Planificación** de año / unidad / clase con OA, secuencias y horas pedagógicas.
 - **Evaluaciones** alineadas a OA y balanceadas por demanda cognitiva (Bloom / DOK).
-- **Recursos** didácticos por OA, curso, asignatura y formato.
-- **Temas transversales** y proyectos interdisciplinarios (comunidades temáticas GraphRAG).
+- **Recursos** y dudas curriculares resueltos con cita oficial por resultado.
+- **Temas transversales** y proyectos interdisciplinarios (consultas temáticas de panorama).
 
-Es de **solo lectura** y cita siempre la fuente. El servicio es de pago por consulta:
-cada usuario crea su cuenta y genera **API keys** revocables.
+Es de **solo lectura** y **cita siempre la fuente**. La vista de estudiante va **sin clave**, el
+banco de ítems fuente nunca se expone, y **todo artefacto requiere revisión humana**. El servicio
+es de pago por consulta: cada usuario crea su cuenta y genera **API keys** revocables.
 
 ## Instalación (Claude Code)
 ```bash
@@ -51,15 +54,45 @@ Reinicia Codex.
 launchctl setenv KG_API_KEY "$KG_API_KEY"
 ```
 Para que sobreviva reinicios del Mac, deja un LaunchAgent que haga ese `setenv` al iniciar sesión.
+Si el MCP responde **401**, corre la skill `setup` (o `/kg-setup`).
 
 ## Skills incluidas
 `kg-overview` (qué es y cómo usarlo), `planificar`, `crear-evaluacion`, `buscar-recursos`,
 `temas-transversales`, `setup`.
 
-## Herramientas MCP (read-only)
-`search`, `search_global`, `answer`, `entity_lookup`, `graph_neighbors`, `graph_path`,
-`fetch`, `list_sources`. El servidor expone un onboarding completo en `initialize`
-(`instructions`) para que el modelo sepa qué puede hacer apenas se conecta.
+## Herramientas MCP — Runtime v2 (read-only, `serverInfo` 2.0.0, modo `PROMPT_ONLY`)
+La superficie pública del MCP son **7 tools** (cualquier nombre anterior es **obsoleto**):
+
+- **`runtime_status`** — estado del servidor + cobertura curricular por solicitud. **Úsalo primero.**
+- **`query_curriculum`** — recuperación curricular oficial **con cita por resultado**. Nunca devuelve
+  ítems fuente ni claves. (Reemplaza a toda búsqueda/respuesta/fetch/grafo/listado anterior.)
+- **`resolve_curricular_targets`** — resuelve (asignatura, curso, OA explícitos / programa / unidad)
+  a un set de **OA objetivo**; si es ambiguo (p. ej. dos programas para la misma asignatura+curso),
+  **pide aclaración**.
+- **`analyze_assessment_framework`** — marco evaluativo oficial (SIMCE/PAES/DEMRE) por **familia
+  exacta**; distingue **distribución oficial vs observada** (nunca presenta lo observado como oficial).
+- **`compile_artifact`** — `PROMPT_ONLY`: compila evidencia + decisión pedagógica + spec y devuelve un
+  **PromptPacket** para que **tú generes** el artefacto (clase, actividad, evaluación, planificación
+  anual/unidad, rúbrica, retroalimentación, etc.). **El KG no genera.**
+- **`validate_artifact`** — valida el artefacto que generaste: conformidad de blueprint, **ausencia de
+  clave** en la vista de estudiante, **no-reuso** de ítems fuente. Nada es entregable sin pasar la validación.
+- **`explain_artifact`** — explica el contrato de un tipo de artefacto (secciones requeridas, gates).
+
+El servidor expone un onboarding completo en `initialize` (`instructions`) para que el modelo sepa
+qué puede hacer apenas se conecta.
+
+## Flujos por intención
+- **Buscar recursos / responder dudas:** `query_curriculum` (+ `runtime_status` para cobertura).
+- **Crear evaluación / ítems / kit:** `resolve_curricular_targets` → `analyze_assessment_framework`
+  (marco) → `compile_artifact` (`artifact_type` `formative_assessment` | `summative_assessment`) →
+  **tú generas los ítems** → `validate_artifact`. El banco de ítems fuente es **auditoría local** y
+  **nunca** se expone por el MCP remoto.
+- **Planificar año / unidad / clase:** `resolve_curricular_targets` → `compile_artifact`
+  (`artifact_type` `annual_plan` | `unit` | `class`) → **tú generas** → `validate_artifact`;
+  cobertura/horas vía `runtime_status`.
+- **Temas transversales / panorama interdisciplinario:** `query_curriculum` con consultas temáticas.
+
+Regla general: **cita siempre la fuente**; si no hay evidencia, **dilo**; nunca inventes OA ni códigos.
 
 ---
 SouthLab AI · datos de origen público (curriculumnacional.cl) modelados en un grafo de conocimiento.

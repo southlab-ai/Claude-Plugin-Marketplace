@@ -1,25 +1,47 @@
 ---
 name: planificar
-description: Planificar el año, una unidad, una semana o una clase del Currículum Nacional de Chile usando OA oficiales, secuencias de unidades/clases y horas pedagógicas. Úsala cuando el usuario pida planificar, calendarizar o secuenciar enseñanza.
+description: Planificar el año, una unidad, una semana o una clase del Currículum Nacional de Chile usando OA oficiales, secuencias de unidades/clases y horas pedagógicas. El KG entrega evidencia citada + spec (compile_artifact), tú generas la planificación y luego la validas (validate_artifact). Úsala cuando el usuario pida planificar, calendarizar o secuenciar enseñanza.
 ---
 
 # Planificación curricular (año → unidad → clase)
 
-Apoya al profesor a planificar usando el MCP `kg-educacion`. La planificación baja en cascada:
-**año → mes → semana → día**, y el grafo tiene las piezas para cada nivel.
+Apoya al profesor a planificar usando el MCP `kg-educacion` (runtime v2, `serverInfo` 2.0.0,
+modo PROMPT_ONLY). **Cambio de paradigma:** el KG ya **no** genera contenido ni aloja un LLM.
+El KG **compila evidencia oficial citada + una spec/PromptPacket**; **tú (Claude) generas** la
+planificación; **luego se valida**. Todo es read-only y citado, la vista de estudiante va sin
+clave, y todo requiere revisión humana del docente.
+
+La planificación baja en cascada: **año → mes → semana → día**, y el KG tiene la evidencia
+oficial para cada nivel.
 
 ## Flujo recomendado
 1. **Encuadre**: confirma curso y asignatura (ej. "Lenguaje 4° básico"). Si falta, pregúntalo.
-2. **OA del curso**: `search` con la consulta de los OA de ese curso/asignatura para listar objetivos oficiales.
-3. **Secuencia y horas**: `search` con términos como "secuencia de unidades" / "orden" para traer el
-   pacing (horas pedagógicas por unidad, % del año) y el orden unidad→unidad.
-4. **Clases**: `search` con "secuencia de clases" de la unidad para el orden clase→clase y los objetivos por clase.
-5. **Cierre**: arma la planificación citando los OA y las horas oficiales. Si el colegio tiene menos
-   semanas, redistribuye proporcionalmente y dilo.
+   Usa `runtime_status` primero para ver el estado del servidor y la **cobertura curricular**
+   de tu solicitud (incluye horas/pacing disponibles).
+2. **OA objetivo**: `resolve_curricular_targets` para resolver (asignatura, curso, OA explícitos /
+   programa / unidad) a un set de OA objetivo. Si es ambiguo (p.ej. dos programas para la misma
+   asignatura+curso), pide aclaración antes de seguir.
+3. **Spec + evidencia**: `compile_artifact` con `artifact_type` `annual_plan` (año), `unit`
+   (unidad) o `class` (clase). Devuelve un **PromptPacket**: evidencia oficial citada (OA, secuencia
+   unidad→unidad y clase→clase, horas pedagógicas, % del año) + la decisión pedagógica + la spec.
+4. **Generas tú**: a partir del PromptPacket, **redacta la planificación**. El KG no la genera por ti.
+5. **Validación**: `validate_artifact` sobre lo que generaste — conformidad de blueprint y los gates
+   correspondientes. Nada es entregable sin pasar la validación.
+6. **Cierre**: arma la planificación citando los OA y las horas oficiales. Si el colegio tiene menos
+   semanas, redistribuye proporcionalmente y dilo (cobertura/horas vía `runtime_status`).
+
+> ¿Necesitas entender qué secciones y gates exige un tipo de plan? Usa `explain_artifact` para ver el
+> contrato (`annual_plan` / `unit` / `class`) antes de compilar.
 
 ## Buenas prácticas
-- Usa los **códigos OA reales** que devuelve el grafo (ej. `LE04 OA 04`), nunca inventados.
-- Para integrar varias asignaturas en una unidad, combina con la skill `temas-transversales`.
-- Si el usuario pide nivelar al inicio del año, consulta las **progresiones** (`search` "progresión …")
-  para saber qué OA del grado anterior se apoyan en los del actual.
-- Cita siempre la fuente. Si no hay evidencia para algo, dilo.
+- Usa los **códigos OA reales** que devuelve el KG vía `resolve_curricular_targets` / `query_curriculum`
+  (ej. `LE04 OA 04`), nunca inventados.
+- Para recuperación curricular puntual (un OA, un recurso, horas de una unidad, panorama temático),
+  usa `query_curriculum`: retrieval oficial **con cita por resultado**. Nunca devuelve ítems fuente
+  ni claves.
+- Para integrar varias asignaturas en una unidad, combina con la skill `temas-transversales`
+  (consultas temáticas vía `query_curriculum`).
+- Si el usuario pide nivelar al inicio del año, consulta las **progresiones** con `query_curriculum`
+  ("progresión …") para saber qué OA del grado anterior se apoyan en los del actual.
+- Cita siempre la fuente. Si no hay evidencia para algo, dilo; nunca inventes OA ni códigos.
+- Si el MCP responde **401**, deriva a la skill `setup` para configurar el acceso.
