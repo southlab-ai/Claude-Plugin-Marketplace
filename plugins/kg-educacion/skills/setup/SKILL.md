@@ -1,14 +1,19 @@
 ---
 name: setup
-description: Asistente de configuración de kg-educacion — guía al usuario para conectar el MCP del Currículum Nacional. Pide código de invitación, email y username, registra la cuenta, genera la API key y la deja configurada sola. Úsala la primera vez, cuando el usuario diga "configurar/conectar/setup", o si el MCP responde 401.
+description: Asistente de configuración de kg-educacion — conecta el MCP del Currículum Nacional en Claude Code o Codex. Pide código de invitación, email y username, registra la cuenta, genera la API key (la misma sirve para ambos clientes) y la deja configurada. Úsala la primera vez, cuando el usuario diga "configurar/conectar/setup", o si el MCP responde 401.
 ---
 
 # Asistente de configuración de kg-educacion
 
-El acceso es por invitación y de pago por consulta. Tu trabajo es **guiar al usuario paso a paso**
-hasta dejar el plugin conectado. NO empieces diagnosticando errores: corre el asistente.
+El acceso es por invitación y de pago por consulta. La **API key es la misma para Claude y Codex**.
+Tu trabajo es **guiar al usuario paso a paso** hasta dejar el plugin conectado.
 
-## Flujo (pregunta uno por uno, no todo junto)
+## Primero distingue el caso
+- **Ya tiene `KG_API_KEY`** (o dice que ya lo configuró en el otro cliente): NO registres otra cuenta.
+  Salta directo a "Configurar el cliente que falta" usando la key existente.
+- **Primera instalación / sin key**: sigue el "Flujo de registro".
+
+## Flujo de registro (pregunta uno por uno, no todo junto)
 1. **Código de invitación**: "¿Cuál es tu código de invitación? (formato `kg-inv-…`; si no tienes,
    pídelo a hola@southlab.ai)". No sigas sin un código.
 2. **Email**: "¿Tu email de contacto?".
@@ -17,24 +22,36 @@ hasta dejar el plugin conectado. NO empieces diagnosticando errores: corre el as
    la muestra una vez para que la guarde (sirve para gestionar/revocar tus keys más adelante).
 
 ## Ejecutar el registro + configuración
-Con los datos, corre el script de onboarding (registra, crea la API key y la deja configurada
-automáticamente en `~/.claude/settings.json` y en el shell):
+Con los datos, corre el script de onboarding. Registra, crea la API key y configura **ambos clientes**:
+`~/.claude/settings.json` (Claude), `export KG_API_KEY` en el shell, `codex mcp add` (Codex) y
+`launchctl setenv` para las apps GUI de macOS.
 ```bash
 bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<invite_code>" "<email>" "<username>" "<password opcional>"
 ```
 - Si el usuario eligió contraseña, pásala como 4º argumento; si no, omítela y el script genera una.
 - Pasa los argumentos entre comillas.
 
+## Configurar el cliente que falta (si ya hay key)
+La key (`KG_API_KEY`) es la misma. Por cliente:
+- **Claude Code**: el `.mcp.json` del plugin lee `Bearer ${KG_API_KEY}`. Exporta `KG_API_KEY` en el
+  shell (o pon `env.KG_API_KEY` en `~/.claude/settings.json`) y reinicia Claude.
+- **Codex**: `codex mcp add kg-educacion --url https://api.southlab.ai/mcp --bearer-token-env-var KG_API_KEY`
+  con `KG_API_KEY` exportada. El manifiesto del plugin **no** transporta la auth; va en `config.toml`.
+- **macOS (apps GUI)**: si abren Codex/Claude desde el Dock, expón la key con
+  `launchctl setenv KG_API_KEY "$KG_API_KEY"` (y, para que sobreviva reinicios, un LaunchAgent que lo haga al login).
+
 ## Después de correrlo
-- El script confirma "✅ Cuenta creada y API key configurada". **Dile al usuario que reinicie
-  Claude Code o Codex** para que tome la conexión.
+- El script confirma "✅ Cuenta creada y API key configurada". **Dile que reinicie Claude Code o Codex**.
 - Recuérdale guardar la contraseña (si fue generada) y su API key.
 - Tras reiniciar, que pruebe: "¿qué OA tiene Lenguaje 4° básico?". Si responde con citas, quedó listo.
 
 ## Errores
 - 403 en el registro = código de invitación inválido o ya usado → pide uno nuevo.
-- 401 al consultar luego = la API key no se cargó → confirma que reinició el cliente, o vuelve a correr el script.
+- 401 al consultar luego = la key no llegó al cliente → confirma que reinició; en Codex revisa
+  `codex mcp get kg-educacion`; en apps GUI de macOS revisa `launchctl getenv KG_API_KEY`.
+- En Codex, el error `Deserialize error … JsonRpcMessage` al iniciar significa que el MCP arrancó
+  **sin** token (401 del servidor): falta `KG_API_KEY` en el entorno o falta el `codex mcp add`.
 
 ## Seguridad
-- La API key se guarda en el equipo del usuario (settings de Claude + shell). Nunca la pegues en el chat
-  ni la subas a repos. La contraseña del usuario no se guarda en ningún archivo del proyecto.
+- La API key se guarda en el equipo del usuario (settings de Claude, shell, config.toml de Codex).
+  Nunca la pegues en el chat ni la subas a repos. La contraseña del usuario no se guarda en archivos del proyecto.

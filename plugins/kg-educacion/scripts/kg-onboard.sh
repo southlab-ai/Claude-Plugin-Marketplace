@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # Onboarding de kg-educacion: registra la cuenta con el código de invitación,
-# genera la API key y la deja CONFIGURADA automáticamente para Claude Code
-# (~/.claude/settings.json env) y para Codex/terminal (~/.zshrc / ~/.bashrc).
+# genera la API key (la MISMA para Claude y Codex) y la deja CONFIGURADA en:
+#   - Claude Code: ~/.claude/settings.json (env.KG_API_KEY)
+#   - shell:       ~/.zshrc / ~/.bashrc (export KG_API_KEY)
+#   - Codex:       ~/.codex/config.toml (codex mcp add ... --bearer-token-env-var KG_API_KEY)
+#   - macOS GUI:   launchctl setenv KG_API_KEY (apps abiertas desde el Dock)
 #
 # Uso: kg-onboard.sh <invite_code> <email> <username> [password]
 # Si no se pasa password, se genera una segura y se muestra una vez.
@@ -58,9 +61,31 @@ for rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
   printf 'export KG_API_KEY=%s\n' "$KEY" >> "$rc"
 done
 
+# 3c) Codex: registra el MCP remoto con la key por variable de entorno (config.toml)
+CODEX_MSG="codex CLI no encontrado; en Codex corre: codex mcp add kg-educacion --url $API/mcp --bearer-token-env-var KG_API_KEY"
+if command -v codex >/dev/null 2>&1; then
+  export KG_API_KEY="$KEY"
+  codex mcp remove kg-educacion >/dev/null 2>&1 || true
+  if codex mcp add kg-educacion --url "$API/mcp" --bearer-token-env-var KG_API_KEY >/dev/null 2>&1; then
+    CODEX_MSG="registrado en Codex (~/.codex/config.toml) con bearer_token_env_var=KG_API_KEY"
+  else
+    CODEX_MSG="no se pudo registrar solo; corre: codex mcp add kg-educacion --url $API/mcp --bearer-token-env-var KG_API_KEY"
+  fi
+fi
+
+# 3d) macOS: las apps GUI (Dock/Finder) no heredan ~/.zshrc → expón la key vía launchctl
+LAUNCHCTL_MSG="no aplica (no es macOS)"
+if [ "$(uname -s 2>/dev/null)" = "Darwin" ] && command -v launchctl >/dev/null 2>&1; then
+  if launchctl setenv KG_API_KEY "$KEY" 2>/dev/null; then
+    LAUNCHCTL_MSG="expuesta a apps GUI de esta sesión; para que sobreviva reinicios deja un LaunchAgent"
+  fi
+fi
+
 echo "✅ Cuenta creada y API key configurada automáticamente."
 echo "   usuario: $USERNAME"
 [ "$GEN_PW" = 1 ] && echo "   contraseña (guárdala para gestionar tus keys): $PASSWORD"
 echo "   API key: ${KEY}"
-echo "   Configurada en ~/.claude/settings.json (Claude Code) y en tu shell (Codex/terminal)."
+echo "   Claude Code: ~/.claude/settings.json (env.KG_API_KEY) + shell (export)."
+echo "   Codex:       ${CODEX_MSG}."
+echo "   macOS GUI:   ${LAUNCHCTL_MSG}."
 echo "👉 Reinicia Claude Code o Codex para que tome la conexión, y pregunta algo curricular."
