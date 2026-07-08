@@ -39,8 +39,8 @@ usa **`query_resources`**, no `query_curriculum`:
 - Filtra por curso/asignatura para no mezclar niveles.
 - Si el usuario quiere un proyecto que cruce asignaturas, combina con `temas-transversales`
   (consultas temáticas vía `query_curriculum`).
-- Si pasa de buscar a **crear** (actividad, evaluación, clase): resuelve objetivos con
-  `resolve_curricular_targets`, compila con `compile_artifact` (recibes un PromptPacket), **tú generas**
-  el artefacto y luego corres `validate_artifact`. El KG entrega evidencia + spec; tú generas; luego validas.
+- Si pasa de buscar a **crear** (actividad, evaluación, clase): recupera los OA con `query_curriculum` y
+  compila con `compile_artifact` pasándole esos OA como `requested_oa_codes` (recibes un PromptPacket),
+  **tú generas** el artefacto y luego corres `validate_artifact`. El KG entrega evidencia + spec; tú generas; luego validas.
 - Devuelve siempre la fuente/cita. Si no hay evidencia, dilo; nunca inventes recursos, OA ni códigos.
 - Si el MCP responde 401, ve a la skill `setup` para configurar el acceso.

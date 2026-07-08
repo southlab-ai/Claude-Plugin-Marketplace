@@ -18,12 +18,13 @@ oficial para cada nivel.
 1. **Encuadre**: confirma curso y asignatura (ej. "Lenguaje 4° básico"). Si falta, pregúntalo.
    Usa `runtime_status` primero para ver el estado del servidor y la **cobertura curricular**
    de tu solicitud (incluye horas/pacing disponibles).
-2. **OA objetivo**: `resolve_curricular_targets` para resolver (asignatura, curso, OA explícitos /
-   programa / unidad) a un set de OA objetivo. Si es ambiguo (p.ej. dos programas para la misma
-   asignatura+curso), pide aclaración antes de seguir.
+2. **OA objetivo**: `query_curriculum` para recuperar y fijar los OA objetivo **con cita** (por código,
+   tema, unidad o secuencia). Si el pedido es amplio, elige los OA razonables y declara el alcance
+   antes de seguir.
 3. **Spec + evidencia**: `compile_artifact` con `artifact_type` `annual_plan` (año), `unit`
-   (unidad) o `class` (clase). Devuelve un **PromptPacket**: evidencia oficial citada (OA, secuencia
-   unidad→unidad y clase→clase, horas pedagógicas, % del año) + la decisión pedagógica + la spec.
+   (unidad) o `class` (clase), pasándole `requested_oa_codes` = los OA que recuperaste (es *stateless*).
+   Devuelve un **PromptPacket**: evidencia oficial citada (OA, secuencia unidad→unidad y clase→clase,
+   horas pedagógicas, % del año) + la decisión pedagógica + la spec.
 4. **Generas tú**: a partir del PromptPacket, **redacta la planificación**. El KG no la genera por ti.
 5. **Validación**: `validate_artifact` sobre lo que generaste — conformidad de blueprint y los gates
    correspondientes. Nada es entregable sin pasar la validación.
@@ -34,7 +35,7 @@ oficial para cada nivel.
 > contrato (`annual_plan` / `unit` / `class`) antes de compilar.
 
 ## Buenas prácticas
-- Usa los **códigos OA reales** que devuelve el KG vía `resolve_curricular_targets` / `query_curriculum`
+- Usa los **códigos OA reales** que devuelve el KG vía `query_curriculum`
   (ej. `LE04 OA 04`), nunca inventados.
 - Para recuperación curricular puntual (un OA, un recurso, horas de una unidad, panorama temático),
   usa `query_curriculum`: retrieval oficial **con cita por resultado**. Nunca devuelve ítems fuente

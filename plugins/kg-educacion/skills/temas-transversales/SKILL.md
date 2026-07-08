@@ -19,11 +19,11 @@ citada** y, cuando corresponde, una **spec/PromptPacket**; **tú (Claude) genera
    trae los OA y ejes que las puentean, cada uno con su fuente oficial citada.
 4. **Habilidad transversal puntual**: `query_curriculum` con "habilidad transversal argumentar" (o investigar,
    colaborar…) trae la habilidad y los OA por asignatura que la desarrollan, citados.
-5. **Aterriza el proyecto (PROMPT_ONLY)**: toma los OA reales que devolvió `query_curriculum` y usa
-   `resolve_curricular_targets` para fijar el set de OA objetivo; luego `compile_artifact`
-   (artifact_type `unit` o `class`) te entrega evidencia + decisión pedagógica + spec en un PromptPacket;
-   **tú generas** la unidad interdisciplinaria; finalmente `validate_artifact`. (Puede combinarse con las
-   skills `planificar` y `crear-evaluacion`.)
+5. **Aterriza el proyecto (PROMPT_ONLY)**: toma los OA reales que devolvió `query_curriculum` y pásalos
+   como `requested_oa_codes` a `compile_artifact` (artifact_type `unit` o `class`, es *stateless*); te
+   entrega evidencia + decisión pedagógica + spec en un PromptPacket; **tú generas** la unidad
+   interdisciplinaria; finalmente `validate_artifact`. (Puede combinarse con las skills `planificar` y
+   `crear-evaluacion`.)
 
 ## Buenas prácticas
 - Para "qué grandes temas…" usa `query_curriculum` con la consulta temática; `runtime_status` confirma qué
