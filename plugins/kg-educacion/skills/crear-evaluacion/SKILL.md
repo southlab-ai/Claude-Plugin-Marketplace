@@ -1,6 +1,6 @@
 ---
 name: crear-evaluacion
-description: Crear evaluaciones y pruebas alineadas a OA del Currículum Nacional de Chile, balanceadas por demanda cognitiva (Bloom/DOK). Úsala cuando el usuario pida armar una prueba, evaluación, ensayo o set de ítems. Resuelve los OA, recupera el marco evaluativo, compila evidencia+spec con compile_artifact, TÚ generas los ítems y luego validate_artifact.
+description: Crear evaluaciones y pruebas alineadas a OA del Currículum Nacional de Chile, balanceadas por demanda cognitiva (Bloom/DOK). Úsala cuando el usuario pida armar una prueba, evaluación, ensayo o set de ítems. Recupera y fija los OA con query_curriculum, compila evidencia+spec con compile_artifact, TÚ generas los ítems y luego validate_artifact.
 ---
 
 # Crear evaluaciones alineadas y balanceadas
@@ -16,15 +16,17 @@ requiere revisión humana antes de usarse en aula.
 1. **Alcance**: curso, asignatura y qué OA o unidad se evalúa. Si falta, pregúntalo.
 2. **Estado y cobertura**: `runtime_status` primero, para ver el estado del servidor y la cobertura
    curricular de tu solicitud antes de prometer una evaluación.
-3. **OA a evaluar**: `resolve_curricular_targets` para resolver (asignatura, curso, OA explícitos /
-   programa / unidad) al set de OA objetivo. Si es ambiguo (p. ej. dos programas para la misma
-   asignatura+curso), pide aclaración antes de seguir.
-4. **Marco evaluativo / demanda cognitiva**: `analyze_assessment_framework` para el marco oficial
-   (SIMCE/PAES/DEMRE) de la familia EXACTA. Úsalo para **balancear** la prueba (recordar→crear, DOK 1-4):
-   distingue siempre la distribución **oficial** de la **observada** y nunca presentes lo observado como oficial.
+3. **OA a evaluar**: `query_curriculum` para recuperar y fijar los OA objetivo **con cita** (por código
+   o por tema). Si el pedido es amplio ("una prueba de X"), elige 2-3 OA razonables y **declara el
+   alcance** antes de seguir; no te detengas en la recuperación.
+4. **Si es prueba estandarizada (SIMCE/PAES)**: el runtime **no** tiene el marco/blueprint oficial
+   cargado. Declara explícitamente que es **estilo** esa prueba (no oficial), genera ítems originales y
+   **balancea la demanda con criterio propio** (recordar→crear, DOK 1-4); **no** afirmes distribución
+   oficial ni presentes proporciones como del marco.
 5. **Compilar evidencia + spec**: `compile_artifact` con `artifact_type` = `formative_assessment` o
-   `summative_assessment`. Devuelve un **PromptPacket** (evidencia oficial citada + decisión pedagógica +
-   spec/blueprint). El KG **no** redacta los ítems.
+   `summative_assessment`, pasándole `requested_oa_codes` = los OA que recuperaste (es *stateless*).
+   Devuelve un **PromptPacket** (evidencia oficial citada + decisión pedagógica + spec/blueprint). El KG
+   **no** redacta los ítems.
 6. **Generación (tú)**: redacta los ítems alineados a cada OA, etiquetando el nivel Bloom/DOK objetivo,
    siguiendo el blueprint del PromptPacket. El MCP remoto **no** entrega ni ensambla ítems del banco
    fuente (eso es **auditoría local** y nunca se expone): **genera ítems originales**, no reutilices
@@ -36,8 +38,9 @@ requiere revisión humana antes de usarse en aula.
 ## Buenas prácticas
 - Alinea **cada ítem a un OA real** (código del grafo) y declara su nivel cognitivo.
 - Balancea la demanda: combina niveles bajos (recordar/comprender) y altos (analizar/evaluar/crear)
-  según lo que el OA exige, apoyándote en el marco de `analyze_assessment_framework`.
-- Para evaluaciones tipo SIMCE/PAES, pide explícitamente el eje/habilidad y respeta su proporción oficial.
+  según lo que el OA exige (Bloom/DOK).
+- Para evaluaciones tipo SIMCE/PAES: como el marco oficial no está cargado, declara que es **estilo** esa
+  prueba, respeta el eje/habilidad del OA y balancea con criterio; **no** presentes proporciones como oficiales.
 - Cita la fuente de cada OA (`query_curriculum` entrega resultados con cita). Si no hay evidencia, dilo
   en vez de inventar OA o códigos.
 - Mantén dos vistas: estudiante (sin clave) y pauta (separada). La validación rechaza claves en la vista
