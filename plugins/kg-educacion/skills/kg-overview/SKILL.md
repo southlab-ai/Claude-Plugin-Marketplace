@@ -1,6 +1,6 @@
 ---
 name: kg-overview
-description: Qué es el Knowledge Layer del Currículum Nacional de Chile y cómo usar sus herramientas MCP v2 (runtime_status, query_curriculum, query_resources, analyze_assessment_framework, compile_artifact, validate_artifact, explain_artifact). Lee esto primero cuando el usuario pregunte por currículum, OA, planificación, evaluaciones o recursos chilenos.
+description: Qué es el Knowledge Layer del Currículum Nacional de Chile y cómo usar sus herramientas MCP v2 (runtime_status, query_curriculum, query_resources, resolve_curricular_targets, analyze_assessment_framework, compile_artifact, validate_artifact, explain_artifact). Lee esto primero cuando el usuario pregunte por currículum, OA, planificación, evaluaciones o recursos chilenos.
 ---
 
 # Knowledge Layer del Currículum Nacional de Chile
@@ -32,6 +32,7 @@ La vista de estudiante **no lleva clave**, y todo requiere **revisión humana** 
 | `runtime_status` | **Úsala primero**: estado del servidor + cobertura curricular por solicitud (qué hay disponible, horas, alcance). |
 | `query_curriculum` | Recuperación curricular oficial **con cita por resultado**: un OA por código/tema, horas de una unidad, progresiones, y también consultas **temáticas/panorama** ("qué temas cruzan el currículum"). Aquí recuperas y fijas los OA objetivo. Nunca devuelve ítems fuente ni claves. |
 | `query_resources` | Catálogo de **recursos y textos escolares oficiales (MINEDUC)** por curso/asignatura/categoría, con `source_url`. Úsala cuando pidan libros, textos del curso o material asociado. |
+| `resolve_curricular_targets` | Resuelve (asignatura, curso, OA explícitos / programa / unidad) a un **set de OA objetivo**, y ahora **puebla las aristas del grafo**: `prerequisite_oa`/`subsequent_oa` (progresión) y `supporting_oa` (spine/comunidad) con `source_refs` reales. Úsala para **nivelación/secuenciación** (qué OA del grado anterior sostiene a este). Vacío honesto si no hay datos; autoría etiquetada `sustento:"authorial_synthesis"`, nunca lavada. |
 | `analyze_assessment_framework` | **Marco evaluativo** por `family` (SIMCE/PAES) + `subject` + `grade`. Devuelve ejes, habilidades, `formats` y `target_distribution` **modelada** (con `official_distribution` vacío: la oficial de SIMCE no es pública). Selecciona por grado (Mat 4° y 8° difieren). Úsala en evaluaciones estandarizadas para **balancear**; declara la distribución como modelada, no oficial. |
 | `compile_artifact` | **PROMPT_ONLY**: compila evidencia + decisión pedagógica + spec y devuelve un **PromptPacket** para que **tú generes** el artefacto (clase, actividad, evaluación, planificación anual/unidad, rúbrica, retroalimentación…). Es **stateless**: pásale `requested_oa_codes` (los OA que recuperaste). El KG **no genera**. |
 | `validate_artifact` | **Valida** el artefacto que generaste: conformidad de blueprint, **ausencia de clave en la vista de estudiante**, no-reuso de ítems fuente. **Nada es entregable sin pasar la validación.** |

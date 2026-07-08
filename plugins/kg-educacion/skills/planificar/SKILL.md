@@ -35,6 +35,7 @@ oficial para cada nivel.
 > contrato (`annual_plan` / `unit` / `class`) antes de compilar.
 
 ## Buenas prácticas
+- Para **nivelar** al inicio del año, usa `resolve_curricular_targets` con los OA del curso: devuelve `prerequisite_oa` (qué OA del grado anterior sostiene cada uno) con citas — úsalo para secuenciar y detectar prerrequisitos.
 - Usa los **códigos OA reales** que devuelve el KG vía `query_curriculum`
   (ej. `LE04 OA 04`), nunca inventados.
 - Para recuperación curricular puntual (un OA, un recurso, horas de una unidad, panorama temático),
