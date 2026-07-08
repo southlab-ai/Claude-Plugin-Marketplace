@@ -1,6 +1,6 @@
 ---
 name: kg-overview
-description: Qué es el Knowledge Layer del Currículum Nacional de Chile y cómo usar sus herramientas MCP v2 (runtime_status, query_curriculum, query_resources, compile_artifact, validate_artifact, explain_artifact). Lee esto primero cuando el usuario pregunte por currículum, OA, planificación, evaluaciones o recursos chilenos.
+description: Qué es el Knowledge Layer del Currículum Nacional de Chile y cómo usar sus herramientas MCP v2 (runtime_status, query_curriculum, query_resources, analyze_assessment_framework, compile_artifact, validate_artifact, explain_artifact). Lee esto primero cuando el usuario pregunte por currículum, OA, planificación, evaluaciones o recursos chilenos.
 ---
 
 # Knowledge Layer del Currículum Nacional de Chile
@@ -22,6 +22,9 @@ La vista de estudiante **no lleva clave**, y todo requiere **revisión humana** 
 - **Recursos** catalogados por curso/asignatura/categoría/formato (lecturas, videos, actividades…).
 - **Demanda cognitiva** (Bloom y DOK) de OA e ítems, para balancear evaluaciones.
 - **Progresiones** entre grados (qué OA se apoya en el del nivel anterior).
+- **Marcos evaluativos** (SIMCE, PAES) por familia + asignatura + grado, con ejes, habilidades y
+  **distribución modelada** a partir de lo observado. La distribución oficial de SIMCE no es pública, así
+  que se representa como `modeled`/`observed`, nunca como oficial.
 
 ## Las herramientas v2 y cuándo usarlas
 | Herramienta | Úsala para |
@@ -29,6 +32,7 @@ La vista de estudiante **no lleva clave**, y todo requiere **revisión humana** 
 | `runtime_status` | **Úsala primero**: estado del servidor + cobertura curricular por solicitud (qué hay disponible, horas, alcance). |
 | `query_curriculum` | Recuperación curricular oficial **con cita por resultado**: un OA por código/tema, horas de una unidad, progresiones, y también consultas **temáticas/panorama** ("qué temas cruzan el currículum"). Aquí recuperas y fijas los OA objetivo. Nunca devuelve ítems fuente ni claves. |
 | `query_resources` | Catálogo de **recursos y textos escolares oficiales (MINEDUC)** por curso/asignatura/categoría, con `source_url`. Úsala cuando pidan libros, textos del curso o material asociado. |
+| `analyze_assessment_framework` | **Marco evaluativo** por `family` (SIMCE/PAES) + `subject` + `grade`. Devuelve ejes, habilidades, `formats` y `target_distribution` **modelada** (con `official_distribution` vacío: la oficial de SIMCE no es pública). Selecciona por grado (Mat 4° y 8° difieren). Úsala en evaluaciones estandarizadas para **balancear**; declara la distribución como modelada, no oficial. |
 | `compile_artifact` | **PROMPT_ONLY**: compila evidencia + decisión pedagógica + spec y devuelve un **PromptPacket** para que **tú generes** el artefacto (clase, actividad, evaluación, planificación anual/unidad, rúbrica, retroalimentación…). Es **stateless**: pásale `requested_oa_codes` (los OA que recuperaste). El KG **no genera**. |
 | `validate_artifact` | **Valida** el artefacto que generaste: conformidad de blueprint, **ausencia de clave en la vista de estudiante**, no-reuso de ítems fuente. **Nada es entregable sin pasar la validación.** |
 | `explain_artifact` | Explica el **contrato** de un tipo de artefacto: secciones requeridas y gates de validación. |
@@ -43,11 +47,12 @@ no por el servidor.
 - **Buscar recursos / responder dudas:** `query_curriculum` para OA/evidencia y `query_resources` para
   textos oficiales (+ `runtime_status` para cobertura).
 - **Crear evaluación / ítems / kit:** `query_curriculum` (recupera y fija los OA con cita)
-  → `compile_artifact` (`artifact_type` `formative_assessment` | `summative_assessment`, con esos
-  `requested_oa_codes`) → **generas los ítems** → `validate_artifact`. Para pruebas estandarizadas
-  (SIMCE/PAES) el runtime **no** tiene el marco/blueprint oficial cargado: declara que es *estilo* esa
-  prueba (no oficial), genera ítems originales y balancea con criterio propio; no afirmes distribución
-  oficial. El banco de ítems fuente es **auditoría local** y **nunca** se expone por el MCP remoto.
+  → si es estandarizada, `analyze_assessment_framework` (`family` SIMCE/PAES + `subject` + `grade`) para el
+  blueprint y su `target_distribution` → `compile_artifact` (`artifact_type` `formative_assessment` |
+  `summative_assessment`, con esos `requested_oa_codes`) → **generas los ítems** balanceando a la
+  distribución → `validate_artifact`. La `target_distribution` es **modelada** (la oficial de SIMCE no es
+  pública): balancea a ella pero decláralo como modelado, no como distribución oficial. Genera ítems
+  originales; el banco de ítems fuente es **auditoría local** y **nunca** se expone por el MCP remoto.
 - **Planificar año/unidad/clase:** `query_curriculum` (recupera OA, secuencia y horas) → `compile_artifact`
   (`artifact_type` `annual_plan` | `unit` | `class`, con `requested_oa_codes`) → **generas** →
   `validate_artifact`; cobertura/horas vía `runtime_status`.
