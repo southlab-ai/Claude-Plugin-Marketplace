@@ -38,6 +38,7 @@ requiere revisión humana antes de usarse en aula.
    Si dudas del contrato de un tipo de artefacto, consulta `explain_artifact`.
 
 ## Buenas prácticas
+- Puedes fijar el set de OA con `resolve_curricular_targets` (devuelve además `prerequisite_oa`/`supporting_oa` citados) si quieres anclar la prueba en la progresión, no solo en los OA sueltos.
 - Alinea **cada ítem a un OA real** (código del grafo) y declara su nivel cognitivo.
 - Balancea la demanda: combina niveles bajos (recordar/comprender) y altos (analizar/evaluar/crear)
   según lo que el OA exige (Bloom/DOK).
