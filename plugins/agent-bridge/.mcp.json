@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "agent-bridge": {
+      "command": "/bin/sh",
+      "args": [
+        "-c",
+        "ROOT=\"\"; for CANDIDATE in \"$PLUGIN_ROOT\" \"$CLAUDE_PLUGIN_ROOT\" \"$PWD\" \"$HOME\"/.codex/plugins/cache/*/agent-bridge/* \"$HOME\"/.claude/plugins/cache/*/agent-bridge/*; do if [ -n \"$CANDIDATE\" ] && [ -f \"$CANDIDATE/agent_bridge/server.py\" ] && [ -f \"$CANDIDATE/pyproject.toml\" ]; then ROOT=\"$CANDIDATE\"; break; fi; done; if [ -z \"$ROOT\" ]; then echo 'agent-bridge: plugin root not found' >&2; exit 1; fi; exec uv run --directory \"$ROOT\" python -m agent_bridge.server"
+      ],
+      "startup_timeout_sec": 30,
+      "tool_timeout_sec": 7300,
+      "required": true,
+      "default_tools_approval_mode": "approve"
+    }
+  }
+}

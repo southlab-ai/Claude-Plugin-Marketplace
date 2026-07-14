@@ -6,13 +6,25 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 
 | Plugin | Description | Version | Category |
 |--------|-------------|---------|----------|
+| **agent-bridge** | Connect independent Codex or Claude chats with blocking request/reply calls while preserving the native desktop app. | 0.1.0 | Productivity |
 | **upwork-scraper** | Scrape Upwork jobs, analyze market demand, write proposals, optimize rates, and build portfolios. 5 slash commands + 5 AI agents. | 0.2.0 | Freelance |
 | **the-council** | Catch blind spots in architecture decisions with multi-perspective analysis. 4 auto-routed modes, configurable roles, `/council:build` pipeline, `/council:value` analysis, memory attribution, progressive hints. | 3.2.0 | Productivity |
 | **computer-vision** | Desktop computer vision and input control for Windows. 28 tools: screenshots, click, type, scroll, OCR, element finder, text extraction, UI trees, app-specific adapters, action verification, and 9 sandbox tools for parallel automation (Claude works in isolated Windows Sandbox while you keep working). | 2.0.0 | Utilities |
 
 ## Installation
 
-### 1. Add the marketplace
+### Codex Desktop
+
+```bash
+codex plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
+codex plugin add agent-bridge@southlab-marketplace
+```
+
+Restart Codex Desktop after installation, then invoke the `agent-bridge` skill from two chats.
+
+### Claude Code
+
+#### 1. Add the marketplace
 
 Inside Claude Code:
 
@@ -20,19 +32,20 @@ Inside Claude Code:
 /plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
 ```
 
-### 2. Install a plugin
+#### 2. Install a plugin
 
 ```
 /plugin install upwork-scraper@southlab-marketplace
 /plugin install the-council@southlab-marketplace
 /plugin install computer-vision@southlab-marketplace
+/plugin install agent-bridge@southlab-marketplace
 ```
 
-### 3. Restart Claude Code
+#### 3. Restart Claude Code
 
 Close and reopen Claude Code for the MCP server to connect.
 
-### 4. Run setup
+#### 4. Run setup
 
 Each plugin has a setup command:
 
@@ -43,6 +56,14 @@ Each plugin has a setup command:
 ```
 
 ## Commands
+
+### Agent Bridge
+
+Use the `agent-bridge` skill in two independent chats. The receiver registers and calls
+`listen`; the sender calls `ask` and remains blocked until the receiver calls `reply`.
+
+The default wait is one hour. The bundled MCP client timeout is 7,300 seconds, allowing
+explicit waits of up to two hours.
 
 ### Upwork Scraper
 

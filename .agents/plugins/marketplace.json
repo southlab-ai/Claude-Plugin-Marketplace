@@ -1,0 +1,32 @@
+{
+  "name": "southlab-marketplace",
+  "interface": {
+    "displayName": "SouthLab AI"
+  },
+  "plugins": [
+    {
+      "name": "agent-bridge",
+      "source": {
+        "source": "local",
+        "path": "./plugins/agent-bridge"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "kg-educacion",
+      "source": {
+        "source": "local",
+        "path": "./plugins/kg-educacion"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Education"
+    }
+  ]
+}
