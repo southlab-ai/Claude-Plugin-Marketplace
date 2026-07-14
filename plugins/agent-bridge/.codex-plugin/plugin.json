@@ -1,0 +1,41 @@
+{
+  "name": "agent-bridge",
+  "version": "0.1.0",
+  "description": "Blocking request/reply communication between independent Codex or Claude chats without replacing the desktop app.",
+  "author": {
+    "name": "SouthLab AI",
+    "email": "cardenas.je@southlab.ai",
+    "url": "https://github.com/southlab-ai"
+  },
+  "homepage": "https://github.com/southlab-ai/Claude-Plugin-Marketplace/tree/main/plugins/agent-bridge",
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "multi-agent",
+    "chat",
+    "coordination",
+    "mcp",
+    "blocking",
+    "request-reply"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Agent Bridge",
+    "shortDescription": "Connect independent chats with blocking replies",
+    "longDescription": "Connect two independent Codex or Claude chats while preserving their native desktop capabilities. One chat can wait like a parent waiting for a subagent; the peer receives the request, replies, and releases the original tool call without creating another user turn.",
+    "developerName": "SouthLab AI",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/southlab-ai/Claude-Plugin-Marketplace/tree/main/plugins/agent-bridge",
+    "defaultPrompt": [
+      "Register this chat as reviewer and wait for architect",
+      "Ask reviewer to inspect my plan and wait for its reply",
+      "Connect two chats for a three-round architecture debate"
+    ],
+    "brandColor": "#7C3AED"
+  }
+}

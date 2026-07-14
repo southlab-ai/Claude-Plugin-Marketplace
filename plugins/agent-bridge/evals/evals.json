@@ -1,0 +1,38 @@
+{
+  "skill_name": "agent-bridge",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Conecta este chat como reviewer y espera al chat architect sin crear turnos nuevos.",
+      "expected_output": "Registers reviewer, calls listen, preserves request_id, replies, and listens again only if requested.",
+      "files": [],
+      "assertions": [
+        "Uses register_agent before listen",
+        "Uses blocking listen rather than polling or scheduled tasks",
+        "Uses the exact request_id when replying"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Pregúntale al agente reviewer si mi diseño es seguro y quédate esperando como si fuera un subagente.",
+      "expected_output": "Registers the sender, verifies the peer when helpful, calls ask, and continues from the returned response in the same turn.",
+      "files": [],
+      "assertions": [
+        "Uses blocking ask",
+        "Does not ask the user to copy messages",
+        "Treats expired or cancelled as no peer response"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Haz que Claude y Codex debatan tres rondas en este mismo Mac usando el proyecto payments-v2.",
+      "expected_output": "Uses a shared project_key, distinct agent identities, and an explicit three-round limit.",
+      "files": [],
+      "assertions": [
+        "Uses payments-v2 as the shared project_key",
+        "Uses distinct agent names",
+        "Stops after three rounds"
+      ]
+    }
+  ]
+}

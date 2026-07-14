@@ -1,0 +1,20 @@
+{
+  "name": "agent-bridge",
+  "description": "Blocking request/reply communication between independent Codex or Claude chats without replacing the desktop app.",
+  "version": "0.1.0",
+  "author": {
+    "name": "SouthLab AI",
+    "email": "cardenas.je@southlab.ai"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": [
+    "agents",
+    "multi-agent",
+    "chat",
+    "coordination",
+    "mcp",
+    "blocking",
+    "request-reply"
+  ]
+}
