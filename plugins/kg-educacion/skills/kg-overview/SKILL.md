@@ -1,69 +1,77 @@
 ---
 name: kg-overview
-description: Qué es el Knowledge Layer del Currículum Nacional de Chile y cómo usar sus herramientas MCP v2 (runtime_status, query_curriculum, query_resources, resolve_curricular_targets, analyze_assessment_framework, compile_artifact, validate_artifact, explain_artifact). Lee esto primero cuando el usuario pregunte por currículum, OA, planificación, evaluaciones o recursos chilenos.
+description: Qué es el KG Educación privado y cómo usar las 7 herramientas MCP v3 (runtime_status, query_curriculum, query_teaching_materials, resolve_curricular_targets, analyze_assessment_framework, compile_artifact y validate_artifact). Lee esto primero para consultas sobre currículum chileno, OA, materiales docentes, planificación o evaluación.
 ---
 
-# Knowledge Layer del Currículum Nacional de Chile
+# KG Educación v3
 
-Tienes acceso, vía el MCP `kg-educacion` (runtime v2, serverInfo 2.0.0, modo PROMPT_ONLY), a un grafo de
-conocimiento construido sobre las fuentes oficiales del Currículum Nacional (curriculumnacional.cl,
-MINEDUC). Sirve para apoyar a profesores y equipos directivos. **Todo es de solo lectura y siempre citas
-la fuente.**
+Tienes acceso al MCP `kg-educacion` (`serverInfo` `3.0.0`). Es un **KG privado, independiente y no
+afiliado a MINEDUC**. Su sourcing incluye fuentes públicas y materiales publicados o distribuidos por
+MINEDUC, además de materiales privados autorizados para una cuenta. La autoridad corresponde a cada
+fuente citada; nunca presentes al KG, sus tools o su catálogo como "oficial MINEDUC".
 
-**Cambio de paradigma clave:** el KG ya **no genera contenido ni aloja un LLM**. El KG **compila evidencia
-oficial citada + una spec (PromptPacket)**; el modelo que llama (tú, Claude) **genera el artefacto**; luego
-el KG **valida** lo que generaste. En resumen: *el KG entrega evidencia+spec, tú generas, luego validas.*
-La vista de estudiante **no lleva clave**, y todo requiere **revisión humana** antes de usarse en aula.
+El corpus y el KG se consultan en modo read-only. Auth, uso y auditoría pueden registrar actividad.
+El KG no aloja un LLM ni redacta artefactos: **resuelve y recupera evidencia → compila una spec y un
+packet → el modelo genera → el KG valida**. Todo entregable requiere revisión humana.
 
-## Qué contiene (capas)
-- **OA oficiales** por curso, asignatura y eje, con sus recursos y clases asociadas.
-- **Habilidades transversales** que cruzan asignaturas (argumentar, investigar, modelar, colaborar…).
-- **Secuencias** de unidades y clases con **horas pedagógicas** (pacing del año).
-- **Recursos** catalogados por curso/asignatura/categoría/formato (lecturas, videos, actividades…).
-- **Demanda cognitiva** (Bloom y DOK) de OA e ítems, para balancear evaluaciones.
-- **Progresiones** entre grados (qué OA se apoya en el del nivel anterior).
-- **Marcos evaluativos** (SIMCE, PAES) por familia + asignatura + grado, con ejes, habilidades y
-  **distribución modelada** a partir de lo observado. La distribución oficial de SIMCE no es pública, así
-  que se representa como `modeled`/`observed`, nunca como oficial.
+## Las 7 tools v3
 
-## Las herramientas v2 y cuándo usarlas
-| Herramienta | Úsala para |
+| Tool | Responsabilidad |
 |---|---|
-| `runtime_status` | **Úsala primero**: estado del servidor + cobertura curricular por solicitud (qué hay disponible, horas, alcance). |
-| `query_curriculum` | Recuperación curricular oficial **con cita por resultado**: un OA por código/tema, horas de una unidad, progresiones, y también consultas **temáticas/panorama** ("qué temas cruzan el currículum"). Aquí recuperas y fijas los OA objetivo. Nunca devuelve ítems fuente ni claves. |
-| `query_resources` | Catálogo de **recursos y textos escolares oficiales (MINEDUC)** por curso/asignatura/categoría, con `source_url`. Úsala cuando pidan libros, textos del curso o material asociado. |
-| `resolve_curricular_targets` | Resuelve (asignatura, curso, OA explícitos / programa / unidad) a un **set de OA objetivo**, y ahora **puebla las aristas del grafo**: `prerequisite_oa`/`subsequent_oa` (progresión) y `supporting_oa` (spine/comunidad) con `source_refs` reales. Úsala para **nivelación/secuenciación** (qué OA del grado anterior sostiene a este). Vacío honesto si no hay datos; autoría etiquetada `sustento:"authorial_synthesis"`, nunca lavada. |
-| `analyze_assessment_framework` | **Marco evaluativo** por `family` (SIMCE/PAES) + `subject` + `grade`. Devuelve ejes, habilidades, `formats` y `target_distribution` **modelada** (con `official_distribution` vacío: la oficial de SIMCE no es pública). Selecciona por grado (Mat 4° y 8° difieren). Úsala en evaluaciones estandarizadas para **balancear**; declara la distribución como modelada, no oficial. |
-| `compile_artifact` | **PROMPT_ONLY**: compila evidencia + decisión pedagógica + spec y devuelve un **PromptPacket** para que **tú generes** el artefacto (clase, actividad, evaluación, planificación anual/unidad, rúbrica, retroalimentación…). Es **stateless**: pásale `requested_oa_codes` (los OA que recuperaste). El KG **no genera**. |
-| `validate_artifact` | **Valida** el artefacto que generaste: conformidad de blueprint, **ausencia de clave en la vista de estudiante**, no-reuso de ítems fuente. **Nada es entregable sin pasar la validación.** |
-| `explain_artifact` | Explica el **contrato** de un tipo de artefacto: secciones requeridas y gates de validación. |
+| `runtime_status` | Descubre release activo, capacidades, cobertura y paridad. No responde preguntas curriculares. |
+| `query_curriculum` | Recupera evidencia curricular citada: OA, indicadores, programas, unidades curriculares, horas, progresiones y pedagogía. |
+| `query_teaching_materials` | Recupera paquetes y componentes docentes: textos, guías, cuadernos, actividades, BDA y materiales privados autorizados. |
+| `resolve_curricular_targets` | Convierte curso, asignatura, OA o texto libre en un `target_set_ref` canónico y explicita ambigüedades. |
+| `analyze_assessment_framework` | Selecciona un framework evaluativo y devuelve un `framework_ref` firmado. |
+| `compile_artifact` | Compila un target no ambiguo, materiales y restricciones en `compiled_spec` + `TeacherContextPacket`. No redacta. |
+| `validate_artifact` | Valida el artefacto generado contra exactamente el packet y la spec firmada de `compile_artifact`. |
 
-## Cómo se encadenan (orquestación)
-Las herramientas **no se llaman entre sí** — **tú** eres quien las encadena. `compile_artifact` es
-*stateless*: recuperas los OA con `query_curriculum`, y esos códigos se los pasas como `requested_oa_codes`
-a `compile_artifact`; después lo que **tú generas** se lo pasas a `validate_artifact`. El dato viaja por ti,
-no por el servidor.
+## Separar currículum de materiales
 
-## Flujos típicos (de intención a herramientas)
-- **Buscar recursos / responder dudas:** `query_curriculum` para OA/evidencia y `query_resources` para
-  textos oficiales (+ `runtime_status` para cobertura).
-- **Crear evaluación / ítems / kit:** `query_curriculum` (recupera y fija los OA con cita)
-  → si es estandarizada, `analyze_assessment_framework` (`family` SIMCE/PAES + `subject` + `grade`) para el
-  blueprint y su `target_distribution` → `compile_artifact` (`artifact_type` `formative_assessment` |
-  `summative_assessment`, con esos `requested_oa_codes`) → **generas los ítems** balanceando a la
-  distribución → `validate_artifact`. La `target_distribution` es **modelada** (la oficial de SIMCE no es
-  pública): balancea a ella pero decláralo como modelado, no como distribución oficial. Genera ítems
-  originales; el banco de ítems fuente es **auditoría local** y **nunca** se expone por el MCP remoto.
-- **Planificar año/unidad/clase:** `query_curriculum` (recupera OA, secuencia y horas) → `compile_artifact`
-  (`artifact_type` `annual_plan` | `unit` | `class`, con `requested_oa_codes`) → **generas** →
-  `validate_artifact`; cobertura/horas vía `runtime_status`.
-- **Temas transversales / panorama interdisciplinario:** `query_curriculum` con consultas temáticas.
+- `selectors.unit_id` / `selectors.unit_number` identifican una **unidad curricular canónica** del
+  programa y se usan en `query_curriculum` o `resolve_curricular_targets`.
+- `material_unit_number` / `material_unit_name` identifican una **estructura interna declarada por el
+  material**: puede ser unidad, lección, capítulo o sección. Se usan solo en `query_teaching_materials`.
+- `package_id` identifica el libro o bundle activo. `material_id` identifica una sección o material
+  concreto; no lo uses como identidad del libro completo.
+- Conserva en el contexto de conversación el `package_id` o los `package_ids` elegidos por el docente.
 
-## Reglas
-- Cita siempre la fuente oficial que devuelve la herramienta.
-- Si no hay evidencia, dilo explícitamente — no inventes OA ni códigos.
-- Recuerda el paradigma PROMPT_ONLY: el KG entrega **evidencia+spec**, **tú generas**, luego **validas**;
-  nada es entregable sin pasar `validate_artifact`.
-- Para tareas de planificación, evaluación, recursos o proyectos interdisciplinarios, usa las skills
-  específicas de este plugin (`planificar`, `crear-evaluacion`, `buscar-recursos`, `temas-transversales`).
-- Si el MCP responde 401, falta configurar `KG_API_KEY`: usa la skill `setup`.
+Cuando el docente diga "Unidad 1" y exista un libro activo en la conversación, interpreta la solicitud
+como la estructura interna número 1 del material y usa `query_teaching_materials` con ese `package_id` y
+`material_unit_number: 1`. `material_unit_kind` es un refinamiento opcional: no lo infieras desde la
+palabra "unidad". Si viene omitido, di "estructura interna 1" y continúa; no es bloqueante. Dentro del
+mismo paquete, unidad y lección pueden combinarse si la evidencia muestra el mismo alcance conceptual.
+
+Si no hay libro activo, consulta todos los paquetes autorizados que calcen con asignatura, curso y
+`material_unit_number`. Conserva la procedencia por `package_id` y deja que el modelo filtre o combine
+la evidencia útil.
+
+## Retrieval amplio
+
+- Un OA explícito recupera toda la evidencia curricular y materiales autorizados para ese OA, salvo que
+  uno o más `package_id(s)` activos restrinjan la búsqueda.
+- Sin paquete activo, consulta todos los paquetes autorizados; no elijas arbitrariamente un solo libro.
+- La evidencia de varios paquetes puede combinarse. El target curricular sigue siendo canónico: resuelve
+  los OA declarados y aclara solo si apuntan a programas o cursos incompatibles.
+- Pagina hasta terminar: continúa con `next_cursor` mientras exista o la respuesta indique `has_more`.
+
+## Flujo obligatorio para crear algo
+
+1. Resuelve el target con `resolve_curricular_targets`. Si devuelve `needs_clarification`, pregunta; no
+   elijas una alternativa por tu cuenta.
+2. Recupera evidencia con `query_curriculum` usando el target resuelto.
+3. Si aplica, recupera materiales con `query_teaching_materials`. Para un OA usa `package_id(s)` activos
+   si existen; si no, consulta todos los paquetes autorizados. Pagina hasta completar.
+4. Llama `compile_artifact` con el `target_set_ref` completo, los `resource_refs` autorizados y las
+   restricciones. Para una unidad de cinco clases usa `constraints.class_count: 5`.
+5. Genera tú el artefacto siguiendo `compiled_spec` y `TeacherContextPacket`.
+6. Llama `validate_artifact`, copiando sin cambios `context_packet_id`, `spec_id`, `spec_hash`, firma,
+   algoritmo, key id, encoding, `release_id`, `artifact_type` y `purpose`. Corrige y revalida si falla.
+
+## Reglas de respuesta
+
+- Cita la fuente devuelta y distingue autoridad declarada, modelado y síntesis.
+- No inventes OA, `package_id`, `resource_ref`, citas, hashes ni firmas.
+- Los ítems fuente son evidencia interna, nunca entregables. Genera ítems originales y mantén la
+  clave solo en `teacher_view`.
+- Si el MCP responde 401, usa la skill `setup`.

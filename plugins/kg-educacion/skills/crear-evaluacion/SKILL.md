@@ -1,52 +1,51 @@
 ---
 name: crear-evaluacion
-description: Crear evaluaciones y pruebas alineadas a OA del Currículum Nacional de Chile, balanceadas por demanda cognitiva (Bloom/DOK). Úsala cuando el usuario pida armar una prueba, evaluación, ensayo o set de ítems. Recupera y fija los OA con query_curriculum, para estandarizadas recupera el marco (SIMCE/PAES) con analyze_assessment_framework, compila evidencia+spec con compile_artifact, TÚ generas los ítems y luego validate_artifact.
+description: Crear evaluaciones originales alineadas a OA con el KG Educación v3. Resuelve el target, consulta materiales autorizados si aplican, obtiene un framework firmado, compila una spec, genera los ítems y valida el resultado.
 ---
 
-# Crear evaluaciones alineadas y balanceadas
+# Crear evaluaciones v3
 
-Apoya al profesor a construir una evaluación válida usando el MCP `kg-educacion`.
+Usa el MCP `kg-educacion` (`serverInfo` `3.0.0`). Es un KG privado e independiente con sourcing
+trazable; no está afiliado a MINEDUC. El KG no genera preguntas: resuelve, recupera, compila y valida.
+Tú generas ítems originales y mantienes separadas la vista de estudiante y la pauta docente.
 
-**Paradigma v2 (PROMPT_ONLY):** el KG ya **no** genera contenido ni aloja un LLM. El KG **compila
-evidencia oficial citada + una spec/PromptPacket**; **tú (Claude) generas** los ítems y la evaluación;
-luego **se valida**. Todo es read-only y citado, la vista de estudiante va **sin clave**, y todo
-requiere revisión humana antes de usarse en aula.
+## Flujo obligatorio
 
-## Flujo recomendado
-1. **Alcance**: curso, asignatura y qué OA o unidad se evalúa. Si falta, pregúntalo.
-2. **Estado y cobertura**: `runtime_status` primero, para ver el estado del servidor y la cobertura
-   curricular de tu solicitud antes de prometer una evaluación.
-3. **OA a evaluar**: `query_curriculum` para recuperar y fijar los OA objetivo **con cita** (por código
-   o por tema). Si el pedido es amplio ("una prueba de X"), elige 2-3 OA razonables y **declara el
-   alcance** antes de seguir; no te detengas en la recuperación.
-4. **Si es prueba estandarizada (SIMCE/PAES)**: usa `analyze_assessment_framework` con `family`
-   (SIMCE/PAES) + `subject` + `grade`. Devuelve el blueprint del marco: ejes, habilidades, `formats` y
-   `target_distribution`. **Balancea la prueba a esa `target_distribution`** (tipos de ítem, DOK/Bloom,
-   habilidades). Selecciona por grado (Mat 4° y 8° difieren). Importante: la distribución es **modelada**
-   a partir de lo observado —la oficial de SIMCE no es pública (`official_distribution` viene vacío)—, así
-   que decláralo como **modelado**, no como distribución oficial publicada.
-5. **Compilar evidencia + spec**: `compile_artifact` con `artifact_type` = `formative_assessment` o
-   `summative_assessment`, pasándole `requested_oa_codes` = los OA que recuperaste (es *stateless*).
-   Devuelve un **PromptPacket** (evidencia oficial citada + decisión pedagógica + spec/blueprint). El KG
-   **no** redacta los ítems.
-6. **Generación (tú)**: redacta los ítems alineados a cada OA, etiquetando el nivel Bloom/DOK objetivo,
-   siguiendo el blueprint del PromptPacket. El MCP remoto **no** entrega ni ensambla ítems del banco
-   fuente (eso es **auditoría local** y nunca se expone): **genera ítems originales**, no reutilices
-   ítems fuente.
-7. **Validación**: `validate_artifact` sobre lo que generaste — conformidad del blueprint, **ausencia de
-   clave** en la vista de estudiante y no-reuso de ítems fuente. Nada es entregable sin pasar la validación.
-   Si dudas del contrato de un tipo de artefacto, consulta `explain_artifact`.
+1. **Alcance**: confirma asignatura, curso, propósito, cantidad de ítems y OA/tema/unidad. Si la
+   evaluación se basa en un libro, conserva su `package_id` activo.
+2. **Target**: llama `resolve_curricular_targets`. Usa los OA explícitos de la solicitud o del material
+   elegido. Si devuelve alternativas, pide aclaración; no elijas silenciosamente.
+3. **Evidencia curricular**: usa `query_curriculum` sobre el target resuelto para OA, indicadores y
+   demanda pedagógica citada.
+4. **Materiales**: si aplica, usa `query_teaching_materials` con los OA resueltos. Restringe por
+   `package_id(s)` activos; sin paquete activo consulta todos los autorizados. Pagina hasta completar y
+   conserva los `resource_refs`.
+5. **Framework**: para una evaluación diagnóstica, formativa, sumativa o de práctica que requiera marco,
+   llama `analyze_assessment_framework` y conserva el `framework_ref` firmado. Distingue distribución
+   declarada por fuente de distribución modelada u observada.
+6. **Compilar**: llama `compile_artifact` con `target_set_ref`, `framework_ref` cuando aplique,
+   `resource_refs` y `constraints.item_count`. Usa un `artifact_type` canónico:
+   `diagnostic_assessment`, `formative_assessment`, `summative_assessment` o `item_set`.
+7. **Generar**: redacta tú los estímulos, ítems, rúbricas y pauta siguiendo `compiled_spec` y el packet.
+8. **Validar**: llama `validate_artifact` copiando sin cambios todos los ids, hash, firma, algoritmo,
+   key id, encoding, release, tipo y propósito emitidos por `compile_artifact`.
 
-## Buenas prácticas
-- Puedes fijar el set de OA con `resolve_curricular_targets` (devuelve además `prerequisite_oa`/`supporting_oa` citados) si quieres anclar la prueba en la progresión, no solo en los OA sueltos.
-- Alinea **cada ítem a un OA real** (código del grafo) y declara su nivel cognitivo.
-- Balancea la demanda: combina niveles bajos (recordar/comprender) y altos (analizar/evaluar/crear)
-  según lo que el OA exige (Bloom/DOK).
-- Para evaluaciones tipo SIMCE/PAES: recupera el marco con `analyze_assessment_framework` (family+subject+grade)
-  y balancea a su `target_distribution`. Esa distribución es **modelada** (la oficial de SIMCE no es pública):
-  respeta ejes/habilidades y proporciones del blueprint, pero **no** las presentes como distribución oficial publicada.
-- Cita la fuente de cada OA (`query_curriculum` entrega resultados con cita). Si no hay evidencia, dilo
-  en vez de inventar OA o códigos.
-- Mantén dos vistas: estudiante (sin clave) y pauta (separada). La validación rechaza claves en la vista
-  de estudiante.
-- Si el MCP responde **401**, deriva a la skill `setup` para configurar el acceso.
+## Materiales y varios paquetes
+
+- `package_id` identifica el libro/bundle; `material_id` identifica una sección concreta.
+- Puedes combinar materiales de varios paquetes, manteniendo citas y `resource_refs` atribuidos. El
+  target se fija con `resolve_curricular_targets`, no por una mezcla implícita de metadata.
+- `material_unit_kind` es opcional y no se infiere desde la palabra "unidad".
+- `material_unit_number` es estructura interna del material; no lo copies a `selectors.unit_number`.
+
+## Reglas duras
+
+- Los ítems fuente son evidencia interna y nunca se entregan ni se adaptan como ítems finales.
+- Genera al menos un ítem y exactamente `constraints.item_count` cuando se haya compilado esa restricción.
+- Cada ítem lleva `target_oa`, `slot_id`, tipo de respuesta y estímulo; la pauta generada vive solo en
+  `teacher_view.generated_answer_key`.
+- `student_view` nunca contiene claves, respuestas esperadas ni notas docentes.
+- Si la validación falla, corrige el payload y revalida contra la misma spec; no cambies el target ni la
+  firma para hacerla pasar.
+- Todo requiere revisión humana antes de uso en aula.
+- Si el MCP responde 401, usa `setup`.

@@ -1,5 +1,5 @@
 ---
-description: Conecta kg-educacion en Claude o Codex — asistente guiado (invitación → email → usuario → API key automática, misma key para ambos)
+description: Conecta kg-educacion v3, un KG educativo privado, en Claude o Codex (invitación → cuenta → API key para ambos)
 ---
 
 Eres el asistente de configuración de kg-educacion. Sigue la skill `setup`, **preguntando un dato a la vez**,
@@ -19,7 +19,7 @@ Primera instalación:
    ```
    Registra, crea la API key y configura **ambos clientes**: `~/.claude/settings.json` (Claude),
    `export KG_API_KEY` en el shell, `codex mcp add` (Codex) y `launchctl setenv` para apps GUI de macOS.
-6. Dile que **reinicie Claude Code o Codex** y pruebe una pregunta curricular.
+6. Dile que **reinicie Claude Code o Codex**, consulte `runtime_status` y confirme `serverInfo 3.0.0`.
 
 Para Codex el MCP autenticado va en `~/.codex/config.toml` (`codex mcp add … --bearer-token-env-var KG_API_KEY`),
 no en el manifiesto del plugin. Nunca pegues la API key ni la contraseña en el chat fuera de lo que el script muestra.

@@ -1,98 +1,136 @@
 # kg-educacion
 
-Knowledge layer del **Currículum Nacional de Chile** (MINEDUC) para Claude Code y Codex.
-Conecta el modelo a un MCP remoto **read-only** que compila **evidencia oficial citada** y una
-**spec/PromptPacket** para que **tú (el modelo) generes** el artefacto; luego se **valida**. El KG
-**ya no genera contenido ni aloja un LLM**: entrega evidencia + spec, tú produces, después validas.
+Plugin para Claude Code y Codex que conecta `kg-educacion`, un **KG educativo privado, independiente y
+no afiliado a MINEDUC**. Su sourcing incluye fuentes públicas y materiales publicados o distribuidos
+por MINEDUC, además de materiales privados autorizados. La autoridad pertenece a cada fuente citada;
+el KG, sus tools y su catálogo no son "oficiales MINEDUC".
 
-- **Planificación** de año / unidad / clase con OA, secuencias y horas pedagógicas.
-- **Evaluaciones** alineadas a OA y balanceadas por demanda cognitiva (Bloom / DOK).
-- **Recursos** y dudas curriculares resueltos con cita oficial por resultado.
-- **Temas transversales** y proyectos interdisciplinarios (consultas temáticas de panorama).
+El corpus/KG se consulta en modo read-only; auth, uso y auditoría pueden registrar actividad. El runtime
+no aloja un LLM: resuelve targets, recupera evidencia y materiales, y compila una spec. El modelo genera
+el artefacto y el KG lo valida. Todo entregable requiere revisión humana.
 
-Es de **solo lectura** y **cita siempre la fuente**. La vista de estudiante va **sin clave**, el
-banco de ítems fuente nunca se expone, y **todo artefacto requiere revisión humana**. El servicio
-es de pago por consulta: cada usuario crea su cuenta y genera **API keys** revocables.
+## Instalación
 
-## Instalación (Claude Code)
+**Claude Code**
+
 ```bash
 claude plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
 claude plugin install kg-educacion@southlab-marketplace
 ```
 
-## Instalación (Codex)
+**Codex**
+
 ```bash
 codex plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
 codex plugin install kg-educacion@southlab-marketplace
 ```
-El plugin aporta las **skills**. El MCP autenticado se registra aparte en Codex (el manifiesto
-del plugin **no** transporta credenciales — Codex solo aplica auth desde `config.toml`); ver
-"Configurar el acceso".
 
-## Configurar el acceso
-La key (`KG_API_KEY`) es **la misma para Claude y Codex**. Crea cuenta y key una vez:
-1. Cuenta (requiere **código de invitación**, pídelo a hola@southlab.ai): `POST https://api.southlab.ai/account/register` `{username,password,invite_code}`.
-2. API key: `POST https://api.southlab.ai/account/keys` `{username,password,label}` → `kg_live_…` (se muestra una vez).
+El plugin aporta las skills. El MCP autenticado se registra aparte en Codex.
 
-La forma fácil es `/kg-setup` (o la skill `setup`), que hace lo anterior y configura ambos clientes. Manual:
+## Configurar acceso
 
-**Claude Code** — el `.mcp.json` del plugin lee `Bearer ${KG_API_KEY}` del entorno:
-```bash
-export KG_API_KEY=kg_live_…          # en tu ~/.zshrc / ~/.bashrc
-```
-(o pon `"env": { "KG_API_KEY": "kg_live_…" }` en `~/.claude/settings.json`). Reinicia Claude.
+La variable `KG_API_KEY` sirve para Claude y Codex. La forma guiada es `/kg-setup` o la skill `setup`.
+Configuración manual de Codex:
 
-**Codex** — registra el MCP con la key **por variable de entorno** (nunca el token literal en el repo):
 ```bash
 export KG_API_KEY=kg_live_…
 codex mcp add kg-educacion --url https://api.southlab.ai/mcp --bearer-token-env-var KG_API_KEY
 ```
-Reinicia Codex.
 
-**macOS (apps GUI)** — si abres Codex/Claude desde el Dock no heredan `~/.zshrc`. Expón la key:
+En macOS, las apps abiertas desde el Dock pueden requerir:
+
 ```bash
 launchctl setenv KG_API_KEY "$KG_API_KEY"
 ```
-Para que sobreviva reinicios del Mac, deja un LaunchAgent que haga ese `setenv` al iniciar sesión.
-Si el MCP responde **401**, corre la skill `setup` (o `/kg-setup`).
 
-## Skills incluidas
-`kg-overview` (qué es y cómo usarlo), `planificar`, `crear-evaluacion`, `buscar-recursos`,
-`temas-transversales`, `setup`.
+Nunca guardes el token literal en el repositorio. Si el MCP responde 401, ejecuta `setup` y reinicia el
+cliente.
 
-## Herramientas MCP — Runtime v2 (read-only, `serverInfo` 2.0.0, modo `PROMPT_ONLY`)
-La superficie pública del MCP son **7 tools** (cualquier nombre anterior es **obsoleto**):
+## Skills
 
-- **`runtime_status`** — estado del servidor + cobertura curricular por solicitud. **Úsalo primero.**
-- **`query_curriculum`** — recuperación curricular oficial **con cita por resultado**. Nunca devuelve
-  ítems fuente ni claves. (Reemplaza a toda búsqueda/respuesta/fetch/grafo/listado anterior.)
-- **`resolve_curricular_targets`** — resuelve (asignatura, curso, OA explícitos / programa / unidad)
-  a un set de **OA objetivo**; si es ambiguo (p. ej. dos programas para la misma asignatura+curso),
-  **pide aclaración**.
-- **`analyze_assessment_framework`** — marco evaluativo oficial (SIMCE/PAES/DEMRE) por **familia
-  exacta**; distingue **distribución oficial vs observada** (nunca presenta lo observado como oficial).
-- **`compile_artifact`** — `PROMPT_ONLY`: compila evidencia + decisión pedagógica + spec y devuelve un
-  **PromptPacket** para que **tú generes** el artefacto (clase, actividad, evaluación, planificación
-  anual/unidad, rúbrica, retroalimentación, etc.). **El KG no genera.**
-- **`validate_artifact`** — valida el artefacto que generaste: conformidad de blueprint, **ausencia de
-  clave** en la vista de estudiante, **no-reuso** de ítems fuente. Nada es entregable sin pasar la validación.
-- **`explain_artifact`** — explica el contrato de un tipo de artefacto (secciones requeridas, gates).
+- `kg-overview`: contrato y orquestación v3.
+- `planificar`: año, unidad, semana y clase.
+- `crear-evaluacion`: evaluaciones e ítems originales.
+- `buscar-recursos`: evidencia curricular y materiales docentes.
+- `temas-transversales`: proyectos interdisciplinarios.
+- `setup`: registro y conexión.
 
-El servidor expone un onboarding completo en `initialize` (`instructions`) para que el modelo sepa
-qué puede hacer apenas se conecta.
+## Runtime v3
 
-## Flujos por intención
-- **Buscar recursos / responder dudas:** `query_curriculum` (+ `runtime_status` para cobertura).
-- **Crear evaluación / ítems / kit:** `resolve_curricular_targets` → `analyze_assessment_framework`
-  (marco) → `compile_artifact` (`artifact_type` `formative_assessment` | `summative_assessment`) →
-  **tú generas los ítems** → `validate_artifact`. El banco de ítems fuente es **auditoría local** y
-  **nunca** se expone por el MCP remoto.
-- **Planificar año / unidad / clase:** `resolve_curricular_targets` → `compile_artifact`
-  (`artifact_type` `annual_plan` | `unit` | `class`) → **tú generas** → `validate_artifact`;
-  cobertura/horas vía `runtime_status`.
-- **Temas transversales / panorama interdisciplinario:** `query_curriculum` con consultas temáticas.
+El servidor debe anunciar `serverInfo` `3.0.0` y exactamente estas **7 tools**:
 
-Regla general: **cita siempre la fuente**; si no hay evidencia, **dilo**; nunca inventes OA ni códigos.
+1. `runtime_status`
+2. `query_curriculum`
+3. `query_teaching_materials`
+4. `resolve_curricular_targets`
+5. `analyze_assessment_framework`
+6. `compile_artifact`
+7. `validate_artifact`
+
+## Orquestación de artefactos
+
+```text
+resolve_curricular_targets
+  → query_curriculum
+  → query_teaching_materials (si aplica)
+  → analyze_assessment_framework (solo si aplica)
+  → compile_artifact
+  → el modelo genera
+  → validate_artifact
+```
+
+`compile_artifact` recibe el `target_set_ref` firmado completo, `resource_refs` autorizados y las
+restricciones. `validate_artifact` recibe el artefacto generado y copia sin cambios los ids, hash, firma,
+algoritmo, key id, encoding, release, tipo y propósito emitidos por la compilación.
+
+## Currículum y material no son lo mismo
+
+- `selectors.unit_id` / `selectors.unit_number`: unidad curricular canónica del programa.
+- `material_unit_number` / `material_unit_name`: estructura interna del libro o bundle.
+- `material_unit_kind`: refinamiento opcional (`unidad`, `leccion`, `capitulo`, `seccion`); nunca se
+  infiere desde la palabra "unidad" y su ausencia no bloquea.
+- `package_id`: identidad del libro/bundle activo.
+- `material_id`: sección o material concreto.
+
+Si el docente dice "Unidad 1" y hay un `package_id` activo, se consulta ese paquete con
+`material_unit_number: 1`. Sin paquete activo, se consultan todos los paquetes autorizados que calcen;
+el modelo filtra o combina evidencia conservando procedencia. Dentro del mismo paquete, unidad y lección
+pueden combinarse si la evidencia demuestra el mismo alcance conceptual.
+
+Un OA explícito recupera evidencia y materiales de todas las estructuras y paquetes autorizados, salvo
+que un `package_id` o `package_ids` activo restrinja la búsqueda. Toda consulta paginada debe continuar
+con `next_cursor` mientras exista o la respuesta indique `has_more`.
+
+## Ejemplo: estructura 1 de Lenguaje 4° en cinco clases
+
+1. `query_teaching_materials` con asignatura, curso y `material_unit_number: 1`; agrega `package_id` solo
+   si el libro ya está activo.
+2. Reúne los OA declarados por las estructuras recuperadas y resuélvelos con
+   `resolve_curricular_targets`. Aclara solo si corresponden a identidades curriculares incompatibles.
+3. Consulta `query_curriculum` para evidencia curricular de esos OA.
+4. Compila:
+
+```json
+{
+  "artifact_type": "unit",
+  "purpose": "plan",
+  "planning_granularity": "unit",
+  "target_set_ref": "<objeto firmado completo>",
+  "resource_refs": ["<refs recuperadas>"],
+  "constraints": {"class_count": 5}
+}
+```
+
+5. El modelo genera exactamente cinco elementos en `artifact_payload.periods` y llama
+   `validate_artifact`.
+
+## Invariantes
+
+- Cita las fuentes y distingue autoridad declarada, modelado y síntesis.
+- Nunca inventa OA, referencias, ids, hashes o firmas.
+- Los ítems fuente y sus claves no son entregables; los ítems finales son originales.
+- La vista de estudiante no contiene claves; la pauta vive en la vista docente.
+- Una falla de validación se corrige contra la misma spec, sin alterar sus bindings.
 
 ---
-SouthLab AI · datos de origen público (curriculumnacional.cl) modelados en un grafo de conocimiento.
+SouthLab AI · KG privado con sourcing trazable en materiales educativos chilenos.

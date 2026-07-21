@@ -1,9 +1,12 @@
 ---
 name: setup
-description: Asistente de configuración de kg-educacion — conecta el MCP del Currículum Nacional en Claude Code o Codex. Pide código de invitación, email y username, registra la cuenta, genera la API key (la misma sirve para ambos clientes) y la deja configurada. Úsala la primera vez, cuando el usuario diga "configurar/conectar/setup", o si el MCP responde 401.
+description: Asistente de configuración de kg-educacion v3, un KG educativo privado e independiente con sourcing MINEDUC. Conecta el MCP en Claude Code o Codex, registra la cuenta y configura una API key para ambos clientes. Úsala la primera vez o ante un 401.
 ---
 
 # Asistente de configuración de kg-educacion
+
+`kg-educacion` es un KG privado, independiente y no afiliado a MINEDUC. Conecta al runtime
+`serverInfo 3.0.0`; la autoridad de los datos corresponde a las fuentes citadas.
 
 El acceso es por invitación y de pago por consulta. La **API key es la misma para Claude y Codex**.
 Tu trabajo es **guiar al usuario paso a paso** hasta dejar el plugin conectado.
@@ -43,7 +46,8 @@ La key (`KG_API_KEY`) es la misma. Por cliente:
 ## Después de correrlo
 - El script confirma "✅ Cuenta creada y API key configurada". **Dile que reinicie Claude Code o Codex**.
 - Recuérdale guardar la contraseña (si fue generada) y su API key.
-- Tras reiniciar, que pruebe: "¿qué OA tiene Lenguaje 4° básico?". Si responde con citas, quedó listo.
+- Tras reiniciar, que consulte `runtime_status` y luego pruebe: "¿qué OA tiene Lenguaje 4° básico?".
+  Si el runtime reporta `serverInfo 3.0.0` y la consulta responde con citas, quedó listo.
 
 ## Errores
 - 403 en el registro = código de invitación inválido o ya usado → pide uno nuevo.

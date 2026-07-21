@@ -1,35 +1,46 @@
 ---
 name: temas-transversales
-description: Diseñar proyectos interdisciplinarios y explorar los grandes temas que cruzan el Currículum Nacional de Chile (habilidades transversales y panorama temático). Úsala para preguntas de panorama o cuando se quiera conectar varias asignaturas, usando query_curriculum + runtime_status.
+description: Explorar conexiones curriculares y diseñar proyectos interdisciplinarios con el KG Educación v3. Recupera evidencia citada, resuelve un target por asignatura y compila un proyecto sin mezclar OA o materiales silenciosamente.
 ---
 
-# Temas transversales y proyectos interdisciplinarios
+# Temas transversales y proyectos interdisciplinarios v3
 
-Apoya a profesores y directivos a ver el currículum como un todo conectado, usando el MCP `kg-educacion`
-(runtime v2, modo PROMPT_ONLY). El KG no genera contenido ni aloja un LLM: compila **evidencia oficial
-citada** y, cuando corresponde, una **spec/PromptPacket**; **tú (Claude) generas** el artefacto y luego lo
-**validas**. Todo es read-only y citado; la vista de estudiante va sin clave; todo requiere revisión humana.
+Usa el MCP `kg-educacion` (`serverInfo` `3.0.0`). Es un KG privado e independiente con sourcing en
+fuentes trazables; no es una superficie oficial de MINEDUC. El KG no genera el proyecto: recupera
+evidencia, resuelve targets, compila una spec y valida lo que tú generas.
 
-## Flujo recomendado
-1. **Panorama y cobertura**: parte con `runtime_status` para ver el estado del servidor y la cobertura
-   curricular disponible para tu solicitud (asignaturas, cursos, temas presentes).
-2. **Grandes hilos temáticos**: `query_curriculum` con una consulta temática (p.ej. "grandes temas que
-   cruzan el currículum") devuelve los hilos que conectan asignaturas, **con cita por resultado**.
-3. **Conexión entre asignaturas**: `query_curriculum` con algo como "cómo se conectan ciencias y matemática"
-   trae los OA y ejes que las puentean, cada uno con su fuente oficial citada.
-4. **Habilidad transversal puntual**: `query_curriculum` con "habilidad transversal argumentar" (o investigar,
-   colaborar…) trae la habilidad y los OA por asignatura que la desarrollan, citados.
-5. **Aterriza el proyecto (PROMPT_ONLY)**: toma los OA reales que devolvió `query_curriculum` y pásalos
-   como `requested_oa_codes` a `compile_artifact` (artifact_type `unit` o `class`, es *stateless*); te
-   entrega evidencia + decisión pedagógica + spec en un PromptPacket; **tú generas** la unidad
-   interdisciplinaria; finalmente `validate_artifact`. (Puede combinarse con las skills `planificar` y
-   `crear-evaluacion`.)
+## Explorar
 
-## Buenas prácticas
-- Para "qué grandes temas…" usa `query_curriculum` con la consulta temática; `runtime_status` confirma qué
-  hay realmente cubierto antes de prometer una conexión.
-- `query_curriculum` nunca devuelve ítems fuente ni claves: cita siempre los OA y códigos reales que entrega.
-- Nada es entregable sin pasar `validate_artifact` (conformidad de blueprint, ausencia de clave en la vista
-  de estudiante, no-reuso de ítems fuente). Recuerda: el KG da evidencia+spec, tú generas, luego validas.
-- Si no hay evidencia que calce, dilo en vez de forzar una conexión; nunca inventes OA ni códigos.
-- Si el MCP responde 401, ve a la skill `setup` para configurar el acceso.
+1. Usa `runtime_status` solo si necesitas comprobar release, cobertura o paridad.
+2. Consulta `query_curriculum` para habilidades, progresiones, OA y evidencia pedagógica de cada
+   asignatura. Mantén cada OA atribuido a su asignatura, curso, programa y cita.
+3. Si el proyecto usa libros o recursos concretos, consulta `query_teaching_materials` por asignatura y
+   curso, conservando `package_id`, `resource_ref` y citas de cada material.
+
+## Construir el proyecto
+
+1. Resuelve con `resolve_curricular_targets` los OA explícitos de cada dominio. Si una combinación no
+   forma un target canónico único, conserva targets separados y no los fuerces.
+2. Selecciona una conexión sustentada por evidencia; no conviertas una similitud temática en una relación
+   curricular declarada.
+3. Llama `compile_artifact` con `artifact_type: project`, un propósito compatible, el
+   `target_set_ref` no ambiguo y los `resource_refs` pertinentes.
+4. Genera tú el proyecto desde el packet.
+5. Valida con `validate_artifact`, copiando intactos ids, hash, firma, algoritmo, key id, encoding,
+   release, tipo y propósito de `compile_artifact`.
+
+## Varios materiales
+
+- `package_ids` representa los libros/bundles activos; `material_ids` son secciones concretas.
+- Un `package_id` activo restringe; sin paquete activo consulta todos los paquetes autorizados y pagina
+  hasta completar. Puedes combinar evidencia manteniendo procedencia y targets resueltos.
+- Si se pide una estructura interna por número, usa `material_unit_number`. `material_unit_kind` es un
+  filtro opcional: no lo infieras desde la palabra "unidad" ni lo confundas con una unidad curricular.
+
+## Reglas
+
+- Cita cada afirmación y distingue fuente declarada, modelado y síntesis.
+- Nunca inventes OA ni escondas ausencia de cobertura.
+- Los ítems fuente no son entregables.
+- Todo proyecto requiere revisión humana.
+- Si el MCP responde 401, usa `setup`.
