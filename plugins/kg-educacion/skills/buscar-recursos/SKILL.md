@@ -22,8 +22,9 @@ están afiliados a MINEDUC.
 1. Resuelve el OA con `resolve_curricular_targets` si el código o el alcance no son ya inequívocos.
 2. Consulta `query_curriculum` para recuperar evidencia curricular citada.
 3. Consulta `query_teaching_materials` con `selectors.subject`, `selectors.grade` y
-   `selectors.oa_codes`. Si hay libro(s) activo(s), restringe con `package_id` o `package_ids`; si no,
-   consulta todos los paquetes autorizados. Pagina con `next_cursor` hasta terminar.
+   `selectors.oa_codes`. Usa `package_id` o `package_ids` solo si el libro ya está activo; si no, recupera
+   ampliamente con esos selectores y filtra conservando procedencia. Para un OA explícito usa `limit: 200`
+   y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea `null`.
 4. Presenta cada resultado con título, componente, disponibilidad, `package_id`, estructura interna,
    `resource_ref` y cita. No prometas contenido ausente o bloqueado.
 
@@ -47,18 +48,26 @@ Con un `package_id` activo, llama:
 }
 ```
 
-`material_unit_kind` es opcional. No lo infieras desde la palabra "Unidad"; si viene omitido, presenta
-"estructura interna 1". No lo confundas con `selectors.unit_number`, una unidad curricular canónica.
+`material_unit_kind` es opcional. No lo infieras desde la palabra "Unidad"; omitido, admite unidad,
+lección, capítulo y sección equivalentes y presenta "estructura interna 1". No lo confundas con
+`selectors.unit_number`, una unidad curricular canónica.
 
-Sin libro activo, consulta todos los paquetes autorizados por asignatura, curso y número. El modelo
-filtra o combina la evidencia. Dentro del mismo paquete, unidad y lección pueden combinarse si la
-evidencia muestra el mismo alcance conceptual.
+Sin libro activo, recupera ampliamente por asignatura, curso y número. El modelo filtra o combina la
+evidencia con procedencia. Dentro del mismo paquete, unidad, lección, capítulo o sección pueden combinarse
+si la evidencia muestra el mismo alcance conceptual.
 
 ## Varios paquetes
 
-`package_ids` permite restringir, comparar o combinar materiales activos. Sin paquetes activos, la
-búsqueda es amplia sobre todos los autorizados. Mantén la procedencia por paquete y deja que el modelo
-filtre; resuelve los OA antes de compilar y aclara solo incompatibilidades curriculares reales.
+`package_ids` permite restringir, comparar o combinar materiales activos. Sin paquetes activos, usa una
+búsqueda amplia con asignatura, curso y `selectors.oa_codes`. Mantén la procedencia por paquete y deja
+que el modelo filtre; resuelve los OA antes de compilar y aclara solo incompatibilidades reales.
+
+## Límite y paginación
+
+En `query_curriculum` y `query_teaching_materials`, `limit` acepta de 1 a 200. Para una consulta acotada,
+usa el menor valor suficiente y termina con evidencia suficiente. Para OA explícitos o completitud
+exhaustiva usa `limit: 200` y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea
+`null`. Nunca uses ni esperes `has_more`.
 
 ## Pasar de búsqueda a creación
 
@@ -69,6 +78,7 @@ Resuelve el target con `resolve_curricular_targets`, compila con `compile_artifa
 ## Reglas
 
 - Cita siempre la fuente y distingue disponibilidad `available`, `partial`, `metadata_only` o `blocked`.
-- Nunca reconstruyas un libro completo desde snippets ni inventes OA o enlaces.
+- Reconstruye o exporta material fuente solo cuando el runtime lo entregue como disponible para el
+  usuario; nunca inventes texto, OA o enlaces ni eludas una restricción de acceso.
 - Los ítems fuente y sus claves no son entregables.
 - Si el MCP responde 401, usa `setup`.

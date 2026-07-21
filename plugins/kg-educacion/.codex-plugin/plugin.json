@@ -1,6 +1,6 @@
 {
   "name": "kg-educacion",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "KG educativo privado e independiente, con sourcing en materiales publicados o distribuidos por MINEDUC: resuelve OA, consulta materiales docentes y compila artefactos trazables mediante un MCP remoto autenticado.",
   "author": {
     "name": "SouthLab AI"

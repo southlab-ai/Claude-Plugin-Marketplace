@@ -25,8 +25,10 @@ Distingue estas dos intenciones:
 1. `resolve_curricular_targets` con asignatura, curso y OA/tema/unidad curricular. Para varios OA del
    mismo programa, envíalos juntos en `selectors.oa_codes`. Si hay ambigüedad, pregunta.
 2. `query_curriculum` con el target para OA, indicadores, horas, progresiones y evidencia pedagógica.
-3. `query_teaching_materials` con los OA resueltos. Si hay libro(s) activo(s), restringe con
-   `package_id` o `package_ids`; si no, recupera todos los paquetes autorizados. Pagina hasta completar.
+3. `query_teaching_materials` con los OA resueltos y `selectors.oa_codes`. Usa `package_id` o
+   `package_ids` solo si el libro ya está activo; si no, recupera ampliamente y filtra con procedencia.
+   Para OA explícitos usa `limit: 200` y copia `paging.next_cursor` en `cursor` hasta que
+   `paging.next_cursor` sea `null`.
 4. `compile_artifact` con el `target_set_ref` completo, `resource_refs` relevantes y restricciones.
 5. Genera la planificación desde el packet y valida con `validate_artifact`.
 
@@ -35,11 +37,12 @@ Distingue estas dos intenciones:
 1. Si el libro está activo en la conversación, llama `query_teaching_materials` con su `package_id` y
    `material_unit_number` o `material_unit_name`. Si el docente dice "Unidad 1", usa
    `material_unit_number: 1`. No infieras `material_unit_kind` desde la palabra "unidad"; es un filtro
-   opcional. Si se omite, recupera estructuras del mismo número y sigue.
-2. Si no hay libro activo, consulta todos los paquetes autorizados por asignatura, curso y número. El
-   modelo filtra o combina la evidencia; pagina hasta completar.
+   opcional. Si se omite, recupera unidades, lecciones, capítulos y secciones equivalentes y sigue.
+2. Si no hay libro activo, recupera ampliamente por asignatura, curso y número. El modelo filtra o
+   combina la evidencia preservando procedencia; no inventes `package_id` para acotar.
 3. Conserva la procedencia por `package_id` y extrae los OA atribuidos a las estructuras recuperadas.
-   Dentro del mismo paquete, unidad y lección pueden combinarse si evidencian el mismo alcance conceptual.
+   Dentro del mismo paquete, unidad, lección, capítulo o sección pueden combinarse si evidencian el mismo
+   alcance conceptual.
 4. Resuelve esos OA con `resolve_curricular_targets`. `material_unit_number` **no** se copia a
    `selectors.unit_number`: uno es estructura del libro y el otro es unidad curricular.
 5. Recupera evidencia curricular de los OA resueltos con `query_curriculum`.
@@ -62,11 +65,19 @@ Cada elemento de `artifact_payload.periods` representa una clase; deben existir 
 
 ## Varios libros
 
-- Un paquete activo restringe la recuperación. Sin paquete activo, consulta todos los autorizados.
+- Un paquete activo restringe. Sin paquete activo, recupera ampliamente con asignatura, curso y
+  `selectors.oa_codes` cuando los OA sean conocidos.
 - Puedes combinar evidencia de varios paquetes, manteniendo sus citas y `resource_refs` atribuidos.
 - El target se determina con `resolve_curricular_targets`; aclara solo si los OA apuntan a identidades
   curriculares incompatibles.
 - No reemplaces `package_id` por `material_id`: el primero identifica el libro/bundle; el segundo una sección.
+
+## Límite y paginación
+
+En `query_curriculum` y `query_teaching_materials`, `limit` acepta de 1 a 200. Para una consulta acotada
+usa el menor valor suficiente y detente con evidencia suficiente. Para OA explícitos o completitud
+exhaustiva usa `limit: 200` y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea
+`null`. Nunca uses ni esperes `has_more`.
 
 ## Generación y validación
 

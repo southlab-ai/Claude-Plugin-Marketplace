@@ -185,8 +185,8 @@
     {
       "name": "kg-educacion",
       "source": "./plugins/kg-educacion",
-      "description": "Knowledge layer del Currículum Nacional de Chile (MINEDUC) para profesores y directivos: planificar año/unidad/clase, crear evaluaciones por nivel cognitivo (Bloom/DOK), buscar recursos por OA, recuperar el catálogo de textos escolares oficiales (con URL al libro) y explorar temas transversales (GraphRAG) — con citas oficiales, vía un MCP remoto autenticado por API key.",
-      "version": "2.4.0",
+      "description": "KG educativo privado e independiente con sourcing en fuentes públicas y materiales publicados o distribuidos por MINEDUC: siete tools MCP v3 para resolver OA, recuperar evidencia y materiales docentes, y compilar artefactos trazables.",
+      "version": "3.0.1",
       "author": {
         "name": "Southlab AI"
       },

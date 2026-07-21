@@ -22,7 +22,7 @@ claude plugin install kg-educacion@southlab-marketplace
 
 ```bash
 codex plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
-codex plugin install kg-educacion@southlab-marketplace
+codex plugin add kg-educacion@southlab-marketplace
 ```
 
 El plugin aporta las skills. El MCP autenticado se registra aparte en Codex.
@@ -88,18 +88,22 @@ algoritmo, key id, encoding, release, tipo y propósito emitidos por la compilac
 - `selectors.unit_id` / `selectors.unit_number`: unidad curricular canónica del programa.
 - `material_unit_number` / `material_unit_name`: estructura interna del libro o bundle.
 - `material_unit_kind`: refinamiento opcional (`unidad`, `leccion`, `capitulo`, `seccion`); nunca se
-  infiere desde la palabra "unidad" y su ausencia no bloquea.
+  infiere desde la palabra "unidad". Si se omite, admite las estructuras equivalentes que calcen.
 - `package_id`: identidad del libro/bundle activo.
 - `material_id`: sección o material concreto.
 
-Si el docente dice "Unidad 1" y hay un `package_id` activo, se consulta ese paquete con
-`material_unit_number: 1`. Sin paquete activo, se consultan todos los paquetes autorizados que calcen;
-el modelo filtra o combina evidencia conservando procedencia. Dentro del mismo paquete, unidad y lección
+Usa `package_id` o `package_ids` solo con un libro o bundle ya activo. Si el docente dice "Unidad 1" y
+hay un paquete activo, consulta ese paquete con `material_unit_number: 1`. Sin paquete activo, recupera
+ampliamente con asignatura, curso y `selectors.oa_codes` cuando los OA sean conocidos; el modelo filtra o
+combina evidencia conservando procedencia. Dentro del mismo paquete, unidad, lección, capítulo o sección
 pueden combinarse si la evidencia demuestra el mismo alcance conceptual.
 
-Un OA explícito recupera evidencia y materiales de todas las estructuras y paquetes autorizados, salvo
-que un `package_id` o `package_ids` activo restrinja la búsqueda. Toda consulta paginada debe continuar
-con `next_cursor` mientras exista o la respuesta indique `has_more`.
+En `query_curriculum` y `query_teaching_materials`, `limit` acepta de 1 a 200: usa el menor valor
+suficiente para una consulta acotada, que puede terminar
+con evidencia suficiente. Para un OA explícito o completitud exhaustiva, recupera todas las estructuras
+y paquetes autorizados, salvo restricción por un paquete ya activo: usa `limit: 200` y repite con
+el valor de `paging.next_cursor` copiado en `cursor` hasta que `paging.next_cursor` sea `null`. Nunca uses
+ni esperes `has_more`.
 
 ## Ejemplo: estructura 1 de Lenguaje 4° en cinco clases
 

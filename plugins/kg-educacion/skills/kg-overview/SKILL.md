@@ -39,29 +39,34 @@ packet → el modelo genera → el KG valida**. Todo entregable requiere revisi�
 Cuando el docente diga "Unidad 1" y exista un libro activo en la conversación, interpreta la solicitud
 como la estructura interna número 1 del material y usa `query_teaching_materials` con ese `package_id` y
 `material_unit_number: 1`. `material_unit_kind` es un refinamiento opcional: no lo infieras desde la
-palabra "unidad". Si viene omitido, di "estructura interna 1" y continúa; no es bloqueante. Dentro del
-mismo paquete, unidad y lección pueden combinarse si la evidencia muestra el mismo alcance conceptual.
+palabra "unidad". Si se omite, admite unidad, lección, capítulo y sección equivalentes; di "estructura
+interna 1" y continúa. Dentro del mismo paquete, unidad, lección, capítulo o sección pueden combinarse si
+la evidencia muestra el mismo alcance conceptual.
 
-Si no hay libro activo, consulta todos los paquetes autorizados que calcen con asignatura, curso y
-`material_unit_number`. Conserva la procedencia por `package_id` y deja que el modelo filtre o combine
-la evidencia útil.
+Usa `package_id` o `package_ids` solo con un libro o bundle activo. Si no hay uno, recupera ampliamente
+por asignatura, curso, `material_unit_number` cuando aplique y `selectors.oa_codes` cuando los OA estén
+resueltos. Conserva la procedencia por `package_id` y deja que el modelo filtre o combine la evidencia.
 
 ## Retrieval amplio
 
-- Un OA explícito recupera toda la evidencia curricular y materiales autorizados para ese OA, salvo que
-  uno o más `package_id(s)` activos restrinjan la búsqueda.
-- Sin paquete activo, consulta todos los paquetes autorizados; no elijas arbitrariamente un solo libro.
+- En `query_curriculum` y `query_teaching_materials`, `limit` acepta de 1 a 200. Usa el menor valor
+  suficiente para una consulta acotada y termina con evidencia suficiente.
+- Un OA explícito o una solicitud exhaustiva usa `limit: 200` y copia `paging.next_cursor` en `cursor`
+  hasta que `paging.next_cursor` sea `null`, salvo que `package_id` o `package_ids` de paquetes ya
+  activos restrinjan la búsqueda.
+- Sin paquete activo, recupera ampliamente con asignatura, curso y `selectors.oa_codes`; no elijas un libro.
 - La evidencia de varios paquetes puede combinarse. El target curricular sigue siendo canónico: resuelve
   los OA declarados y aclara solo si apuntan a programas o cursos incompatibles.
-- Pagina hasta terminar: continúa con `next_cursor` mientras exista o la respuesta indique `has_more`.
+- Nunca uses ni esperes `has_more`; `paging.next_cursor` es la única señal de continuación.
 
 ## Flujo obligatorio para crear algo
 
 1. Resuelve el target con `resolve_curricular_targets`. Si devuelve `needs_clarification`, pregunta; no
    elijas una alternativa por tu cuenta.
 2. Recupera evidencia con `query_curriculum` usando el target resuelto.
-3. Si aplica, recupera materiales con `query_teaching_materials`. Para un OA usa `package_id(s)` activos
-   si existen; si no, consulta todos los paquetes autorizados. Pagina hasta completar.
+3. Si aplica, recupera materiales con `query_teaching_materials`. Para un OA usa `package_id` o
+   `package_ids` solo si ya están activos; si no, usa asignatura, curso y `selectors.oa_codes`, con
+   `limit: 200` y la regla de `paging.next_cursor` anterior.
 4. Llama `compile_artifact` con el `target_set_ref` completo, los `resource_refs` autorizados y las
    restricciones. Para una unidad de cinco clases usa `constraints.class_count: 5`.
 5. Genera tú el artefacto siguiendo `compiled_spec` y `TeacherContextPacket`.

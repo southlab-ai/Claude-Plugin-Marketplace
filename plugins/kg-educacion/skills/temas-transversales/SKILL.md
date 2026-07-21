@@ -14,8 +14,9 @@ evidencia, resuelve targets, compila una spec y valida lo que tú generas.
 1. Usa `runtime_status` solo si necesitas comprobar release, cobertura o paridad.
 2. Consulta `query_curriculum` para habilidades, progresiones, OA y evidencia pedagógica de cada
    asignatura. Mantén cada OA atribuido a su asignatura, curso, programa y cita.
-3. Si el proyecto usa libros o recursos concretos, consulta `query_teaching_materials` por asignatura y
-   curso, conservando `package_id`, `resource_ref` y citas de cada material.
+3. Si el proyecto usa libros o recursos concretos, usa `package_id` o `package_ids` solo si ya están
+   activos. Sin paquete, recupera ampliamente por asignatura, curso y `selectors.oa_codes`, y filtra
+   conservando `package_id`, `resource_ref` y citas.
 
 ## Construir el proyecto
 
@@ -32,10 +33,18 @@ evidencia, resuelve targets, compila una spec y valida lo que tú generas.
 ## Varios materiales
 
 - `package_ids` representa los libros/bundles activos; `material_ids` son secciones concretas.
-- Un `package_id` activo restringe; sin paquete activo consulta todos los paquetes autorizados y pagina
-  hasta completar. Puedes combinar evidencia manteniendo procedencia y targets resueltos.
+- Un `package_id` activo restringe; sin paquete activo usa asignatura, curso y `selectors.oa_codes` para
+  recuperar ampliamente. Puedes combinar evidencia manteniendo procedencia y targets resueltos.
 - Si se pide una estructura interna por número, usa `material_unit_number`. `material_unit_kind` es un
   filtro opcional: no lo infieras desde la palabra "unidad" ni lo confundas con una unidad curricular.
+  Omitido, admite unidad, lección, capítulo y sección equivalentes.
+
+## Límite y paginación
+
+En `query_curriculum` y `query_teaching_materials`, `limit` acepta de 1 a 200. Para una consulta acotada
+usa el menor valor suficiente y detente con evidencia suficiente. Para OA explícitos o completitud
+exhaustiva usa `limit: 200` y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea
+`null`. Nunca uses ni esperes `has_more`.
 
 ## Reglas
 
