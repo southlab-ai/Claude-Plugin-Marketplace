@@ -1,0 +1,11 @@
+{
+  "name": "ultracodex",
+  "description": "Orchestrate a fleet of OpenAI Codex agents (GPT-5.6 sol/terra/luna) from Claude Code — ultracode-style multi-agent audits, reviews, migrations, and design panels. Includes a codex-agent skill for spawning single background Codex workers.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Southlab AI"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": ["codex", "openai", "gpt-5.6", "multi-agent", "orchestration", "fleet", "audit", "code-review", "background-agents"]
+}
