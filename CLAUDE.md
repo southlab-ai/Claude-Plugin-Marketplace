@@ -6,10 +6,14 @@ This is a **monorepo marketplace**. All plugins live under `plugins/` as subdire
 
 | Plugin | Path | Current Version |
 |--------|------|-----------------|
+| agent-bridge | `plugins/agent-bridge/` | 0.1.0 |
 | upwork-scraper | `plugins/upwork-scraper/` | 0.2.0 |
 | the-council | `plugins/the-council/` | 3.2.0 |
-| computer-vision | `plugins/computer-vision/` | 2.0.0 |
+| computer-vision | `plugins/computer-vision/` | 2.6.0 |
 | ultracodex | `plugins/ultracodex/` | 1.0.0 |
+| claude-sentinel | `plugins/claude-sentinel/` | 0.1.0 |
+| kg-educacion | `plugins/kg-educacion/` | 3.0.1 |
+| the-financial-council | `plugins/the-financial-council/` | 1.1.0 (WIP — no plugin.json yet) |
 
 The marketplace registry is at `.claude-plugin/marketplace.json`.
 
