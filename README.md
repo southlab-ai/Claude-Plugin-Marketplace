@@ -229,6 +229,12 @@ Claude-Plugin-Marketplace/
 
 Updating a plugin and the marketplace is a single commit.
 
+## Contributing
+
+This marketplace is **first-party only**: every plugin is built and maintained by Southlab AI. Pull requests from external vendors adding plugins that promote their own service will be closed as a policy decision. If you want to distribute your own plugins to Claude Code users, host your own marketplace repo — users can add it with `/plugin marketplace add <owner>/<repo>`.
+
+Bug reports and fixes for existing plugins are welcome.
+
 ## License
 
 MIT

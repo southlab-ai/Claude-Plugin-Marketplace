@@ -36,6 +36,10 @@ Since plugins live in this repo, updating is straightforward:
 4. Add the plugin to the README table and commands section
 5. Commit and push
 
+## External PRs
+
+This marketplace is **first-party only**. Reject PRs from external vendors adding plugins that promote their own service (precedent: PR #1, "Add Xquik plugin"). Every plugin entry uses author "Southlab AI" and `repository` pointing at this monorepo. Watch for vendor-PR red flags: auto-enabling their plugin in the README team-config example, and out-of-scope edits to other plugins' registry entries.
+
 ## Testing Locally
 
 ```
