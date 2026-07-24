@@ -60,7 +60,7 @@ si la evidencia muestra el mismo alcance conceptual.
 
 `package_ids` permite restringir, comparar o combinar materiales activos. Sin paquetes activos, usa una
 búsqueda amplia con asignatura, curso y `selectors.oa_codes`. Mantén la procedencia por paquete y deja
-que el modelo filtre; resuelve los OA antes de compilar y aclara solo incompatibilidades reales.
+que el modelo filtre; resuelve los OA antes de crear y aclara solo incompatibilidades reales.
 
 ## Límite y paginación
 
@@ -71,9 +71,9 @@ exhaustiva usa `limit: 200` y copia `paging.next_cursor` en `cursor` hasta que `
 
 ## Pasar de búsqueda a creación
 
-Resuelve el target con `resolve_curricular_targets`, compila con `compile_artifact` usando el
-`target_set_ref` completo y los `resource_refs` seleccionados, genera tú el artefacto y llama
-`validate_artifact` con la spec firmada intacta.
+Resuelve el target con `resolve_curricular_targets`, conserva los `resource_refs`
+seleccionados y sintetiza el artefacto solicitado. La generación y sus validaciones
+pertenecen al modelo o aplicación consumidora, no al KG.
 
 ## Reglas
 

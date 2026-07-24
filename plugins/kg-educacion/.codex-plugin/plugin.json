@@ -1,7 +1,7 @@
 {
   "name": "kg-educacion",
-  "version": "3.0.1",
-  "description": "KG educativo privado e independiente, con sourcing en materiales publicados o distribuidos por MINEDUC: resuelve OA, consulta materiales docentes y compila artefactos trazables mediante un MCP remoto autenticado.",
+  "version": "3.0.2",
+  "description": "KG educativo privado e independiente: resuelve OA y recupera currículum, materiales y marcos de evaluación mediante un MCP remoto autenticado.",
   "author": {
     "name": "SouthLab AI"
   },
@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "KG Educación Chile",
     "shortDescription": "KG educativo privado con fuentes trazables",
-    "longDescription": "MCP remoto de un KG educativo privado e independiente, construido con sourcing en materiales publicados o distribuidos por MINEDUC. Resuelve targets curriculares, consulta libros y componentes docentes por paquete, y compila planificaciones o evaluaciones que el modelo genera y el KG valida. Requiere una API key creada en api.southlab.ai.",
+    "longDescription": "MCP remoto de un KG educativo privado e independiente, construido con fuentes trazables. Resuelve targets curriculares y recupera currículum, libros, componentes docentes y marcos de evaluación para que el modelo complete la tarea solicitada. Requiere una API key creada en api.southlab.ai.",
     "developerName": "SouthLab AI",
     "category": "Education",
     "capabilities": ["Interactive"],

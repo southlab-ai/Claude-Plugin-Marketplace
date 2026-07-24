@@ -185,8 +185,8 @@
     {
       "name": "kg-educacion",
       "source": "./plugins/kg-educacion",
-      "description": "KG educativo privado e independiente con sourcing en fuentes públicas y materiales publicados o distribuidos por MINEDUC: siete tools MCP v3 para resolver OA, recuperar evidencia y materiales docentes, y compilar artefactos trazables.",
-      "version": "3.0.1",
+      "description": "KG educativo privado e independiente: cinco tools MCP v3 para resolver OA y recuperar currículum, materiales y marcos de evaluación con procedencia.",
+      "version": "3.0.2",
       "author": {
         "name": "Southlab AI"
       },

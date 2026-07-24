@@ -1,55 +1,17 @@
 ---
 name: temas-transversales
-description: Explorar conexiones curriculares y diseñar proyectos interdisciplinarios con el KG Educación v3. Recupera evidencia citada, resuelve un target por asignatura y compila un proyecto sin mezclar OA o materiales silenciosamente.
+description: Explorar conexiones curriculares y diseñar proyectos interdisciplinarios con evidencia recuperada desde KG Educación V3.
 ---
 
-# Temas transversales y proyectos interdisciplinarios v3
+# Temas transversales
 
-Usa el MCP `kg-educacion` (`serverInfo` `3.0.0`). Es un KG privado e independiente con sourcing en
-fuentes trazables; no es una superficie oficial de MINEDUC. El KG no genera el proyecto: recupera
-evidencia, resuelve targets, compila una spec y valida lo que tú generas.
+1. Recupera OA, habilidades y progresiones de cada asignatura con
+   `query_curriculum`.
+2. Normaliza los OA por dominio con `resolve_curricular_targets`.
+3. Recupera materiales con `query_teaching_materials` cuando aporten actividades o
+   textos concretos.
+4. Diseña el proyecto manteniendo cada OA atribuido a su asignatura, curso y fuente.
 
-## Explorar
-
-1. Usa `runtime_status` solo si necesitas comprobar release, cobertura o paridad.
-2. Consulta `query_curriculum` para habilidades, progresiones, OA y evidencia pedagógica de cada
-   asignatura. Mantén cada OA atribuido a su asignatura, curso, programa y cita.
-3. Si el proyecto usa libros o recursos concretos, usa `package_id` o `package_ids` solo si ya están
-   activos. Sin paquete, recupera ampliamente por asignatura, curso y `selectors.oa_codes`, y filtra
-   conservando `package_id`, `resource_ref` y citas.
-
-## Construir el proyecto
-
-1. Resuelve con `resolve_curricular_targets` los OA explícitos de cada dominio. Si una combinación no
-   forma un target canónico único, conserva targets separados y no los fuerces.
-2. Selecciona una conexión sustentada por evidencia; no conviertas una similitud temática en una relación
-   curricular declarada.
-3. Llama `compile_artifact` con `artifact_type: project`, un propósito compatible, el
-   `target_set_ref` no ambiguo y los `resource_refs` pertinentes.
-4. Genera tú el proyecto desde el packet.
-5. Valida con `validate_artifact`, copiando intactos ids, hash, firma, algoritmo, key id, encoding,
-   release, tipo y propósito de `compile_artifact`.
-
-## Varios materiales
-
-- `package_ids` representa los libros/bundles activos; `material_ids` son secciones concretas.
-- Un `package_id` activo restringe; sin paquete activo usa asignatura, curso y `selectors.oa_codes` para
-  recuperar ampliamente. Puedes combinar evidencia manteniendo procedencia y targets resueltos.
-- Si se pide una estructura interna por número, usa `material_unit_number`. `material_unit_kind` es un
-  filtro opcional: no lo infieras desde la palabra "unidad" ni lo confundas con una unidad curricular.
-  Omitido, admite unidad, lección, capítulo y sección equivalentes.
-
-## Límite y paginación
-
-En `query_curriculum` y `query_teaching_materials`, `limit` acepta de 1 a 200. Para una consulta acotada
-usa el menor valor suficiente y detente con evidencia suficiente. Para OA explícitos o completitud
-exhaustiva usa `limit: 200` y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea
-`null`. Nunca uses ni esperes `has_more`.
-
-## Reglas
-
-- Cita cada afirmación y distingue fuente declarada, modelado y síntesis.
-- Nunca inventes OA ni escondas ausencia de cobertura.
-- Los ítems fuente no son entregables.
-- Todo proyecto requiere revisión humana.
-- Si el MCP responde 401, usa `setup`.
+Una similitud temática no es una relación curricular declarada. Distingue evidencia
+fuente de síntesis del modelo, conserva citas y no inventes OA. El KG recupera
+contexto; el modelo construye el proyecto.
