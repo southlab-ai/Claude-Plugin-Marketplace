@@ -6,9 +6,14 @@ This is a **monorepo marketplace**. All plugins live under `plugins/` as subdire
 
 | Plugin | Path | Current Version |
 |--------|------|-----------------|
+| agent-bridge | `plugins/agent-bridge/` | 0.1.0 |
 | upwork-scraper | `plugins/upwork-scraper/` | 0.2.0 |
 | the-council | `plugins/the-council/` | 3.2.0 |
-| computer-vision | `plugins/computer-vision/` | 2.0.0 |
+| computer-vision | `plugins/computer-vision/` | 2.6.0 |
+| ultracodex | `plugins/ultracodex/` | 1.0.0 |
+| claude-sentinel | `plugins/claude-sentinel/` | 0.1.0 |
+| kg-educacion | `plugins/kg-educacion/` | 3.0.1 |
+| the-financial-council | `plugins/the-financial-council/` | 1.1.0 (WIP — no plugin.json yet) |
 
 The marketplace registry is at `.claude-plugin/marketplace.json`.
 
@@ -30,6 +35,10 @@ Since plugins live in this repo, updating is straightforward:
 3. Add a new entry to the `plugins` array in `.claude-plugin/marketplace.json`
 4. Add the plugin to the README table and commands section
 5. Commit and push
+
+## External PRs
+
+This marketplace is **first-party only**. Reject PRs from external vendors adding plugins that promote their own service (precedent: PR #1, "Add Xquik plugin"). Every plugin entry uses author "Southlab AI" and `repository` pointing at this monorepo. Watch for vendor-PR red flags: auto-enabling their plugin in the README team-config example, and out-of-scope edits to other plugins' registry entries.
 
 ## Testing Locally
 

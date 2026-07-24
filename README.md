@@ -9,7 +9,11 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 | **agent-bridge** | Connect independent Codex or Claude chats with blocking request/reply calls while preserving the native desktop app. | 0.1.0 | Productivity |
 | **upwork-scraper** | Scrape Upwork jobs, analyze market demand, write proposals, optimize rates, and build portfolios. 5 slash commands + 5 AI agents. | 0.2.0 | Freelance |
 | **the-council** | Catch blind spots in architecture decisions with multi-perspective analysis. 4 auto-routed modes, configurable roles, `/council:build` pipeline, `/council:value` analysis, memory attribution, progressive hints. | 3.2.0 | Productivity |
-| **computer-vision** | Desktop computer vision and input control for Windows. 28 tools: screenshots, click, type, scroll, OCR, element finder, text extraction, UI trees, app-specific adapters, action verification, and 9 sandbox tools for parallel automation (Claude works in isolated Windows Sandbox while you keep working). | 2.0.0 | Utilities |
+| **computer-vision** | Desktop computer vision and input control for Windows. 24 tools: screenshots, scene analysis, human-like mouse movement, action recording, UIA-based element invocation (works on WinUI 3 apps where SendInput fails), deep UI tree search, click, drag-and-drop, type, scroll, OCR, element finder, text extraction. Background mode via PostMessage. | 2.6.0 | Utilities |
+| **ultracodex** | Orchestrate a fleet of OpenAI Codex agents (GPT-5.6 sol/terra/luna) from Claude Code — multi-agent audits, reviews, migrations, and design panels with adversarial verification. Includes a `codex-agent` skill for single background workers. | 1.0.0 | Productivity |
+| **claude-sentinel** | Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, full gateway deployment. | 0.1.0 | Infrastructure |
+| **kg-educacion** | KG educativo privado del Currículum Nacional de Chile — siete tools MCP v3 para resolver OA, recuperar evidencia y materiales docentes, y compilar artefactos trazables. Requires an invitation code. | 3.0.1 | Education |
+| **the-financial-council** | Prediction-market signals weighted by trader track record, mapped to tradeable stocks. Knowledge Graph with Neo4j, FRED macro data, SEC EDGAR filings. *Work in progress.* | 1.1.0 | Finance |
 
 ## Installation
 
@@ -18,9 +22,10 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 ```bash
 codex plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
 codex plugin add agent-bridge@southlab-marketplace
+codex plugin add kg-educacion@southlab-marketplace
 ```
 
-Restart Codex Desktop after installation, then invoke the `agent-bridge` skill from two chats.
+Codex-compatible plugins: `agent-bridge`, `kg-educacion`. Restart Codex Desktop after installation.
 
 ### Claude Code
 
@@ -39,6 +44,9 @@ Inside Claude Code:
 /plugin install the-council@southlab-marketplace
 /plugin install computer-vision@southlab-marketplace
 /plugin install agent-bridge@southlab-marketplace
+/plugin install ultracodex@southlab-marketplace
+/plugin install claude-sentinel@southlab-marketplace
+/plugin install kg-educacion@southlab-marketplace
 ```
 
 #### 3. Restart Claude Code
@@ -53,7 +61,10 @@ Each plugin has a setup command:
 /upwork-scraper:setup
 /council:setup
 /cv-setup
+/kg-educacion:kg-setup
 ```
+
+`agent-bridge`, `ultracodex`, and `claude-sentinel` need no setup command — invoke their skills directly.
 
 ## Commands
 
@@ -64,6 +75,15 @@ Use the `agent-bridge` skill in two independent chats. The receiver registers an
 
 The default wait is one hour. The bundled MCP client timeout is 7,300 seconds, allowing
 explicit waits of up to two hours.
+
+### Ultracodex
+
+No commands — two skills, invoked by name. Requires the [OpenAI Codex CLI](https://developers.openai.com/codex/cli) installed and authenticated (`codex login`).
+
+| Skill | Description |
+|-------|-------------|
+| `ultracodex` | Fleet orchestration (max 10 concurrent Codex agents): deep audits, broad reviews, migrations, judge-panel design. Say "ultracodex" or ask for an exhaustive parallel attack on a task. |
+| `codex-agent` | Spawn a single background Codex worker via `codex exec` — delegation, parallel tasks, second opinions. |
 
 ### Upwork Scraper
 
@@ -89,7 +109,7 @@ explicit waits of up to two hours.
 | `/council:update` | Migrate council data after a plugin update |
 | `/council:reset` | Clear session data (add `--all` to also clear memory) |
 
-### Computer Vision (v2.0.0)
+### Computer Vision (v2.6.0)
 
 | Tool | Description |
 |------|-------------|
@@ -124,6 +144,31 @@ explicit waits of up to two hours.
 |---------|-------------|
 | `/cv-setup` | Verify setup and dependencies |
 | `/cv-help` | Usage guide and examples |
+
+### Claude Sentinel
+
+No commands — four skills, invoked by name:
+
+| Skill | Description |
+|-------|-------------|
+| `vps-setup` | Guided step-by-step setup of Claude Code on a VPS via SSH |
+| `configure` | Set up the Telegram channel — bot token, access review |
+| `access` | Manage Telegram channel access — pairings, allowlists, DM/group policy |
+| `deploy-sentinel` | Deploy the persistent Telegram gateway with crons and bot identity |
+
+### KG Educación
+
+| Command | Description |
+|---------|-------------|
+| `/kg-educacion:kg-setup` | Conecta el MCP del Currículum Nacional (invitación → cuenta → API key, misma key para Claude y Codex) |
+
+| Skill | Description |
+|-------|-------------|
+| `planificar` | Planificar año, unidad, semana o clase con OA oficiales |
+| `crear-evaluacion` | Crear evaluaciones alineadas a OA, balanceadas por demanda cognitiva |
+| `buscar-recursos` | Buscar recursos y materiales docentes |
+| `temas-transversales` | Temas transversales del currículum |
+| `kg-overview` | Visión general del knowledge graph |
 
 ## Updating
 
@@ -167,15 +212,28 @@ This is a monorepo. All plugins live as subdirectories under `plugins/`:
 ```
 Claude-Plugin-Marketplace/
 ├── .claude-plugin/
-│   └── marketplace.json      # Plugin registry
+│   └── marketplace.json          # Plugin registry (Claude Code)
+├── .agents/plugins/
+│   └── marketplace.json          # Plugin registry (Codex Desktop)
 ├── plugins/
-│   ├── upwork-scraper/       # Upwork scraping & market analysis
-│   ├── the-council/          # Multi-agent consultation
-│   └── computer-vision/      # Desktop vision & automation
+│   ├── agent-bridge/             # Blocking request/reply between chats
+│   ├── upwork-scraper/           # Upwork scraping & market analysis
+│   ├── the-council/              # Multi-agent consultation
+│   ├── computer-vision/          # Desktop vision & automation (Windows)
+│   ├── ultracodex/               # Codex fleet orchestration
+│   ├── claude-sentinel/          # Telegram session supervisor for VPS
+│   ├── kg-educacion/             # KG del Currículum Nacional de Chile
+│   └── the-financial-council/    # Prediction-market signals (WIP)
 └── README.md
 ```
 
 Updating a plugin and the marketplace is a single commit.
+
+## Contributing
+
+This marketplace is **first-party only**: every plugin is built and maintained by Southlab AI. Pull requests from external vendors adding plugins that promote their own service will be closed as a policy decision. If you want to distribute your own plugins to Claude Code users, host your own marketplace repo — users can add it with `/plugin marketplace add <owner>/<repo>`.
+
+Bug reports and fixes for existing plugins are welcome.
 
 ## License
 

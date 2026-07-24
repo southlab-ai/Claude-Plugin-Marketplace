@@ -183,6 +183,34 @@
       ]
     },
     {
+      "name": "ultracodex",
+      "source": "./plugins/ultracodex",
+      "description": "Orchestrate a fleet of OpenAI Codex agents (GPT-5.6 sol/terra/luna) from Claude Code — ultracode-style multi-agent audits, reviews, migrations, and design panels with adversarial verification. Includes a codex-agent skill for spawning single background Codex workers.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "MIT",
+      "keywords": [
+        "codex",
+        "openai",
+        "gpt-5.6",
+        "multi-agent",
+        "orchestration",
+        "fleet",
+        "audit",
+        "code-review",
+        "background-agents"
+      ],
+      "category": "productivity",
+      "tags": [
+        "multi-agent",
+        "codex",
+        "orchestration",
+        "audit"
+      ]
+    },
+    {
       "name": "kg-educacion",
       "source": "./plugins/kg-educacion",
       "description": "KG educativo privado e independiente: cinco tools MCP v3 para resolver OA y recuperar currículum, materiales y marcos de evaluación con procedencia.",
