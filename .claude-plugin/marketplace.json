@@ -214,7 +214,7 @@
       "name": "kg-educacion",
       "source": "./plugins/kg-educacion",
       "description": "KG educativo privado e independiente: cinco tools MCP v3 para resolver OA y recuperar currículum, materiales y marcos de evaluación con procedencia.",
-      "version": "3.0.2",
+      "version": "3.0.3",
       "author": {
         "name": "Southlab AI"
       },
