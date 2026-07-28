@@ -22,7 +22,8 @@ están afiliados a MINEDUC.
 1. Resuelve el OA con `resolve_curricular_targets` si el código o el alcance no son ya inequívocos.
 2. Consulta `query_curriculum` para recuperar evidencia curricular citada.
 3. Consulta `query_teaching_materials` con `selectors.subject`, `selectors.grade` y
-   `selectors.oa_codes`. Usa `package_id` o `package_ids` solo si el libro ya está activo; si no, recupera
+   `selectors.oa_codes`. Para acotar a libros ya activos usa **`package_ids`**, nunca los dos campos a la
+   vez (ver "Varios paquetes"); si no, recupera
    ampliamente con esos selectores y filtra conservando procedencia. Para un OA explícito usa `limit: 200`
    y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea `null`.
 4. Presenta cada resultado con título, componente, disponibilidad, `package_id`, estructura interna,
@@ -58,9 +59,24 @@ si la evidencia muestra el mismo alcance conceptual.
 
 ## Varios paquetes
 
-`package_ids` permite restringir, comparar o combinar materiales activos. Sin paquetes activos, usa una
-búsqueda amplia con asignatura, curso y `selectors.oa_codes`. Mantén la procedencia por paquete y deja
-que el modelo filtre; resuelve los OA antes de crear y aclara solo incompatibilidades reales.
+**`package_ids` es el campo que compone. `package_id` acota a uno solo. Nunca envíes los dos.**
+
+```json
+{ "selectors": {"subject": "Matematica", "grade": "4 basico"},
+  "package_ids": ["<libro A>", "<libro B>"] }
+```
+
+Enviar `package_id` y `package_ids` juntos es un **error de schema** (`-32602`), y así debe ser: hasta
+el 2026-07-28 se aplicaban como filtros independientes que se intersectaban, de modo que
+`package_id: A` más `package_ids: [A, B]` devolvía `ok` con **sólo A**, sin errores ni déficits. El
+modelo creía haber compuesto con dos libros y había citado uno.
+
+Los paquetes de `package_ids` se **unen** entre sí, pero se **intersectan** con los demás filtros
+(`selectors`, `material_unit_number`, `component_kinds`).
+
+Sin paquetes activos, usa una búsqueda amplia con asignatura, curso y `selectors.oa_codes`. Mantén la
+procedencia por paquete y deja que el modelo filtre; resuelve los OA antes de crear y aclara solo
+incompatibilidades reales.
 
 ## Límite y paginación
 
