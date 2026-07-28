@@ -240,6 +240,27 @@
         "rag",
         "planning"
       ]
+    },
+    {
+      "name": "repo-orden",
+      "source": "./plugins/repo-orden",
+      "description": "Orden documental que sobrevive a un cambio de agente: una sola fuente de verdad, la carpeta como clase, y un guard que falla si alguien copia un valor que caduca. Dos skills: instalar en un repo nuevo y migrar uno que ya tiene historia. Funciona igual con Claude Code y con Codex porque no depende de que el agente se acuerde.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Southlab AI"
+      },
+      "license": "MIT",
+      "keywords": [
+        "documentacion",
+        "orden",
+        "fuente-de-verdad",
+        "agents-md",
+        "claude-md",
+        "codex",
+        "governance",
+        "drift",
+        "tests"
+      ]
     }
   ]
 }

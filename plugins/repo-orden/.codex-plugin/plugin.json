@@ -1,0 +1,38 @@
+{
+  "name": "repo-orden",
+  "version": "1.0.0",
+  "description": "Orden documental que sobrevive a un cambio de agente: una sola fuente de verdad, la carpeta como clase, y un guard que falla si alguien copia un valor que caduca. Funciona igual con Claude Code y con Codex porque no depende de que el agente se acuerde.",
+  "author": {
+    "name": "Southlab AI"
+  },
+  "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
+  "license": "MIT",
+  "keywords": [
+    "documentacion",
+    "orden",
+    "fuente-de-verdad",
+    "agents-md",
+    "claude-md",
+    "codex",
+    "governance",
+    "drift",
+    "monorepo",
+    "tests"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Repo Orden",
+    "shortDescription": "Una fuente de verdad, y un guard que la mantiene",
+    "longDescription": "Instala en cualquier repositorio una estructura documental que no depende de que el agente se acuerde: un unico documento con derecho a describir el presente, carpetas que declaran la clase de cada documento, y un test que falla si alguien copia un valor que caduca fuera de ese documento. Pensado para repos que pasan por varios agentes: Claude Code y Codex leen el mismo AGENTS.md, y CLAUDE.md es un puntero, no una copia.",
+    "developerName": "Southlab AI",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Ordena la documentacion de este repositorio",
+      "Migra este repo al orden de una sola fuente de verdad",
+      "Por que la documentacion se me desordena cuando cambio de agente"
+    ]
+  }
+}
