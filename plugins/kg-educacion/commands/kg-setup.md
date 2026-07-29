@@ -12,14 +12,21 @@ Primera instalación:
 1. Pide el **código de invitación** (`kg-inv-…`; si no tiene, que lo pida a hola@southlab.ai).
 2. Pide el **email**.
 3. Pide el **username** deseado.
-4. Pregunta si quiere elegir **contraseña** o que la genere el script.
+4. Explica que el script solicitará la **contraseña** de forma interactiva; no la pidas
+   en el chat.
 5. Corre:
    ```bash
-   bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<invite>" "<email>" "<username>" "<password opcional>"
+   bash "<plugin-root>/scripts/kg-onboard.sh" "<invite>" "<email>" "<username>"
    ```
+   Resuelve `<plugin-root>` como el padre de la carpeta `commands/` instalada. No
+   asumas `CLAUDE_PLUGIN_ROOT` en Codex.
    Registra, crea la API key y configura **ambos clientes**: `~/.claude/settings.json` (Claude),
    `export KG_API_KEY` en el shell, `codex mcp add` (Codex) y `launchctl setenv` para apps GUI de macOS.
-6. Dile que **reinicie Claude Code o Codex**, consulte `runtime_status` y confirme `serverInfo 3.0.0`.
+6. Dile que **reinicie Claude Code o Codex**, consulte `runtime_status`, confirme
+   `serverInfo 3.0.0` y verifique que `query_teaching_materials` exige
+   `material_contract_version` y `operation`.
 
 Para Codex el MCP autenticado va en `~/.codex/config.toml` (`codex mcp add … --bearer-token-env-var KG_API_KEY`),
-no en el manifiesto del plugin. Nunca pegues la API key ni la contraseña en el chat fuera de lo que el script muestra.
+no en el manifiesto del plugin. Nunca pegues la API key ni la contraseña en el chat;
+el script no imprime la key.
+La API key no autoriza materiales: el plugin directo no emite `X-KG-Capability`.

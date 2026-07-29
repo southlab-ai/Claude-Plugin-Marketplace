@@ -1,7 +1,7 @@
 {
   "name": "kg-educacion",
-  "description": "KG educativo privado e independiente: resuelve OA y recupera currículum, materiales y marcos de evaluación mediante un MCP remoto autenticado.",
-  "version": "3.0.3",
+  "description": "KG educativo privado e independiente: resuelve OA y recupera currículum y marcos de evaluación; el acceso material requiere un consumidor con capability de usuario.",
+  "version": "3.0.4",
   "author": {
     "name": "Southlab AI",
     "email": "cardenas.je@southlab.ai"
