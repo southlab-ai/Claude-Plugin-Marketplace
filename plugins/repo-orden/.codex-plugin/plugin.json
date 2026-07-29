@@ -1,6 +1,6 @@
 {
   "name": "repo-orden",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Orden documental que sobrevive a un cambio de agente: una sola fuente de verdad, la carpeta como clase, y un guard que falla si alguien copia un valor que caduca. Funciona igual con Claude Code y con Codex porque no depende de que el agente se acuerde.",
   "author": {
     "name": "Southlab AI"

@@ -111,6 +111,73 @@ vivo o si sueltas un fichero en la raíz de `docs/`. Córrelo antes de entregar.
 <!-- ORDEN:FIN -->
 """
 
+#: Las dos semillas de `docs/`. Sin ellas el bootstrap dejaba el repositorio con el defecto que
+#: viene a matar: `AGENTS.md` enlazando a `docs/ESTADO.md`, que no existía. Un instalador de orden
+#: no puede nacer con un puntero roto propio.
+ESTADO_SEMILLA = """# Estado del sistema
+
+**Este es el único documento con derecho a describir el presente.** Cualquier otro que necesite
+una cifra la referencia desde aquí; no la copia.
+
+## 1. Lo que está desplegado
+
+<!-- ORDEN:AUTOGENERADO -->
+<!-- NO EDITAR A MANO. Este bloque lo rellena un script preguntándole al sistema vivo.
+     Mientras siga vacío, este documento no cumple su función: escribir las cifras a mano
+     aquí es exactamente lo que el guard existe para impedir en todos los demás. -->
+
+_(pendiente: escribe el script que genera este bloque y `--check` que falla si deja de
+coincidir con la realidad. Hasta entonces, esto es un hueco declarado, no una respuesta.)_
+
+<!-- ORDEN:FIN-AUTOGENERADO -->
+
+## 2. Lo que falta
+
+_(lo que sabes que está incompleto, con su número. Un hueco declarado vale más que una
+descripción optimista.)_
+"""
+
+MAPA_SEMILLA = """# Mapa de la documentación
+
+**Si sólo vas a leer un documento, lee [`ESTADO.md`](ESTADO.md).** Es el único que puede hablar
+del presente.
+
+## La regla que gobierna todo esto
+
+> Un documento **no copia** un valor que caduca. Lo referencia, o lo genera.
+
+Copiarlo lo separa de la realidad en el momento en que cambia — y nadie se entera, porque el
+documento **sigue leyéndose igual de bien**. De ahí sale todo lo demás: por eso hay un solo
+documento con derecho a hablar del presente, y por eso los runbooks no llevan literales.
+
+## Las clases, y qué autoridad tiene cada una
+
+| carpeta | qué es | ¿puede afirmar el presente? |
+|---|---|---|
+| [`ESTADO.md`](ESTADO.md) | el estado | **sí, y es el único** |
+| [`contratos/`](contratos/) | manda sobre el código | reglas sí, cifras no |
+| [`arquitectura/`](arquitectura/) | cómo es algo | forma sí, cifras no |
+| [`adr/`](adr/) | por qué se decidió así | no |
+| [`runbooks/`](runbooks/) | se **ejecuta**, es lo más peligroso | **ningún valor literal** |
+| [`handoff/`](handoff/) | para consumidores externos | fechado, y se re-sondea |
+| [`pendientes/`](pendientes/) | lo que falta, con su número | no |
+| [`evidence/`](evidence/) | recibos congelados | no — todo en pasado, con fecha |
+| [`planes/`](planes/) | trabajo futuro | no |
+| [`archivo/`](archivo/) | historia | **ninguna**: prohibido citarlo desde un doc vivo |
+
+**La carpeta es la clase.** No hace falta leer un documento para saber qué autoridad tiene — que
+es justamente lo que falla cuando todo vive junto: el modo imperativo y las cifras exactas están
+igual en lo vigente que en lo retirado.
+
+## Cómo se verifica que esto sigue siendo cierto
+
+```bash
+python3 -m pytest tests/docs/ -q
+```
+
+Un documento que nadie verifica envejece igual que el código sin tests.
+"""
+
 CLAUDE_MD = """# CLAUDE.md
 
 Este repositorio usa `AGENTS.md` como fichero canónico de instrucciones para agentes.
@@ -207,17 +274,90 @@ def test_ningun_documento_vivo_nombra_algo_retirado() -> None:
     )
 
 
+#: Un bloque cercado o un span de codigo NO es un enlace: markdown lo pinta como texto y nadie
+#: lo puede pulsar. Sin esto, un documento que explique sintaxis markdown se declara roto a si
+#: mismo. Se blanquean conservando los saltos de linea para no mover los numeros de linea.
+_CERCADO = re.compile(r"```.*?```|~~~.*?~~~", re.DOTALL)
+_SPAN = re.compile(r"`[^`\\n]*`")
+
+
+def _sin_codigo(texto: str) -> str:
+    def _blanquear(m: re.Match) -> str:
+        return "".join(c if c == chr(10) else " " for c in m.group(0))
+    return _SPAN.sub(_blanquear, _CERCADO.sub(_blanquear, texto))
+
+
+def _navegables() -> list[Path]:
+    """Los .md de la RAIZ tambien emiten punteros, y `_vivos()` solo mira dentro de docs/."""
+    return [*sorted(REPO.glob("*.md")), *_vivos()]
+
+
+def _raices() -> set[str]:
+    """Leidas del disco. Una lista escrita a mano aqui envejeceria igual que un release id."""
+    return {p.name for p in REPO.iterdir() if p.is_dir() and p.name != ".git"}
+
+
 def test_todo_enlace_relativo_resuelve() -> None:
-    """Un puntero roto es la senal que decidiria que documento manda, perdida."""
-    rotos = [
-        f"{p.relative_to(REPO)} -> {destino}"
-        for p in _vivos()
-        for destino in re.findall(r"\\]\\(([^)#][^)]*\\.md)(?:#[^)]*)?\\)",
-                                  p.read_text(encoding="utf-8", errors="replace"))
-        if not destino.startswith(("http://", "https://"))
-        and not (p.parent / destino).resolve().exists()
-    ]
-    assert rotos == [], "enlaces rotos:\\n  " + "\\n  ".join(rotos[:12])
+    """Un puntero roto es la senal que decidiria que documento manda, perdida.
+
+    Se juzga el DESTINO, no la etiqueta bonita que lo envuelve, y da igual la extension: un
+    enlace a un directorio o a un .json se rompe igual que uno a un .md. Medido en el
+    repositorio de origen: exigir `.md` dejo pasar dos enlaces rotos, uno de ellos en la
+    fuente normativa numero uno del proyecto.
+    """
+    rotos = []
+    for p in _navegables():
+        texto = _sin_codigo(p.read_text(encoding="utf-8", errors="replace"))
+        for m in re.finditer(r"\\]\\(([^)\\s#][^)\\s]*)\\)", texto):
+            destino = m.group(1)
+            if destino.startswith(("http://", "https://", "mailto:")):
+                continue
+            destino = destino.split("#")[0]
+            if not destino or (p.parent / destino).resolve().exists():
+                continue
+            linea = texto.count(chr(10), 0, m.start()) + 1
+            rotos.append(f"{p.relative_to(REPO)}:{linea} -> {destino}")
+    assert rotos == [], (
+        "enlaces cuyo DESTINO no existe (da igual la extension, cuentan los directorios):\\n  "
+        + "\\n  ".join(rotos[:12])
+        + "\\n\\nEl destino se resuelve relativo al documento que lo escribe, no a la raiz."
+    )
+
+
+def test_toda_ruta_entre_backticks_resuelve() -> None:
+    """La forma en que un repositorio escribe de VERDAD sus punteros.
+
+    Medido en el repositorio de origen: 12 enlaces markdown frente a 185 rutas entre
+    backticks. En ese hueco vivian diez punteros rotos con la suite entera en verde.
+
+    Solo cuenta lo que PARECE una ruta de este repositorio: empieza por un directorio de
+    primer nivel que existe de verdad y su ultimo segmento lleva extension. Sin ese filtro,
+    `check_metrics.py` (abreviatura) o `paging.total` (campo JSON) darian falso positivo, el
+    guard se volveria ruido, y la gente aprenderia a ignorar los rojos de esta carpeta.
+    """
+    raices = _raices()
+    rotos = []
+    for p in _navegables():
+        texto = p.read_text(encoding="utf-8", errors="replace")
+        for m in re.finditer(r"`([^`\\n]{1,200})`", texto):
+            ruta = m.group(1).split()[0].split("#")[0].split(":")[0].rstrip(".,;:)")
+            if "/" not in ruta or ruta.startswith(("/", "~", "<", "http")):
+                continue
+            if any(c in ruta for c in "*{}<>"):   # glob o placeholder: no nombra un fichero
+                continue
+            if ruta.split("/")[0] not in raices:
+                continue
+            cola = ruta.rsplit("/", 1)[1]
+            if cola and "." not in cola:
+                continue
+            if (REPO / ruta).exists() or (p.parent / ruta).exists():
+                continue
+            linea = texto.count(chr(10), 0, m.start()) + 1
+            rotos.append(f"{p.relative_to(REPO)}:{linea} -> {ruta}")
+    assert rotos == [], (
+        "rutas citadas entre backticks que no resuelven:\\n  " + "\\n  ".join(rotos[:12])
+        + "\\n\\nReferencialas o generalas; no las copies a mano."
+    )
 
 
 def test_ningun_documento_vivo_cita_el_archivo() -> None:
@@ -298,6 +438,10 @@ def instalar(raiz: Path, dry_run: bool) -> list[str]:
 
     escribir(".orden.json", json.dumps(CONFIG_POR_DEFECTO, ensure_ascii=False, indent=2) + "\n",
              solo_si_falta=True)
+    # Las dos semillas van con `solo_si_falta`: si el repositorio ya tiene un estado o un mapa,
+    # se respeta lo escrito. Sobrescribirlos seria destruir el trabajo que vienes a ordenar.
+    escribir("docs/ESTADO.md", ESTADO_SEMILLA, solo_si_falta=True)
+    escribir("docs/README.md", MAPA_SEMILLA, solo_si_falta=True)
     escribir("tests/docs/test_orden.py", GUARD)
     escribir("CLAUDE.md", CLAUDE_MD, solo_si_falta=True)
 
