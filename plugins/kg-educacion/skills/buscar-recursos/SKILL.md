@@ -1,100 +1,73 @@
 ---
 name: buscar-recursos
-description: Buscar evidencia curricular y materiales docentes con el KG Educación v3. Usa query_curriculum para OA, programas e indicadores; usa query_teaching_materials para libros, guías, BDA, actividades y componentes por package_id, OA o estructura interna del material.
+description: Use when the user asks to find Chilean curriculum evidence or teaching resources, mentions textbooks, teacher guides, BDA, excerpts, exact passages, OA, grades, subjects, packages, or material units, or needs the material-access boundary explained.
 ---
 
-# Buscar evidencia y materiales docentes v3
+# Buscar evidencia y materiales docentes
 
-El MCP `kg-educacion` (`serverInfo` `3.0.0`) expone un KG privado e independiente. Las citas pueden
-apuntar a fuentes publicadas o distribuidas por MINEDUC, pero el KG y su catálogo no son oficiales ni
-están afiliados a MINEDUC.
+El MCP `kg-educacion` es privado, independiente y no afiliado a MINEDUC. Recupera
+contexto con procedencia; no inventes OA, ids, citas ni contenido ausente.
 
-## Elegir la tool correcta
+**REQUIRED REFERENCE:** Read
+[Subcontrato de materiales 1.0](../../references/material-contract-1.0.md) before
+deciding whether `kg-educacion:query_teaching_materials` is callable.
 
-- Usa `query_curriculum` para verdad curricular: OA, indicadores, programas, unidades curriculares,
-  horas, progresiones y evidencia pedagógica.
-- Usa `query_teaching_materials` para materiales: textos del estudiante, guías docentes, cuadernos,
-  actividades, BDA, multimedia, aplicaciones y materiales privados autorizados.
-- Usa `runtime_status` solo para release, capacidades, cobertura o paridad.
+## Gate material
 
-## Buscar por OA
+La conexión directa de este plugin en Claude/Codex sólo envía `KG_API_KEY`. No emite
+`X-KG-Capability`, por lo que **no llames la tool material desde esta instalación**:
+la API key autentica al servicio, pero no concede derechos ni autoriza egreso.
 
-1. Resuelve el OA con `resolve_curricular_targets` si el código o el alcance no son ya inequívocos.
-2. Consulta `query_curriculum` para recuperar evidencia curricular citada.
-3. Consulta `query_teaching_materials` con `selectors.subject`, `selectors.grade` y
-   `selectors.oa_codes`. Para acotar a libros ya activos usa **`package_ids`**, nunca los dos campos a la
-   vez (ver "Varios paquetes"); si no, recupera
-   ampliamente con esos selectores y filtra conservando procedencia. Para un OA explícito usa `limit: 200`
-   y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea `null`.
-4. Presenta cada resultado con título, componente, disponibilidad, `package_id`, estructura interna,
-   `resource_ref` y cita. No prometas contenido ausente o bloqueado.
+Sólo un consumidor que emita server-side una capability ligada al usuario, operaciones
+y destino puede habilitarlos. No aceptes una capability desde el prompt, no la copies
+desde otro consumidor y no la persistas.
 
-## Buscar por libro o bundle
+## Elegir la tool
 
-1. Busca por asignatura, curso y tipo de componente con `query_teaching_materials`.
-2. Trata `package_id` como la identidad del libro/bundle completo y mantenla en el contexto de la
-   conversación cuando el docente elija ese material.
-3. Trata `material_id` como una sección o material concreto. No lo uses para representar todo el libro.
-4. Para hidratar una cita o recurso exacto, reutiliza el `citation_id` o `resource_ref` devuelto; no lo
-   fabriques.
+| Necesidad | Tool |
+|---|---|
+| OA, indicadores, programas, unidades curriculares, horas o progresiones | `kg-educacion:query_curriculum` |
+| Catálogo, extractos, índice o texto material | Sólo en un consumidor autorizado; no en el plugin directo |
+| Normalizar un target ambiguo | `kg-educacion:resolve_curricular_targets` |
+| Estado, cobertura o paridad del runtime | `kg-educacion:runtime_status` |
 
-## Buscar por "Unidad 1" del material
+## Flujo
 
-Con un `package_id` activo, llama:
+1. Normaliza el target cuando curso, asignatura, OA o unidad curricular no sean
+   inequívocos.
+2. Recupera la verdad curricular con `kg-educacion:query_curriculum`.
+3. En el plugin directo, responde con la evidencia curricular disponible y explica
+   que el material requiere un consumidor autorizado. No simules el resultado.
+4. Sólo si el host ya inyecta la capability fuera del modelo, elige una operación:
+   - `catalog` para descubrir paquetes o materiales sin cuerpo;
+   - `search` para encontrar extractos citados mediante una consulta temática;
+   - `index` para enumerar segmentos de un `resource_ref` ya elegido;
+   - `hydrate` para obtener el texto exacto de un `citation_id`.
+5. Pagina con el cursor de la operación y conserva procedencia.
 
-```json
-{
-  "package_id": "<libro activo>",
-  "material_unit_number": 1
-}
-```
+## Libro, paquete y unidad interna
 
-`material_unit_kind` es opcional. No lo infieras desde la palabra "Unidad"; omitido, admite unidad,
-lección, capítulo y sección equivalentes y presenta "estructura interna 1". No lo confundas con
-`selectors.unit_number`, una unidad curricular canónica.
+- `package_id` identifica un libro; `material_id`, una sección o recurso.
+- Usa sólo uno de `package_id` o `package_ids`.
+- `material_unit_*` describe el material; `selectors.unit_*`, el currículum. No copies
+  un número entre planos.
 
-Sin libro activo, recupera ampliamente por asignatura, curso y número. El modelo filtra o combina la
-evidencia con procedencia. Dentro del mismo paquete, unidad, lección, capítulo o sección pueden combinarse
-si la evidencia muestra el mismo alcance conceptual.
+Conserva el `package_id` elegido. En un host autorizado, usa `catalog` con selectores
+para descubrir paquetes o `search` con consulta explícita.
 
-## Varios paquetes
+## Extracto frente a texto exacto
 
-**`package_ids` es el campo que compone. `package_id` acota a uno solo. Nunca envíes los dos.**
-
-```json
-{ "selectors": {"subject": "Matematica", "grade": "4 basico"},
-  "package_ids": ["<libro A>", "<libro B>"] }
-```
-
-Enviar `package_id` y `package_ids` juntos es un **error de schema** (`-32602`), y así debe ser: hasta
-el 2026-07-28 se aplicaban como filtros independientes que se intersectaban, de modo que
-`package_id: A` más `package_ids: [A, B]` devolvía `ok` con **sólo A**, sin errores ni déficits. El
-modelo creía haber compuesto con dos libros y había citado uno.
-
-Los paquetes de `package_ids` se **unen** entre sí, pero se **intersectan** con los demás filtros
-(`selectors`, `material_unit_number`, `component_kinds`).
-
-Sin paquetes activos, usa una búsqueda amplia con asignatura, curso y `selectors.oa_codes`. Mantén la
-procedencia por paquete y deja que el modelo filtre; resuelve los OA antes de crear y aclara solo
-incompatibilidades reales.
-
-## Límite y paginación
-
-En `query_curriculum` y `query_teaching_materials`, `limit` acepta de 1 a 200. Para una consulta acotada,
-usa el menor valor suficiente y termina con evidencia suficiente. Para OA explícitos o completitud
-exhaustiva usa `limit: 200` y copia `paging.next_cursor` en `cursor` hasta que `paging.next_cursor` sea
-`null`. Nunca uses ni esperes `has_more`.
-
-## Pasar de búsqueda a creación
-
-Resuelve el target con `resolve_curricular_targets`, conserva los `resource_refs`
-seleccionados y sintetiza el artefacto solicitado. La generación y sus validaciones
-pertenecen al modelo o aplicación consumidora, no al KG.
+`search` devuelve extractos. Para texto exacto, hidrata su `winning_citation_id`; para
+navegar, usa `index` y luego hidrata una cita. No presentes metadatos o índices como
+texto ni reconstruyas un recurso completo.
 
 ## Reglas
 
-- Cita siempre la fuente y distingue disponibilidad `available`, `partial`, `metadata_only` o `blocked`.
-- Reconstruye o exporta material fuente solo cuando el runtime lo entregue como disponible para el
-  usuario; nunca inventes texto, OA o enlaces ni eludas una restricción de acceso.
-- Los ítems fuente y sus claves no son entregables.
-- Si el MCP responde 401, usa `setup`.
+- Conserva procedencia y distingue evidencia fuente de síntesis.
+- Respeta disponibilidad y autorización efectiva.
+- Los ítems fuente, alternativas y claves no son entregables.
+- Ante un `401` curricular, usa `setup`. Ante `401 missing_capability`, denegación o
+  ausencia material, no regeneres la key, no amplíes filtros ni reintentes con el
+  contrato legacy.
+- La generación y validación de artefactos pertenecen al modelo o aplicación
+  consumidora, no al KG.

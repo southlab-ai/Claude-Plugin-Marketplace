@@ -1,7 +1,7 @@
 {
   "name": "kg-educacion",
-  "version": "3.0.2",
-  "description": "KG educativo privado e independiente: resuelve OA y recupera currículum, materiales y marcos de evaluación mediante un MCP remoto autenticado.",
+  "version": "3.0.4",
+  "description": "KG educativo privado e independiente: resuelve OA y recupera currículum y marcos de evaluación; el acceso material requiere un consumidor con capability de usuario.",
   "author": {
     "name": "SouthLab AI"
   },
@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "KG Educación Chile",
     "shortDescription": "KG educativo privado con fuentes trazables",
-    "longDescription": "MCP remoto de un KG educativo privado e independiente, construido con fuentes trazables. Resuelve targets curriculares y recupera currículum, libros, componentes docentes y marcos de evaluación para que el modelo complete la tarea solicitada. Requiere una API key creada en api.southlab.ai.",
+    "longDescription": "MCP remoto de un KG educativo privado e independiente, construido con fuentes trazables. La instalación directa en Codex resuelve targets y recupera currículum y marcos de evaluación. Los materiales requieren una capability efímera de usuario y destino emitida por un consumidor autorizado; la API key sola no concede ese acceso.",
     "developerName": "SouthLab AI",
     "category": "Education",
     "capabilities": ["Interactive"],

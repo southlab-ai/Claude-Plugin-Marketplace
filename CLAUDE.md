@@ -12,7 +12,7 @@ This is a **monorepo marketplace**. All plugins live under `plugins/` as subdire
 | computer-vision | `plugins/computer-vision/` | 2.6.0 |
 | ultracodex | `plugins/ultracodex/` | 1.0.0 |
 | claude-sentinel | `plugins/claude-sentinel/` | 0.1.0 |
-| kg-educacion | `plugins/kg-educacion/` | 3.0.1 |
+| kg-educacion | `plugins/kg-educacion/` | 3.0.4 |
 | the-financial-council | `plugins/the-financial-council/` | 1.1.0 (WIP — no plugin.json yet) |
 
 The marketplace registry is at `.claude-plugin/marketplace.json`.
@@ -22,8 +22,9 @@ The marketplace registry is at `.claude-plugin/marketplace.json`.
 Since plugins live in this repo, updating is straightforward:
 
 1. Make changes to the plugin code in `plugins/<plugin-name>/`
-2. Bump the version in **both**:
+2. Bump the version in **all three**:
    - `plugins/<plugin-name>/.claude-plugin/plugin.json`
+   - `plugins/<plugin-name>/.codex-plugin/plugin.json` (when present)
    - `.claude-plugin/marketplace.json` (the matching plugin entry)
 3. Update `README.md` version table if changed
 4. Commit and push — one commit, everything stays in sync

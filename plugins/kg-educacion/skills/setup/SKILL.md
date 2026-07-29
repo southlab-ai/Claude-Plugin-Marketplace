@@ -1,61 +1,83 @@
 ---
 name: setup
-description: Asistente de configuración de kg-educacion v3, un KG educativo privado e independiente con sourcing MINEDUC. Conecta el MCP en Claude Code o Codex, registra la cuenta y configura una API key para ambos clientes. Úsala la primera vez o ante un 401.
+description: Use when kg-educacion is being installed or upgraded, the user lacks KG_API_KEY, Claude or Codex cannot connect, runtime_status fails, tools are stale after an update, or the MCP returns 401.
 ---
 
-# Asistente de configuración de kg-educacion
+# Configurar kg-educacion
 
-`kg-educacion` es un KG privado, independiente y no afiliado a MINEDUC. Conecta al runtime
-`serverInfo 3.0.0`; la autoridad de los datos corresponde a las fuentes citadas.
+`kg-educacion` es privado e independiente. La misma `KG_API_KEY` sirve en Claude y
+Codex.
 
-El acceso es por invitación y de pago por consulta. La **API key es la misma para Claude y Codex**.
-Tu trabajo es **guiar al usuario paso a paso** hasta dejar el plugin conectado.
+## Elegir el flujo
 
-## Primero distingue el caso
-- **Ya tiene `KG_API_KEY`** (o dice que ya lo configuró en el otro cliente): NO registres otra cuenta.
-  Salta directo a "Configurar el cliente que falta" usando la key existente.
-- **Primera instalación / sin key**: sigue el "Flujo de registro".
+- Si ya existe `KG_API_KEY` o el otro cliente funciona, no registres otra cuenta:
+  configura sólo el cliente faltante.
+- Si no existe una key, ejecuta el registro guiado.
+- Tras actualizar, conserva la key y refresca marketplace, cliente y sesión.
 
-## Flujo de registro (pregunta uno por uno, no todo junto)
-1. **Código de invitación**: "¿Cuál es tu código de invitación? (formato `kg-inv-…`; si no tienes,
-   pídelo a hola@southlab.ai)". No sigas sin un código.
-2. **Email**: "¿Tu email de contacto?".
-3. **Username**: "¿Qué nombre de usuario quieres? (3-64 caracteres, letras/números . _ - @)".
-4. **Contraseña**: "¿Quieres elegir una contraseña o que la genere por ti?" — si la genera, el script
-   la muestra una vez para que la guarde (sirve para gestionar/revocar tus keys más adelante).
+## Registro guiado
 
-## Ejecutar el registro + configuración
-Con los datos, corre el script de onboarding. Registra, crea la API key y configura **ambos clientes**:
-`~/.claude/settings.json` (Claude), `export KG_API_KEY` en el shell, `codex mcp add` (Codex) y
-`launchctl setenv` para las apps GUI de macOS.
+Pide un dato a la vez:
+
+1. Código de invitación `kg-inv-…`; si no tiene, debe solicitarlo a
+   `hola@southlab.ai`.
+2. Email.
+3. Username.
+4. Indícale que el script solicitará una contraseña de forma interactiva. No la pidas
+   en el chat.
+
+Resuelve `<plugin-root>` como dos niveles sobre este `SKILL.md`; no asumas
+`CLAUDE_PLUGIN_ROOT`, porque Codex no define esa variable. Después ejecuta:
+
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<invite_code>" "<email>" "<username>" "<password opcional>"
+bash "<plugin-root>/scripts/kg-onboard.sh" "<invite_code>" "<email>" "<username>"
 ```
-- Si el usuario eligió contraseña, pásala como 4º argumento; si no, omítela y el script genera una.
-- Pasa los argumentos entre comillas.
 
-## Configurar el cliente que falta (si ya hay key)
-La key (`KG_API_KEY`) es la misma. Por cliente:
-- **Claude Code**: el `.mcp.json` del plugin lee `Bearer ${KG_API_KEY}`. Exporta `KG_API_KEY` en el
-  shell (o pon `env.KG_API_KEY` en `~/.claude/settings.json`) y reinicia Claude.
-- **Codex**: `codex mcp add kg-educacion --url https://api.southlab.ai/mcp --bearer-token-env-var KG_API_KEY`
-  con `KG_API_KEY` exportada. El manifiesto del plugin **no** transporta la auth; va en `config.toml`.
-- **macOS (apps GUI)**: si abren Codex/Claude desde el Dock, expón la key con
-  `launchctl setenv KG_API_KEY "$KG_API_KEY"` (y, para que sobreviva reinicios, un LaunchAgent que lo haga al login).
+El script solicita la contraseña, crea la key y configura ambos clientes.
 
-## Después de correrlo
-- El script confirma "✅ Cuenta creada y API key configurada". **Dile que reinicie Claude Code o Codex**.
-- Recuérdale guardar la contraseña (si fue generada) y su API key.
-- Tras reiniciar, que consulte `runtime_status` y luego pruebe: "¿qué OA tiene Lenguaje 4° básico?".
-  Si el runtime reporta `serverInfo 3.0.0` y la consulta responde con citas, quedó listo.
+## Configurar un cliente con una key existente
 
-## Errores
-- 403 en el registro = código de invitación inválido o ya usado → pide uno nuevo.
-- 401 al consultar luego = la key no llegó al cliente → confirma que reinició; en Codex revisa
-  `codex mcp get kg-educacion`; en apps GUI de macOS revisa `launchctl getenv KG_API_KEY`.
-- En Codex, el error `Deserialize error … JsonRpcMessage` al iniciar significa que el MCP arrancó
-  **sin** token (401 del servidor): falta `KG_API_KEY` en el entorno o falta el `codex mcp add`.
+- Claude Code: `.mcp.json` lee `Bearer ${KG_API_KEY}`. Exporta la variable o define
+  `env.KG_API_KEY` en `~/.claude/settings.json`; reinicia Claude.
+- Codex:
+
+  ```bash
+  codex mcp add kg-educacion --url https://api.southlab.ai/mcp --bearer-token-env-var KG_API_KEY
+  ```
+
+- Apps macOS abiertas desde el Dock: expón la variable con
+  `launchctl setenv KG_API_KEY "$KG_API_KEY"`.
+
+El manifiesto de Codex guarda el nombre de la variable, no el secreto.
+
+## Verificar
+
+1. Reinicia Claude o Codex y abre una sesión nueva.
+2. Consulta `kg-educacion:runtime_status`; debe informar `serverInfo 3.0.0`.
+3. Comprueba que la schema fresca de
+   `kg-educacion:query_teaching_materials` exige `material_contract_version` y
+   `operation`.
+4. Prueba una consulta curricular que devuelva citas.
+
+Si aún aparece el contrato material anterior, refresca el marketplace y reinicia el
+cliente. No pruebes con payloads legacy.
+
+La verificación material no forma parte del setup directo: requiere
+`X-KG-Capability`, emitida server-side por un consumidor autorizado y ligada al
+usuario, operaciones, proveedor y modelo. No la solicites al usuario ni la guardes.
+
+## Diagnóstico
+
+| Síntoma | Acción |
+|---|---|
+| Registro `403` | El código es inválido o usado; solicita otro. |
+| Consulta `401` | La key no llegó al proceso; revisa `codex mcp get kg-educacion` o `launchctl getenv KG_API_KEY` y reinicia. |
+| `401 missing_capability` material | La API key funciona, pero este consumidor no puede usar materiales; no regeneres la key. |
+| Material `403` | La identidad no posee ese acceso; no regeneres la key ni amplíes el scope. |
+| `Deserialize error … JsonRpcMessage` | Codex inició el MCP sin token; revisa la variable y el registro MCP. |
 
 ## Seguridad
-- La API key se guarda en el equipo del usuario (settings de Claude, shell, config.toml de Codex).
-  Nunca la pegues en el chat ni la subas a repos. La contraseña del usuario no se guarda en archivos del proyecto.
+
+Nunca pegues la key o contraseña en el chat ni las subas a un repositorio. El script
+no imprime la API key; la persiste localmente para ambos clientes. Si el archivo de
+settings existente es inválido, debe detenerse sin sobrescribirlo.
