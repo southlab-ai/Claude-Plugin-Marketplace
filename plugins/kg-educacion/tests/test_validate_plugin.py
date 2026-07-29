@@ -92,7 +92,22 @@ def test_plugin_cannot_persist_a_material_capability_header(tmp_path: Path) -> N
     result = _run_validator(plugin)
 
     assert result.returncode == 1
-    assert "capability efímera" in result.stderr
+    assert "capability persistida" in result.stderr
+
+
+def test_codex_transport_requires_the_bearer_environment_variable(
+    tmp_path: Path,
+) -> None:
+    _repo, plugin = _copy_publishable_repo(tmp_path)
+    mcp_path = plugin / ".mcp.json"
+    mcp = json.loads(mcp_path.read_text(encoding="utf-8"))
+    del mcp["mcpServers"]["kg-educacion"]["bearer_token_env_var"]
+    mcp_path.write_text(json.dumps(mcp), encoding="utf-8")
+
+    result = _run_validator(plugin)
+
+    assert result.returncode == 1
+    assert "Claude y Codex deben usar KG_API_KEY" in result.stderr
 
 
 def test_reference_cannot_restore_the_internal_data_path(tmp_path: Path) -> None:

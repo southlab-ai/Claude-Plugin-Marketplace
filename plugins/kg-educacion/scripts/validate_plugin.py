@@ -295,13 +295,14 @@ def _validate_mcp_transport(plugin_root: Path) -> None:
             "kg-educacion": {
                 "type": "http",
                 "url": "https://api.southlab.ai/mcp",
+                "bearer_token_env_var": "KG_API_KEY",
                 "headers": {"Authorization": "Bearer ${KG_API_KEY}"},
             }
         }
     }
     if manifest != expected:
         raise ValidationError(
-            ".mcp.json: una capability efímera no puede persistirse en el plugin"
+            ".mcp.json: Claude y Codex deben usar KG_API_KEY sin capability persistida"
         )
 
 

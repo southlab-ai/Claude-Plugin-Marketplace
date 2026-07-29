@@ -3,6 +3,7 @@
     "kg-educacion": {
       "type": "http",
       "url": "https://api.southlab.ai/mcp",
+      "bearer_token_env_var": "KG_API_KEY",
       "headers": {
         "Authorization": "Bearer ${KG_API_KEY}"
       }
