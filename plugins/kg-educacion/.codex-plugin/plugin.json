@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "KG Educación Chile",
     "shortDescription": "KG educativo privado con fuentes trazables",
-    "longDescription": "MCP remoto de un KG educativo privado e independiente, construido con fuentes trazables. Resuelve targets curriculares y recupera currículum, libros, componentes docentes y marcos de evaluación para que el modelo complete la tarea solicitada. Requiere una API key creada en api.southlab.ai.",
+    "longDescription": "MCP remoto de un KG educativo privado e independiente, construido con fuentes trazables. Resuelve targets curriculares y recupera currículum, libros, componentes docentes y marcos de evaluación para que el modelo complete la tarea solicitada. Requiere una API key de cuenta creada en api.southlab.ai con los mismos permisos de tu cuenta.",
     "developerName": "SouthLab AI",
     "category": "Education",
     "capabilities": ["Interactive"],
