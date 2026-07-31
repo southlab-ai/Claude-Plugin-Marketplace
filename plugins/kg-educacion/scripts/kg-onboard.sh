@@ -1,91 +1,108 @@
 #!/usr/bin/env bash
-# Onboarding de kg-educacion: registra la cuenta con el código de invitación,
-# genera la API key (la MISMA para Claude y Codex) y la deja CONFIGURADA en:
-#   - Claude Code: ~/.claude/settings.json (env.KG_API_KEY)
-#   - shell:       ~/.zshrc / ~/.bashrc (export KG_API_KEY)
-#   - Codex:       ~/.codex/config.toml (codex mcp add ... --bearer-token-env-var KG_API_KEY)
-#   - macOS GUI:   launchctl setenv KG_API_KEY (apps abiertas desde el Dock)
+
+# Configura la API key del KG de Horacio para Claude Code y Codex.
 #
-# Uso: kg-onboard.sh <invite_code> <email> <username> [password]
-# Si no se pasa password, se genera una segura y se muestra una vez.
+# La key debe tener permisos de cuenta de Horacio y puede incluirse en cualquiera
+# de estos canales:
+# - Argumento: bash kg-onboard.sh "<HORACIO_MCP_API_KEY>"
+# - Variable de entorno: export HORACIO_MCP_API_KEY="..."
+#
+# La key se guarda en:
+# - ~/.claude/settings.json -> env.HORACIO_MCP_API_KEY
+# - ~/.zshrc y/o ~/.bashrc -> export HORACIO_MCP_API_KEY
+# - Codex: `codex mcp add kg-educacion --url https://api.southlab.ai/mcp --bearer-token-env-var HORACIO_MCP_API_KEY`
+# - macOS GUI: launchctl setenv HORACIO_MCP_API_KEY
+
 set -euo pipefail
 
 API="${KG_API_BASE:-https://api.southlab.ai}"
-INVITE="${1:?falta el código de invitación}"
-EMAIL="${2:-}"
-USERNAME="${3:?falta el username}"
-PASSWORD="${4:-}"
-GEN_PW=0
-if [ -z "$PASSWORD" ]; then PASSWORD="kg-$(openssl rand -hex 10)"; GEN_PW=1; fi
+KEY="${1:-${HORACIO_MCP_API_KEY:-}}"
 
-json_escape() { python3 -c 'import json,sys; print(json.dumps(sys.argv[1]))' "$1"; }
+if [ -z "$KEY" ]; then
+  cat <<'EOF'
+No se encontró una API key.
 
-# 1) Registro (gateado por invitación)
-REG=$(curl -fsS -w '\n%{http_code}' -X POST "$API/account/register" -H 'Content-Type: application/json' \
-  -d "{\"username\":$(json_escape "$USERNAME"),\"password\":$(json_escape "$PASSWORD"),\"email\":$(json_escape "$EMAIL"),\"invite_code\":$(json_escape "$INVITE")}" 2>/dev/null) || true
-HTTP=$(printf '%s' "$REG" | tail -1)
-BODY=$(printf '%s' "$REG" | sed '$d')
-if [ "$HTTP" != "200" ]; then
-  case "$HTTP" in
-    403) echo "❌ Código de invitación inválido o ya usado. Pide uno nuevo a hola@southlab.ai." >&2 ;;
-    422) echo "❌ Datos inválidos: $BODY" >&2 ;;
-    *)   echo "❌ No se pudo registrar (HTTP $HTTP): $BODY" >&2 ;;
-  esac
+1) Crea tu key en: https://api.southlab.ai/mi-cuenta?vista=perfil
+2) Copia la key (solo esta vez aparece completa)
+3) Ejecuta:
+   bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<HORACIO_MCP_API_KEY>"
+
+EOF
   exit 1
 fi
 
-# 2) Crear API key
-KEYJSON=$(curl -fsS -X POST "$API/account/keys" -H 'Content-Type: application/json' \
-  -d "{\"username\":$(json_escape "$USERNAME"),\"password\":$(json_escape "$PASSWORD"),\"label\":$(json_escape "$(hostname 2>/dev/null || echo plugin)")}")
-KEY=$(printf '%s' "$KEYJSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["api_key"])')
+if [[ ! "$KEY" =~ ^hkg_live_[A-Za-z0-9_-]{43}$ ]]; then
+  echo "La key no parece válida (se esperaba hkg_live_<43 chars url-safe)." >&2
+  exit 1
+fi
 
-# 3) Persistir KG_API_KEY automáticamente
-# 3a) Claude Code: ~/.claude/settings.json -> env.KG_API_KEY
+persist_token() {
+  local dest="$1"
+  local tmp
+  tmp="$(mktemp "${dest}.tmp.XXXXXX")"
+  if [ -f "$dest" ]; then
+    awk '
+      $0 !~ /^export HORACIO_MCP_API_KEY=/ {
+        print $0
+      }
+    ' "$dest" > "$tmp"
+  else
+    : > "$tmp"
+  fi
+  printf 'export HORACIO_MCP_API_KEY=%s\n' "$KEY" >> "$tmp"
+  mv "$tmp" "$dest"
+}
+
+# 1) Claude Code
 python3 - "$KEY" <<'PY'
-import json, sys, pathlib
+import json
+import pathlib
+import sys
+
 key = sys.argv[1]
-p = pathlib.Path.home() / ".claude" / "settings.json"
-p.parent.mkdir(parents=True, exist_ok=True)
-try:
-    d = json.loads(p.read_text()) if p.exists() and p.read_text().strip() else {}
-except Exception:
-    d = {}
-d.setdefault("env", {})["KG_API_KEY"] = key
-p.write_text(json.dumps(d, indent=2) + "\n")
+path = pathlib.Path.home() / ".claude" / "settings.json"
+path.parent.mkdir(parents=True, exist_ok=True)
+if path.exists() and path.read_text().strip():
+    try:
+        data = json.loads(path.read_text())
+    except Exception:
+        data = {}
+else:
+    data = {}
+if not isinstance(data, dict):
+    data = {}
+data.setdefault("env", {})["HORACIO_MCP_API_KEY"] = key
+path.write_text(json.dumps(data, indent=2) + "\n")
 PY
-# 3b) Codex / terminal: shell rc (sin sed -i, portable)
+
+# 2) Shells
 for rc in "$HOME/.zshrc" "$HOME/.bashrc"; do
-  [ -f "$rc" ] || { [ "$rc" = "$HOME/.zshrc" ] && touch "$rc" || continue; }
-  grep -v '^export KG_API_KEY=' "$rc" > "$rc.kgtmp" 2>/dev/null || true
-  mv "$rc.kgtmp" "$rc"
-  printf 'export KG_API_KEY=%s\n' "$KEY" >> "$rc"
+  [ -f "$rc" ] || continue
+  persist_token "$rc"
 done
 
-# 3c) Codex: registra el MCP remoto con la key por variable de entorno (config.toml)
-CODEX_MSG="codex CLI no encontrado; en Codex corre: codex mcp add kg-educacion --url $API/mcp --bearer-token-env-var KG_API_KEY"
+# 3) Codex
+CODEX_MSG="❌ No se pudo registrar automáticamente. Corre: codex mcp add kg-educacion --url $API/mcp --bearer-token-env-var HORACIO_MCP_API_KEY"
 if command -v codex >/dev/null 2>&1; then
-  export KG_API_KEY="$KEY"
+  export HORACIO_MCP_API_KEY="$KEY"
   codex mcp remove kg-educacion >/dev/null 2>&1 || true
-  if codex mcp add kg-educacion --url "$API/mcp" --bearer-token-env-var KG_API_KEY >/dev/null 2>&1; then
-    CODEX_MSG="registrado en Codex (~/.codex/config.toml) con bearer_token_env_var=KG_API_KEY"
-  else
-    CODEX_MSG="no se pudo registrar solo; corre: codex mcp add kg-educacion --url $API/mcp --bearer-token-env-var KG_API_KEY"
+  if codex mcp add kg-educacion --url "$API/mcp" --bearer-token-env-var HORACIO_MCP_API_KEY >/dev/null 2>&1; then
+    CODEX_MSG="✅ Registrado en Codex (~/.codex/config.toml) con bearer_token_env_var=HORACIO_MCP_API_KEY"
   fi
 fi
 
-# 3d) macOS: las apps GUI (Dock/Finder) no heredan ~/.zshrc → expón la key vía launchctl
+# 4) macOS GUI
 LAUNCHCTL_MSG="no aplica (no es macOS)"
 if [ "$(uname -s 2>/dev/null)" = "Darwin" ] && command -v launchctl >/dev/null 2>&1; then
-  if launchctl setenv KG_API_KEY "$KEY" 2>/dev/null; then
-    LAUNCHCTL_MSG="expuesta a apps GUI de esta sesión; para que sobreviva reinicios deja un LaunchAgent"
+  if launchctl setenv HORACIO_MCP_API_KEY "$KEY" 2>/dev/null; then
+    LAUNCHCTL_MSG="✅ Aplicaciones GUI de esta sesión ven HORACIO_MCP_API_KEY (usa LaunchAgent para persistir al reinicio)"
   fi
 fi
 
-echo "✅ Cuenta creada y API key configurada automáticamente."
-echo "   usuario: $USERNAME"
-[ "$GEN_PW" = 1 ] && echo "   contraseña (guárdala para gestionar tus keys): $PASSWORD"
-echo "   API key: ${KEY}"
-echo "   Claude Code: ~/.claude/settings.json (env.KG_API_KEY) + shell (export)."
-echo "   Codex:       ${CODEX_MSG}."
-echo "   macOS GUI:   ${LAUNCHCTL_MSG}."
-echo "👉 Reinicia Claude Code o Codex para que tome la conexión, y pregunta algo curricular."
+echo "✅ API key configurada para kg-educacion."
+echo "   Entorno: HORACIO_MCP_API_KEY=$KEY"
+echo "   Claude Code: ~/.claude/settings.json (env.HORACIO_MCP_API_KEY)"
+echo "   Shell: ~/.zshrc y ~/.bashrc"
+echo "   Codex: ${CODEX_MSG}"
+echo "   macOS GUI: ${LAUNCHCTL_MSG}"
+echo "🔁 Reinicia Codex/Claude y valida: runtime_status"

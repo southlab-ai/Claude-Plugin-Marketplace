@@ -12,7 +12,7 @@ This is a **monorepo marketplace**. All plugins live under `plugins/` as subdire
 | computer-vision | `plugins/computer-vision/` | 2.6.0 |
 | ultracodex | `plugins/ultracodex/` | 1.0.0 |
 | claude-sentinel | `plugins/claude-sentinel/` | 0.1.0 |
-| kg-educacion | `plugins/kg-educacion/` | 3.0.1 |
+| kg-educacion | `plugins/kg-educacion/` | 3.0.5 |
 | the-financial-council | `plugins/the-financial-council/` | 1.1.0 (WIP — no plugin.json yet) |
 
 The marketplace registry is at `.claude-plugin/marketplace.json`.

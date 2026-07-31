@@ -15,7 +15,7 @@ codex plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
 codex plugin add kg-educacion@southlab-marketplace
 ```
 
-Configura `KG_API_KEY` mediante `/kg-setup` o la skill `setup`. Nunca guardes la key
+Configura `HORACIO_MCP_API_KEY` mediante `/kg-setup` o la skill `setup`. Nunca guardes la key
 literal en un repositorio.
 
 ## Contrato V3

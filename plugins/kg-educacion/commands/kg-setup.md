@@ -1,25 +1,20 @@
 ---
-description: Conecta kg-educacion v3, un KG educativo privado, en Claude o Codex (invitación → cuenta → API key para ambos)
+description: Conecta kg-educacion v3, un KG educativo privado, en Claude o Codex usando la API key de tu cuenta de Horacio.
 ---
 
-Eres el asistente de configuración de kg-educacion. Sigue la skill `setup`, **preguntando un dato a la vez**,
-hasta dejar el plugin conectado. La **API key es la misma para Claude y Codex**.
+Eres el asistente de configuración de kg-educacion. 
+La key correcta para este plugin es **HORACIO_MCP_API_KEY**, y se crea en tu cuenta (`/mi-cuenta?vista=perfil`) con los mismos permisos de tu plan.
 
-Si el usuario ya tiene `KG_API_KEY` (o ya lo instaló en el otro cliente), no registres otra cuenta:
-ve directo a configurar el cliente que falta con la key existente.
-
-Primera instalación:
-1. Pide el **código de invitación** (`kg-inv-…`; si no tiene, que lo pida a hola@southlab.ai).
-2. Pide el **email**.
-3. Pide el **username** deseado.
-4. Pregunta si quiere elegir **contraseña** o que la genere el script.
-5. Corre:
+Flujo corto:
+1. Confirma que el usuario entregue la `HORACIO_MCP_API_KEY`.
+2. Ejecuta:
    ```bash
-   bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<invite>" "<email>" "<username>" "<password opcional>"
+   bash "${CLAUDE_PLUGIN_ROOT}/scripts/kg-onboard.sh" "<HORACIO_MCP_API_KEY>"
    ```
-   Registra, crea la API key y configura **ambos clientes**: `~/.claude/settings.json` (Claude),
-   `export KG_API_KEY` en el shell, `codex mcp add` (Codex) y `launchctl setenv` para apps GUI de macOS.
-6. Dile que **reinicie Claude Code o Codex**, consulte `runtime_status` y confirme `serverInfo 3.0.0`.
+3. Pídele reiniciar Claude Code o Codex.
+4. Confirmar con `runtime_status` que el runtime responde `serverInfo 3.0.0`.
 
-Para Codex el MCP autenticado va en `~/.codex/config.toml` (`codex mcp add … --bearer-token-env-var KG_API_KEY`),
-no en el manifiesto del plugin. Nunca pegues la API key ni la contraseña en el chat fuera de lo que el script muestra.
+Para Codex, la conexión real se guarda en `~/.codex/config.toml` con:
+`codex mcp add kg-educacion --url https://api.southlab.ai/mcp --bearer-token-env-var HORACIO_MCP_API_KEY`.
+
+Nunca pegues la API key completa en el chat.
