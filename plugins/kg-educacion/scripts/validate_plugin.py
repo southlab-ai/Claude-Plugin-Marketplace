@@ -245,12 +245,12 @@ def _validate_manifest_versions(plugin_root: Path) -> str:
         if row is None or version not in row:
             raise ValidationError(f"{label}: tabla de kg-educacion no publica {version}")
         if label == "README.md" and (
-            "cinco tools MCP v3" not in row
+            "Horacio conectado al KG educativo" not in row
+            or "cinco tools MCP v3" in row
             or "siete tools" in row
-            or "compilar artefactos" in row
         ):
             raise ValidationError(
-                "README.md: la superficie V3 debe publicar cinco tools de retrieval"
+                "README.md: debe publicar la superficie MCP de Horacio por cuenta"
             )
     return version
 
@@ -276,16 +276,15 @@ def _validate_skills(plugin_root: Path) -> None:
             raise ValidationError(f"{skill_file}: cuerpo excede 500 palabras")
         if "\\" in body:
             raise ValidationError(f"{skill_file}: usa rutas con slash, no backslash")
-        if expected_name in MATERIAL_CONSUMERS and (
-            "../../references/material-contract-1.0.md" not in body
-        ):
-            raise ValidationError(
-                f"{skill_file}: falta referencia al subcontrato material 1.0"
-            )
-        if expected_name in MATERIAL_CONSUMERS and "no llames" not in body.lower():
-            raise ValidationError(
-                f"{skill_file}: falta el gate fail-closed material del plugin directo"
-            )
+        if expected_name in MATERIAL_CONSUMERS:
+            if "X-KG-Capability" in body or "query_teaching_materials" in body:
+                raise ValidationError(
+                    f"{skill_file}: no debe pedir contratos internos al usuario"
+                )
+            if not ({"consultar_curriculum", "explorar_oa", "consultar_recursos"} & set(re.findall(r"`([a-z_]+)`", body))):
+                raise ValidationError(
+                    f"{skill_file}: falta una tool pública del MCP de Horacio"
+                )
 
 
 def _validate_mcp_transport(plugin_root: Path) -> None:
@@ -294,15 +293,15 @@ def _validate_mcp_transport(plugin_root: Path) -> None:
         "mcpServers": {
             "kg-educacion": {
                 "type": "http",
-                "url": "https://api.southlab.ai/mcp",
-                "bearer_token_env_var": "KG_API_KEY",
-                "headers": {"Authorization": "Bearer ${KG_API_KEY}"},
+                "url": "https://chatgpt.southlab.ai/mcp",
+                "bearer_token_env_var": "HORACIO_MCP_API_KEY",
+                "headers": {"Authorization": "Bearer ${HORACIO_MCP_API_KEY}"},
             }
         }
     }
     if manifest != expected:
         raise ValidationError(
-            ".mcp.json: Claude y Codex deben usar KG_API_KEY sin capability persistida"
+            ".mcp.json: Claude y Codex deben usar la API key personal de Horacio"
         )
 
 

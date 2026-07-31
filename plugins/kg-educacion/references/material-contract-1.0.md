@@ -1,10 +1,9 @@
 # Subcontrato de materiales 1.0
 
-Esta referencia aplica sólo dentro de un consumidor autorizado que inyecta una
-`X-KG-Capability` efímera, ligada al usuario, operaciones y destino real. La conexión
-directa del plugin marketplace envía únicamente `KG_API_KEY`: **no llames
-`kg-educacion:query_teaching_materials` desde Claude o Codex directos**. No solicites,
-copies ni persistas una capability para eludir ese límite.
+Esta referencia aplica al flujo interno de Horacio que, antes de llamar al contrato de
+materiales, ya resolvió la cuenta, las habilitaciones y el scope del usuario.
+Horacio publica una capability efímera dentro de su runtime para poder consultar el
+contenedor de materiales del grant vigente.
 
 En un consumidor autorizado, el contrato es clean-cut: cada request incluye
 `"material_contract_version": "1.0"` y una sola `operation`. No reintentes con el
