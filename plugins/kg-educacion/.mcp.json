@@ -2,10 +2,10 @@
   "mcpServers": {
     "kg-educacion": {
       "type": "http",
-      "url": "https://api.southlab.ai/mcp",
-      "bearer_token_env_var": "KG_API_KEY",
+      "url": "https://chatgpt.southlab.ai/mcp",
+      "bearer_token_env_var": "HORACIO_MCP_API_KEY",
       "headers": {
-        "Authorization": "Bearer ${KG_API_KEY}"
+        "Authorization": "Bearer ${HORACIO_MCP_API_KEY}"
       }
     }
   }

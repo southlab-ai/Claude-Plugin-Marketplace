@@ -1,7 +1,7 @@
 {
   "name": "kg-educacion",
-  "version": "3.0.5",
-  "description": "KG educativo privado e independiente: resuelve OA y recupera currículum y marcos de evaluación; el acceso material requiere un consumidor con capability de usuario.",
+  "version": "3.1.0",
+  "description": "Conecta Horacio al KG educativo con los permisos vigentes de la cuenta: currículum, OA, materiales y creación docente mediante MCP.",
   "author": {
     "name": "SouthLab AI"
   },
@@ -12,7 +12,7 @@
   "interface": {
     "displayName": "KG Educación Chile",
     "shortDescription": "KG educativo privado con fuentes trazables",
-    "longDescription": "MCP remoto de un KG educativo privado e independiente, construido con fuentes trazables. La instalación directa en Codex resuelve targets y recupera currículum y marcos de evaluación. Los materiales requieren una capability efímera de usuario y destino emitida por un consumidor autorizado; la API key sola no concede ese acceso.",
+    "longDescription": "MCP remoto de Horacio conectado al KG educativo privado. La API key personal se crea en Mi cuenta y hereda en cada solicitud los features, colegio y grants vigentes. Horacio emite internamente las capabilities efímeras necesarias para materiales; el secreto global del KG nunca se entrega al usuario.",
     "developerName": "SouthLab AI",
     "category": "Education",
     "capabilities": ["Interactive"],

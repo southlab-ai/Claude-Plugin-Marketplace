@@ -12,7 +12,7 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 | **computer-vision** | Desktop computer vision and input control for Windows. 24 tools: screenshots, scene analysis, human-like mouse movement, action recording, UIA-based element invocation (works on WinUI 3 apps where SendInput fails), deep UI tree search, click, drag-and-drop, type, scroll, OCR, element finder, text extraction. Background mode via PostMessage. | 2.6.0 | Utilities |
 | **ultracodex** | Orchestrate a fleet of OpenAI Codex agents (GPT-5.6 sol/terra/luna) from Claude Code — multi-agent audits, reviews, migrations, and design panels with adversarial verification. Includes a `codex-agent` skill for single background workers. | 1.0.0 | Productivity |
 | **claude-sentinel** | Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, full gateway deployment. | 0.1.0 | Infrastructure |
-| **kg-educacion** | KG educativo privado e independiente — cinco tools MCP v3 para resolver OA y recuperar currículum y marcos de evaluación. Material access requires a user capability from an authorized consumer; an API key alone is insufficient. | 3.0.5 | Education |
+| **kg-educacion** | Horacio conectado al KG educativo: currículum, OA, materiales y herramientas docentes con los permisos vigentes de la cuenta. | 3.1.0 | Education |
 | **the-financial-council** | Prediction-market signals weighted by trader track record, mapped to tradeable stocks. Knowledge Graph with Neo4j, FRED macro data, SEC EDGAR filings. *Work in progress.* | 1.1.0 | Finance |
 
 ## Installation
@@ -160,7 +160,7 @@ No commands — four skills, invoked by name:
 
 | Command | Description |
 |---------|-------------|
-| `/kg-educacion:kg-setup` | Conecta el MCP del Currículum Nacional (invitación → cuenta → API key, misma key para Claude y Codex) |
+| `/kg-educacion:kg-setup` | Conecta el MCP de Horacio con la API key personal creada en Mi cuenta. |
 
 | Skill | Description |
 |-------|-------------|

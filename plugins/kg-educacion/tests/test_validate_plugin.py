@@ -64,12 +64,12 @@ def test_codex_catalog_cannot_drop_the_plugin(tmp_path: Path) -> None:
     assert "marketplace Codex" in result.stderr
 
 
-def test_public_readme_cannot_restore_the_legacy_tool_surface(tmp_path: Path) -> None:
+def test_public_readme_cannot_restore_the_direct_kg_surface(tmp_path: Path) -> None:
     repo, plugin = _copy_publishable_repo(tmp_path)
     readme_path = repo / "README.md"
     readme_path.write_text(
         readme_path.read_text(encoding="utf-8").replace(
-            "cinco tools MCP v3", "siete tools MCP v3"
+            "Horacio conectado al KG educativo", "cinco tools MCP v3"
         ),
         encoding="utf-8",
     )
@@ -77,7 +77,7 @@ def test_public_readme_cannot_restore_the_legacy_tool_surface(tmp_path: Path) ->
     result = _run_validator(plugin)
 
     assert result.returncode == 1
-    assert "superficie V3" in result.stderr
+    assert "superficie MCP de Horacio" in result.stderr
 
 
 def test_plugin_cannot_persist_a_material_capability_header(tmp_path: Path) -> None:
@@ -92,7 +92,7 @@ def test_plugin_cannot_persist_a_material_capability_header(tmp_path: Path) -> N
     result = _run_validator(plugin)
 
     assert result.returncode == 1
-    assert "capability persistida" in result.stderr
+    assert "API key personal de Horacio" in result.stderr
 
 
 def test_codex_transport_requires_the_bearer_environment_variable(
@@ -107,7 +107,7 @@ def test_codex_transport_requires_the_bearer_environment_variable(
     result = _run_validator(plugin)
 
     assert result.returncode == 1
-    assert "Claude y Codex deben usar KG_API_KEY" in result.stderr
+    assert "API key personal de Horacio" in result.stderr
 
 
 def test_reference_cannot_restore_the_internal_data_path(tmp_path: Path) -> None:
@@ -160,20 +160,18 @@ def test_material_selector_ids_use_the_canonical_enums(tmp_path: Path) -> None:
     assert "selectors.subject_family_id contiene un enum inválido" in result.stderr
 
 
-def test_direct_consumer_skills_must_remain_fail_closed(tmp_path: Path) -> None:
+def test_consumer_skills_cannot_expose_internal_material_headers(tmp_path: Path) -> None:
     _repo, plugin = _copy_publishable_repo(tmp_path)
     skill = plugin / "skills" / "planificar" / "SKILL.md"
     skill.write_text(
-        skill.read_text(encoding="utf-8").replace(
-            "no llames materiales", "llama materiales"
-        ),
+        skill.read_text(encoding="utf-8") + "\nUsa X-KG-Capability y query_teaching_materials.\n",
         encoding="utf-8",
     )
 
     result = _run_validator(plugin)
 
     assert result.returncode == 1
-    assert "fail-closed material" in result.stderr
+    assert "contratos internos" in result.stderr
 
 
 def test_skill_body_cannot_exceed_the_authoring_budget(tmp_path: Path) -> None:

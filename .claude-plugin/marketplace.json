@@ -213,8 +213,8 @@
     {
       "name": "kg-educacion",
       "source": "./plugins/kg-educacion",
-      "description": "KG educativo privado e independiente: cinco tools MCP v3 para resolver OA y recuperar currículum y marcos de evaluación; los materiales requieren una capability de usuario emitida por un consumidor autorizado.",
-      "version": "3.0.5",
+      "description": "Horacio conectado al KG educativo con una API key personal que aplica los permisos vigentes de la cuenta para currículum, materiales y herramientas docentes.",
+      "version": "3.1.0",
       "author": {
         "name": "Southlab AI"
       },
