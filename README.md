@@ -13,7 +13,10 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 | **ultracodex** | Orchestrate a fleet of OpenAI Codex agents (GPT-5.6 sol/terra/luna) from Claude Code — multi-agent audits, reviews, migrations, and design panels with adversarial verification. Includes a `codex-agent` skill for single background workers. | 1.0.0 | Productivity |
 | **claude-sentinel** | Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, full gateway deployment. | 0.1.0 | Infrastructure |
 | **kg-educacion** | Horacio conectado al KG educativo: currículum, OA, materiales y herramientas docentes con los permisos vigentes de la cuenta. | 3.1.0 | Education |
-| **the-financial-council** | Prediction-market signals weighted by trader track record, mapped to tradeable stocks. Knowledge Graph with Neo4j, FRED macro data, SEC EDGAR filings. *Work in progress.* | 1.1.0 | Finance |
+
+## Prototypes — not installable
+
+`the-financial-council` is an unpublished research prototype. It is not listed in the marketplace and cannot be installed as a Claude Code plugin.
 
 ## Installation
 
@@ -223,7 +226,7 @@ Claude-Plugin-Marketplace/
 │   ├── ultracodex/               # Codex fleet orchestration
 │   ├── claude-sentinel/          # Telegram session supervisor for VPS
 │   ├── kg-educacion/             # KG del Currículum Nacional de Chile
-│   └── the-financial-council/    # Prediction-market signals (WIP)
+│   └── the-financial-council/    # Unpublished prototype (not installable)
 └── README.md
 ```
 

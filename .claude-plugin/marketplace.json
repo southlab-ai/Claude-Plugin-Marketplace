@@ -129,33 +129,6 @@
       ]
     },
     {
-      "name": "the-financial-council",
-      "source": "./plugins/the-financial-council",
-      "description": "See what the smartest prediction market traders agree on, weighted by their actual track record — and map those signals to stocks you can trade. P3: Knowledge Graph with Neo4j, FRED macro data, and SEC EDGAR filings.",
-      "version": "1.1.0",
-      "author": {
-        "name": "Southlab AI"
-      },
-      "license": "MIT",
-      "keywords": [
-        "finance",
-        "prediction-markets",
-        "polymarket",
-        "brier-score",
-        "hypothesis",
-        "investing",
-        "signals",
-        "trading"
-      ],
-      "category": "finance",
-      "tags": [
-        "finance",
-        "prediction-markets",
-        "investing",
-        "signals"
-      ]
-    },
-    {
       "name": "claude-sentinel",
       "source": "./plugins/claude-sentinel",
       "description": "Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, and full gateway deployment with crons and bot identity.",

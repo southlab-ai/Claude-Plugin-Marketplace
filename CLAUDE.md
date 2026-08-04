@@ -13,9 +13,12 @@ This is a **monorepo marketplace**. All plugins live under `plugins/` as subdire
 | ultracodex | `plugins/ultracodex/` | 1.0.0 |
 | claude-sentinel | `plugins/claude-sentinel/` | 0.1.0 |
 | kg-educacion | `plugins/kg-educacion/` | 3.1.0 |
-| the-financial-council | `plugins/the-financial-council/` | 1.1.0 (WIP — no plugin.json yet) |
 
 The marketplace registry is at `.claude-plugin/marketplace.json`.
+
+### Prototypes — not published
+
+- `plugins/the-financial-council/` — unpublished research prototype; not installable
 
 ## When Updating a Plugin
 
@@ -33,9 +36,10 @@ Since plugins live in this repo, updating is straightforward:
 
 1. Create the plugin directory under `plugins/<plugin-name>/`
 2. Add `.claude-plugin/plugin.json` inside it
-3. Add a new entry to the `plugins` array in `.claude-plugin/marketplace.json`
-4. Add the plugin to the README table and commands section
-5. Commit and push
+3. Add at least one real plugin component (skill, command, agent, hook, or MCP server)
+4. Only after the manifest and component exist, add a new entry to the `plugins` array in `.claude-plugin/marketplace.json`
+5. Add the plugin to the README table and commands section
+6. Commit and push
 
 ## External PRs
 
