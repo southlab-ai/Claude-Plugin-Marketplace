@@ -1,7 +1,7 @@
 {
   "name": "kg-educacion",
   "description": "Conecta Horacio al KG educativo con los permisos vigentes de la cuenta: currículum, OA, materiales y creación docente mediante MCP.",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "author": {
     "name": "Southlab AI",
     "email": "cardenas.je@southlab.ai"

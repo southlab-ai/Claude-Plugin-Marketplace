@@ -12,7 +12,8 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 | **computer-vision** | Desktop computer vision and input control for Windows. 24 tools: screenshots, scene analysis, human-like mouse movement, action recording, UIA-based element invocation (works on WinUI 3 apps where SendInput fails), deep UI tree search, click, drag-and-drop, type, scroll, OCR, element finder, text extraction. Background mode via PostMessage. | 2.6.0 | Utilities |
 | **ultracodex** | Orchestrate a fleet of OpenAI Codex agents (GPT-5.6 sol/terra/luna) from Claude Code — multi-agent audits, reviews, migrations, and design panels with adversarial verification. Includes a `codex-agent` skill for single background workers. | 1.0.0 | Productivity |
 | **claude-sentinel** | Session supervisor for Claude Code's Telegram channel — guided VPS setup, persistent sessions, crash recovery, long-term memory. 4 skills: VPS installation, Telegram configuration, access management, full gateway deployment. | 0.1.0 | Infrastructure |
-| **kg-educacion** | Horacio conectado al KG educativo: currículum, OA, materiales y herramientas docentes con los permisos vigentes de la cuenta. | 3.1.0 | Education |
+| **kg-educacion** | Horacio conectado al KG educativo: currículum, OA, materiales y herramientas docentes con los permisos vigentes de la cuenta. | 3.1.1 | Education |
+| **repo-orden** | Orden documental que sobrevive a un cambio de agente: una sola fuente de verdad, la carpeta como clase y un guard contra valores que caducan. | 1.1.0 | Developer Tools |
 
 ## Prototypes — not installable
 
@@ -26,9 +27,10 @@ Claude Code plugin marketplace by [Southlab AI](https://github.com/southlab-ai).
 codex plugin marketplace add southlab-ai/Claude-Plugin-Marketplace
 codex plugin add agent-bridge@southlab-marketplace
 codex plugin add kg-educacion@southlab-marketplace
+codex plugin add repo-orden@southlab-marketplace
 ```
 
-Codex-compatible plugins: `agent-bridge`, `kg-educacion`. Restart Codex Desktop after installation.
+Codex-compatible plugins: `agent-bridge`, `kg-educacion`, `repo-orden`. Restart Codex Desktop after installation.
 
 ### Claude Code
 
@@ -50,6 +52,7 @@ Inside Claude Code:
 /plugin install ultracodex@southlab-marketplace
 /plugin install claude-sentinel@southlab-marketplace
 /plugin install kg-educacion@southlab-marketplace
+/plugin install repo-orden@southlab-marketplace
 ```
 
 #### 3. Restart Claude Code
@@ -63,7 +66,7 @@ Each plugin has a setup command:
 ```
 /upwork-scraper:setup
 /council:setup
-/cv-setup
+/computer-vision:cv-setup
 /kg-educacion:kg-setup
 ```
 
@@ -145,7 +148,7 @@ No commands — two skills, invoked by name. Requires the [OpenAI Codex CLI](htt
 
 | Command | Description |
 |---------|-------------|
-| `/cv-setup` | Verify setup and dependencies |
+| `/computer-vision:cv-setup` | Verify setup and dependencies |
 | `/cv-help` | Usage guide and examples |
 
 ### Claude Sentinel
@@ -226,6 +229,7 @@ Claude-Plugin-Marketplace/
 │   ├── ultracodex/               # Codex fleet orchestration
 │   ├── claude-sentinel/          # Telegram session supervisor for VPS
 │   ├── kg-educacion/             # KG del Currículum Nacional de Chile
+│   ├── repo-orden/                # Documentation governance and drift guards
 │   └── the-financial-council/    # Unpublished prototype (not installable)
 └── README.md
 ```

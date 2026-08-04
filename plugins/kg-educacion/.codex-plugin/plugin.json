@@ -1,9 +1,9 @@
 {
   "name": "kg-educacion",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "description": "Conecta Horacio al KG educativo con los permisos vigentes de la cuenta: currículum, OA, materiales y creación docente mediante MCP.",
   "author": {
-    "name": "SouthLab AI"
+    "name": "Southlab AI"
   },
   "repository": "https://github.com/southlab-ai/Claude-Plugin-Marketplace",
   "license": "UNLICENSED",
@@ -13,7 +13,7 @@
     "displayName": "KG Educación Chile",
     "shortDescription": "KG educativo privado con fuentes trazables",
     "longDescription": "MCP remoto de Horacio conectado al KG educativo privado. La API key personal se crea en Mi cuenta y hereda en cada solicitud los features, colegio y grants vigentes. Horacio emite internamente las capabilities efímeras necesarias para materiales; el secreto global del KG nunca se entrega al usuario.",
-    "developerName": "SouthLab AI",
+    "developerName": "Southlab AI",
     "category": "Education",
     "capabilities": ["Interactive"],
     "defaultPrompt": [

@@ -26,7 +26,7 @@ Inside Claude Code:
 /plugin install computer-vision@mastermind-marketplace
 ```
 
-Then restart Claude Code and run `/cv-setup` to verify dependencies.
+Then restart Claude Code and run `/computer-vision:cv-setup` to verify dependencies.
 
 ### Manual (development)
 

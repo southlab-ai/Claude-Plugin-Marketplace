@@ -12,9 +12,10 @@ This is a **monorepo marketplace**. All plugins live under `plugins/` as subdire
 | computer-vision | `plugins/computer-vision/` | 2.6.0 |
 | ultracodex | `plugins/ultracodex/` | 1.0.0 |
 | claude-sentinel | `plugins/claude-sentinel/` | 0.1.0 |
-| kg-educacion | `plugins/kg-educacion/` | 3.1.0 |
+| kg-educacion | `plugins/kg-educacion/` | 3.1.1 |
+| repo-orden | `plugins/repo-orden/` | 1.1.0 |
 
-The marketplace registry is at `.claude-plugin/marketplace.json`.
+The Claude Code marketplace registry is at `.claude-plugin/marketplace.json`. Codex-compatible plugins are also registered in `.agents/plugins/marketplace.json`.
 
 ### Prototypes — not published
 
@@ -38,8 +39,9 @@ Since plugins live in this repo, updating is straightforward:
 2. Add `.claude-plugin/plugin.json` inside it
 3. Add at least one real plugin component (skill, command, agent, hook, or MCP server)
 4. Only after the manifest and component exist, add a new entry to the `plugins` array in `.claude-plugin/marketplace.json`
-5. Add the plugin to the README table and commands section
-6. Commit and push
+5. For plugins compatible with Codex, add `.codex-plugin/plugin.json` and a matching entry to `.agents/plugins/marketplace.json`, including the expected `source` and `policy`
+6. Add the plugin to the README table and commands section
+7. Commit and push
 
 ## External PRs
 
@@ -55,12 +57,16 @@ This marketplace is **first-party only**. Reject PRs from external vendors addin
 ## Validation
 
 ```
+python3 scripts/validate_marketplace.py
 claude plugin validate .
 ```
+
+Run the marketplace guard first. It resolves every registered `source`, verifies manifest identity, and requires a real plugin component. The official `claude plugin validate .` command does not check that `source` paths resolve or that plugins contain components, so it cannot replace the repository guard.
 
 ## Files
 
 - `.claude-plugin/marketplace.json` — Plugin registry (source of truth)
+- `.agents/plugins/marketplace.json` — Codex plugin registry for Codex-compatible plugins
 - `plugins/*/` — Plugin source code
 - `README.md` — Public documentation
 - `.gitignore` — Excludes build artifacts, .venv, data/, .env, __pycache__

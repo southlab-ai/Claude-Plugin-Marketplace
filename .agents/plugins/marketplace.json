@@ -1,7 +1,7 @@
 {
   "name": "southlab-marketplace",
   "interface": {
-    "displayName": "SouthLab AI"
+    "displayName": "Southlab AI"
   },
   "plugins": [
     {

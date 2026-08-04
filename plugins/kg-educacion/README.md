@@ -15,7 +15,7 @@ codex plugin add kg-educacion@southlab-marketplace
 ```
 
 Obtén la key en **Horacio → Mi cuenta → API key para Codex y MCP** y ejecuta la
-skill `setup` o `/kg-setup`. El script solicita el secreto sin eco y configura
+skill `setup` o `/kg-educacion:kg-setup`. El script solicita el secreto sin eco y configura
 `HORACIO_MCP_API_KEY` para ambos clientes.
 
 ## Autorización
