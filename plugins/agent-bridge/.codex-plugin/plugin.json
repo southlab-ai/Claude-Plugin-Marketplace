@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Blocking request/reply communication between independent Codex or Claude chats without replacing the desktop app.",
   "author": {
-    "name": "SouthLab AI",
+    "name": "Southlab AI",
     "email": "cardenas.je@southlab.ai",
     "url": "https://github.com/southlab-ai"
   },
@@ -25,7 +25,7 @@
     "displayName": "Agent Bridge",
     "shortDescription": "Connect independent chats with blocking replies",
     "longDescription": "Connect two independent Codex or Claude chats while preserving their native desktop capabilities. One chat can wait like a parent waiting for a subagent; the peer receives the request, replies, and releases the original tool call without creating another user turn.",
-    "developerName": "SouthLab AI",
+    "developerName": "Southlab AI",
     "category": "Productivity",
     "capabilities": [
       "Interactive"
